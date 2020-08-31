@@ -49,8 +49,9 @@
     xz
     zip
 
-    # Browser
+    # Browsers
     firefox
+    google-chrome
 
     # Media
     vlc
@@ -79,11 +80,18 @@
     wget
     xclip
     xdg_utils
+
+    # Editors
+    vscode
     vim
 
     # Apps
     spotify
     tdesktop
+
+    # Video
+    zoom-us # hmmm...
+    teams
 
     # Screencasting
     simplescreenrecorder
