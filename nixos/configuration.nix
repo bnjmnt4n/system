@@ -75,6 +75,7 @@
     maim
     pass
     ripgrep
+    rofi
     rsync
     starship
     tree
@@ -147,7 +148,7 @@
   virtualisation.docker.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users."bnjmnt4n" = {
+  users.users.bnjmnt4n = {
     isNormalUser = true;
     extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
   };
