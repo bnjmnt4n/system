@@ -52,7 +52,6 @@
 
     # Browsers
     firefox
-    google-chrome
 
     # Media
     vlc
