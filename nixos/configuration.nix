@@ -123,7 +123,12 @@
 
   # Enable sound.
   sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio = {
+    enable = true;
+    # Only the full PulseAudio build has Bluetooth support.
+    package = pkgs.pulseaudioFull;
+  };
+  hardware.bluetooth.enable = true;
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
