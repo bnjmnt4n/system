@@ -82,6 +82,7 @@
     # Apps
     spotify
     tdesktop
+    dropbox
 
     # Video
     zoom-us # hmmm...
