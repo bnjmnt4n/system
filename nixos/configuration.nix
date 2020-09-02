@@ -143,6 +143,9 @@
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
+  # Secrets management.
+  services.gnome3.gnome-keyring.enable = true;
+
   # Enable Docker.
   virtualisation.docker.enable = true;
 
