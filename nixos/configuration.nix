@@ -5,6 +5,7 @@
     [
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./overlays.nix
       ./fonts.nix
       ./emacs.nix
     ];
@@ -97,6 +98,9 @@
 
     sqlite
     graphviz
+
+    # LumiNUS CLI client
+    fluminurs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
