@@ -81,8 +81,11 @@
     vscode
     vim
 
-    # Apps
+    # Music
     spotify
+    musescore
+
+    # Apps
     tdesktop
     dropbox
 
