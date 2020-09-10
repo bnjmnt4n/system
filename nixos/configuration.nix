@@ -147,8 +147,11 @@
   services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  # services.xserver.displayManager.sddm.enable = true;
+  # services.xserver.desktopManager.plasma5.enable = true;
+
+  # Testing out Pantheon.
+  services.xserver.desktopManager.pantheon.enable = true;
 
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
