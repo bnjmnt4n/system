@@ -103,7 +103,7 @@
     graphviz
 
     # LumiNUS CLI client
-    fluminurs
+    # fluminurs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
