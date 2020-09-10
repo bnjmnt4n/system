@@ -106,6 +106,9 @@
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
 
+  # Fish shell.
+  programs.fish.enable = true;
+
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
@@ -142,6 +145,7 @@
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
     isNormalUser = true;
+    shell = pkgs.fish;
     extraGroups = [
       "wheel" "docker"
     ];
