@@ -52,6 +52,9 @@
     zathura
     ghostscript
 
+    # Terminal emulator
+    alacritty
+
     # System
     aspell
     aspellDicts.en
