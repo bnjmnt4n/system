@@ -31,6 +31,14 @@
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
+(after! org
+    (setq org-capture-templates
+        `(("i" "inbox" entry (file "~/org/inbox.org")
+               "* TODO %?")
+          ("c" "org-protocol-capture" entry (file "~/org/inbox.org")
+               "* TODO [[%:link][%:description]]\n\n %i"
+               :immediate-finish t))))
+
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
