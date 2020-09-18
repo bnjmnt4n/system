@@ -48,6 +48,9 @@
     # Media
     vlc
 
+    # File conversion
+    pandoc
+
     # PDF
     zathura
     ghostscript
