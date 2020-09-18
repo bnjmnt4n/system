@@ -45,6 +45,50 @@
                "* TODO [[%:link][%:description]]\n\n %i"
                :immediate-finish t))))
 
+;; Based on https://github.com/jethrokuan/dots/blob/ecac45367275e7b020f2bba591224ba23949286e/.doom.d/config.el#L513-L549.
+(use-package! org-download
+  :commands
+  org-download-dnd
+  org-download-yank
+  org-download-screenshot
+  org-download-clipboard
+  org-download-dnd-base64
+  :init
+  (map! :map org-mode-map
+        :localleader
+        (:prefix "a"
+          "c" #'org-download-screenshot
+          "p" #'org-download-clipboard
+          "P" #'org-download-yank))
+  (pushnew! dnd-protocol-alist
+            '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . +org-download-dnd)
+            '("^data:" . org-download-dnd-base64))
+  (advice-add #'org-download-enable :override #'ignore)
+  :config
+
+  (defun +org/org-download-method (link)
+    (let* ((filename
+            (file-name-nondirectory
+             (car (url-path-and-query
+                   (url-generic-parse-url link)))))
+           ;; Create folder name with current buffer name, and place in root dir
+           (dirname (concat "./images/"
+                            (replace-regexp-in-string " " "_"
+                                                      (downcase (file-name-base buffer-file-name)))))
+           (filename-with-timestamp (format "%s%s.%s"
+                                            (file-name-sans-extension filename)
+                                            (format-time-string org-download-timestamp)
+                                            (file-name-extension filename))))
+      (make-directory dirname t)
+      (expand-file-name filename-with-timestamp dirname)))
+  :config
+  (setq org-download-screenshot-method
+        (cond (IS-MAC "screencapture -i %s")
+              (IS-LINUX
+               (cond ((executable-find "maim")  "maim -u -s %s")
+                     ((executable-find "scrot") "scrot -s %s")))))
+  (setq org-download-method '+org/org-download-method))
+
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
