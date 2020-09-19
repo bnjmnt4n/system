@@ -36,13 +36,18 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
-(setq org-roam-directory ".")
+(setq org-agenda-dir (concat org-directory "agenda/"))
+(setq org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$"))
+(setq org-roam-directory (concat org-directory "kb/"))
 
 (after! org
     (setq org-capture-templates
-        `(("i" "inbox" entry (file "~/org/inbox.org")
+        `(("i" "inbox" entry (file ,(concat org-agenda-dir "inbox.org"))
                "* TODO %?")
-          ("c" "org-protocol-capture" entry (file "~/org/inbox.org")
+          ("e" "event" entry (file ,(concat org-agenda-dir "events.org"))
+               "* %?\n%T"
+               :time-prompt t)
+          ("c" "org-protocol-capture" entry (file ,(concat org-agenda-dir "inbox.org"))
                "* TODO [[%:link][%:description]]\n\n %i"
                :immediate-finish t))))
 
