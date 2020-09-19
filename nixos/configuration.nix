@@ -107,7 +107,7 @@
     graphviz
 
     # LumiNUS CLI client
-    # fluminurs
+    fluminurs
   ];
 
   # Convenient shell integration with nix-shell.
