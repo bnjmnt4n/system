@@ -5,6 +5,7 @@
 ;; on the command line, then restart Emacs for the changes to take effect -- or
 ;; use 'M-x doom/reload'.
 
+(package! modus-operandi-theme)
 (package! org-gcal)
 (package! org-download)
 
