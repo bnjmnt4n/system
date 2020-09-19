@@ -101,6 +101,7 @@
     gifsicle
     scrot
     imagemagick
+    kdeApplications.spectacle
 
     sqlite
     graphviz
