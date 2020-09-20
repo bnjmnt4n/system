@@ -1,9 +1,5 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
-
-
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "Benjamin Tan"
@@ -28,20 +24,18 @@
       doom-variable-pitch-font (font-spec :family "Libre Baskerville")
       doom-serif-font (font-spec :family "Libre Baskerville"))
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
 (setq doom-theme 'modus-operandi)
 
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
-(setq org-agenda-dir (concat org-directory "agenda/"))
-(setq org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$"))
-(setq org-roam-directory (concat org-directory "kb/"))
+(setq display-line-numbers-type t)
+
+;; org-mode configuration.
+(setq org-directory "~/org/"
+      org-agenda-dir (concat org-directory "agenda/")
+      org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$")
+      org-roam-directory (concat org-directory "kb/"))
 
 (after! org
-    (setq org-capture-templates
+  (setq org-capture-templates
         `(("i" "inbox" entry (file ,(concat org-agenda-dir "inbox.org"))
                "* TODO %?")
           ("e" "event" entry (file ,(concat org-agenda-dir "events.org"))
@@ -51,6 +45,7 @@
                "* TODO [[%:link][%:description]]\n\n %i"
                :immediate-finish t))))
 
+;; Easy copy-and-paste/screenshot of images.
 ;; Based on https://github.com/jethrokuan/dots/blob/ecac45367275e7b020f2bba591224ba23949286e/.doom.d/config.el#L513-L549.
 (use-package! org-download
   :commands
@@ -71,7 +66,6 @@
             '("^data:" . org-download-dnd-base64))
   (advice-add #'org-download-enable :override #'ignore)
   :config
-
   (defun +org/org-download-method (link)
     (let* ((filename
             (file-name-nondirectory
@@ -94,10 +88,6 @@
                (cond ((executable-find "maim")  "maim -u -s %s")
                      ((executable-find "scrot") "scrot -s %s")))))
   (setq org-download-method '+org/org-download-method))
-
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
 
 
 ;; Here are some additional functions/macros that could help you configure Doom:
