@@ -48,6 +48,16 @@
                "* TODO [[%:link][%:description]]\n\n %i"
                :immediate-finish t))))
 
+;; Sync with Google Calendar.
+(use-package! org-gcal
+  :commands (org-gcal-sync)
+  :init
+  (map! "C-x c" #'org-gcal-sync)
+  :config
+  (setq org-gcal-client-id 'bnjmnt4n/org-gcal-client-id
+        org-gcal-client-secret 'bnjmnt4n/org-gcal-client-secret
+        org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-agenda-dir "schedule.org")))))
+
 ;; Easy copy-and-paste/screenshot of images.
 ;; Based on https://github.com/jethrokuan/dots/blob/ecac45367275e7b020f2bba591224ba23949286e/.doom.d/config.el#L513-L549.
 (use-package! org-download
