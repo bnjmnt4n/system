@@ -102,6 +102,15 @@
                      ((executable-find "scrot") "scrot -s %s")))))
   (setq org-download-method '+org/org-download-method))
 
+;; Convert screenshots to LaTeX formulas.
+(use-package! mathpix.el
+  :commands (mathpix-screenshot)
+  :init
+  (map! "C-x m" #'mathpix-screenshot)
+  :config
+  (setq mathpix-screenshot-method "maim -u -s %s"
+        mathpix-app-id 'bnjmnt4n/mathpix-app-id
+        mathpix-app-key 'bnjmnt4n/mathpix-app-key))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
