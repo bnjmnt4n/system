@@ -8,6 +8,8 @@
 (package! modus-operandi-theme)
 (package! org-gcal)
 (package! org-download)
+(package! mathpix.el
+  :recipe (:host github :repo "jethrokuan/mathpix.el"))
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
