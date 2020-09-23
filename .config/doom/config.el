@@ -5,6 +5,9 @@
 (setq user-full-name "Benjamin Tan"
       user-mail-address "demoneaux@gmail.com")
 
+;; Private configuration.
+(require 'secrets)
+
 ;; Open emacs in a maximized window.
 (add-to-list 'initial-frame-alist '(fullboth . maximized))
 
