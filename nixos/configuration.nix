@@ -47,6 +47,7 @@
 
     # Media
     vlc
+    gimp
 
     # File conversion
     pandoc
