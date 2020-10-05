@@ -5,9 +5,10 @@ This repository contains my dotfiles, including my [Nix OS][nixos] configuration
 ## Setup
 
 ```sh
-$ git clone https://github.com/bnjmnt4n/dotfiles.git  # Clone the repository
-$ ./sync.sh                                           # Copies files to ~
-                                                      # Requires `rsync`
+# Clone the repository
+$ git clone https://github.com/bnjmnt4n/dotfiles.git
+# Copies files to ~ (requires `rsync`)
+$ ./sync.sh
 ```
 
 I'm currently running [Nix OS][nixos] with a [KDE desktop environment][kde], and using [Doom Emacs][doom-emacs] as my editor (accompanied by vim and Visual Studio Code occasionally).
