@@ -161,6 +161,10 @@
   services.xserver.windowManager.i3.enable = true;
   services.xserver.windowManager.i3.package = pkgs.i3-gaps;
 
+  services.picom.enable = true;
+  services.picom.vSync = true;
+  services.picom.backend = "glx";
+
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
 
