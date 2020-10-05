@@ -14,6 +14,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.kernelPackages = pkgs.linuxPackages_5_8;
+
   networking.hostName = "bnjmnt4n";
   networking.networkmanager.enable = true; # Alternative to wpa_supplicant.
 
