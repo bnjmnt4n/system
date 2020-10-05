@@ -36,33 +36,15 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-    # Archiving
-    unzip
-    unrar
-    xz
-    zip
-
-    # Browsers
-    firefox
-
-    # Media
-    vlc
-    gimp
-
-    # File conversion
-    pandoc
-
-    # PDF
-    zathura
-    ghostscript
-
     # Terminal emulator
     alacritty
 
     # System
     aspell
     aspellDicts.en
+    brightnessctl
     direnv
+    dunst
     fd
     file
     fzf
@@ -72,6 +54,7 @@
     ledger
     maim
     pass
+    pandoc
     ripgrep
     rofi
     rsync
@@ -80,6 +63,32 @@
     wget
     xclip
     xdg_utils
+
+    # System bar and trays
+    polybarFull
+    networkmanagerapplet
+    blueman
+    pasystray
+
+    # Archiving
+    unzip
+    unrar
+    xz
+    zip
+
+    # File manager
+    xfce.thunar
+
+    # Browsers
+    firefox
+
+    # Media
+    vlc
+    gimp
+
+    # PDF
+    zathura
+    ghostscript
 
     # Editors
     vscode
@@ -90,10 +99,11 @@
     musescore
 
     # Apps
-    tdesktop
+    anki
     dropbox
+    tdesktop
 
-    # Video
+    # Videoconferencing
     zoom-us # hmmm...
     teams
 
@@ -102,8 +112,8 @@
     gifsicle
     scrot
     imagemagick
-    kdeApplications.spectacle
 
+    # Database
     sqlite
     graphviz
 
@@ -134,15 +144,20 @@
   services.xserver.layout = "us";
   services.xserver.xkbOptions = "eurosign:e";
 
+  # Configure DPI for my laptop.
+  # Reference: https://gist.github.com/domenkozar/b3c945035af53fa816e0ac460f1df853#x-server-resolution
+  # TODO: should this be in a separate specialized module?
+  services.xserver.monitorSection = ''
+    DisplaySize 338 190
+  '';
+
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
 
-  # Enable the KDE Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-
-  # Testing out Pantheon.
-  # services.xserver.desktopManager.pantheon.enable = true;
+  # Use i3wm.
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.windowManager.i3.enable = true;
+  services.xserver.windowManager.i3.package = pkgs.i3-gaps;
 
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;

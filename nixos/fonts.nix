@@ -6,6 +6,7 @@
     fonts = with pkgs; [
       iosevka
       libre-baskerville
+      nerdfonts
       source-code-pro
       source-sans-pro
       source-serif-pro
