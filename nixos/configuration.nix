@@ -105,7 +105,6 @@
     # Screencasting
     simplescreenrecorder
     gifsicle
-    scrot
     imagemagick
 
     # Database
