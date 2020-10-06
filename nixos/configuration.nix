@@ -167,7 +167,7 @@
     enable = true;
     background = /home/bnjmnt4n/background-image;
     greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
-  }
+  };
 
   # Use i3wm.
   services.xserver.windowManager.i3.enable = true;
