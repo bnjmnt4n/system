@@ -1,5 +1,6 @@
-# Use the Super key (Windows key) as the default modifier.
+# Use the Super key (Windows key) as the default modifier, and Alt as an alternative for some commands.
 set $mod Mod4
+set $alt Mod1
 
 # i3-gaps is more aesthetic.
 gaps top 25      # Additional space for polybar.
@@ -7,11 +8,6 @@ gaps inner 10
 
 # Remove border and window titles.
 for_window [class="^.*"] border pixel 0
-
-# TODO:
-# NetworkManager is the most popular way to manage wireless networks on Linux,
-# and nm-applet is a desktop environment-independent system tray GUI for it.
-exec --no-startup-id nm-applet
 
 # Use pactl to adjust volume in PulseAudio.
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
@@ -22,6 +18,12 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 # Use brightnessctl to adjust screen brightness.
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+# Keybinding for screenshots.
+bindsym --release Print exec maim | xclip -selection clipboard -t image/png
+bindsym --release Shift+Print exec maim -s | xclip -selection clipboard -t image/png
+bindsym --release $mod+Print exec maim ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
+bindsym --release $mod+Shift+Print exec maim -s ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
 
 # Use Mouse+$mod to drag floating windows.
 floating_modifier $mod
@@ -121,9 +123,15 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
+# Shortcuts for cycling through workspaces.
+bindsym $mod+Tab workspace back_and_forth
+bindsym $alt+Tab workspace next
+bindsym $alt+Shift+Tab workspace prev
+
 # Reload, restart and exit i3.
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
+# TODO
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 bindsym $mod+Shift+q exec light-locker-command -l
 
@@ -149,4 +157,5 @@ exec_always --no-startup-id light-locker
 
 # Setup daemons for status bar, compositor and notifications.
 exec_always --no-startup-id ~/.config/polybar/launch.sh
-exec_always --no-startup-id pkill picom; picom --no-use-damage
+exec_always --no-startup-id pkill picom; picom --experimental-backends
+exec_always --no-startup-id dunst
