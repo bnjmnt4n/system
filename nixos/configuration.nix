@@ -151,7 +151,7 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
-  services.xserver.xkbOptions = "eurosign:e";
+  services.xserver.xkbOptions = "eurosign:e,caps:escape";
 
   # Configure DPI for my laptop.
   # Reference: https://gist.github.com/domenkozar/b3c945035af53fa816e0ac460f1df853#x-server-resolution
