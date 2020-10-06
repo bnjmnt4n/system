@@ -102,7 +102,10 @@
 
     # Apps
     anki
+    bitwarden
+    bitwarden-cli
     dropbox
+    pavucontrol
     tdesktop
 
     # Videoconferencing
