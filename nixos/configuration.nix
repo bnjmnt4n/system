@@ -72,6 +72,9 @@
     blueman
     pasystray
 
+    # Lightweight locker for lightdm.
+    lightlocker
+
     # Archiving
     unzip
     unrar
@@ -159,11 +162,18 @@
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
 
+  # Use lightdm.
+  services.xserver.displayManager.lightdm = {
+    enable = true;
+    background = /home/bnjmnt4n/background-image;
+    greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
+  }
+
   # Use i3wm.
-  services.xserver.displayManager.lightdm.enable = true;
   services.xserver.windowManager.i3.enable = true;
   services.xserver.windowManager.i3.package = pkgs.i3-gaps;
 
+  # Use picom compositor.
   services.picom.enable = true;
   services.picom.vSync = true;
   services.picom.backend = "glx";
