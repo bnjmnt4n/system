@@ -51,6 +51,7 @@
     file
     fzf
     gitAndTools.gitFull
+    gitAndTools.gh
     gvfs
     less
     ledger
@@ -84,36 +85,22 @@
     # File manager
     xfce.thunar
 
-    # Browsers
+    # Browser
     firefox
-
-    # Media
-    vlc
-    gimp
-
-    # PDF
-    zathura
-    ghostscript
 
     # Editors
     vscode
     vim
 
-    # Music
+    # Media
+    gimp
+    playerctl
     spotify
-    musescore
+    vlc
 
-    # Apps
-    anki
-    bitwarden
-    bitwarden-cli
-    dropbox
-    pavucontrol
-    tdesktop
-
-    # Videoconferencing
-    zoom-us # hmmm...
-    teams
+    # PDF
+    ghostscript
+    zathura
 
     # Screencasting
     simplescreenrecorder
@@ -124,6 +111,20 @@
     # Database
     sqlite
     graphviz
+
+    # Apps
+    anki
+    bitwarden
+    bitwarden-cli
+    dropbox
+    musescore
+    pavucontrol
+    redshift
+    tdesktop
+
+    # Videoconferencing
+    zoom-us # hmmm...
+    teams
 
     # LumiNUS CLI client
     fluminurs
