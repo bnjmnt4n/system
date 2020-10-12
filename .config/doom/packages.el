@@ -6,6 +6,7 @@
 ;; use 'M-x doom/reload'.
 
 (package! modus-operandi-theme)
+(package! modus-vivendi-theme)
 (package! org-gcal)
 (package! org-download)
 (package! mathpix.el
