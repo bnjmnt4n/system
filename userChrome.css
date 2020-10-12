@@ -1,0 +1,20 @@
+/**
+ * Based on:
+ * - https://cmacr.ae/post/2020-05-09-managing-firefox-on-macos-with-nix/
+ * - https://gist.github.com/BenoitAverty/af633ee20e27f48f9ba7178451432206
+ */
+
+/* Hide tab bar when only 1 tab is visible */
+
+#tabbrowser-tabs, #tabbrowser-tabs > #tabbrowser-arrowscrollbox {
+  min-height: 0 !important;
+}
+
+#tabbrowser-tabs tab[first-visible-tab="true"][last-visible-tab="true"],
+#tabbrowser-tabs tab[first-visible-tab="true"][last-visible-tab="true"] + #tabs-newtab-button {
+  visibility: collapse;
+}
+
+#tabbrowser-tabs tab {
+  min-height: var(--tab-min-height);
+}
