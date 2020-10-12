@@ -15,6 +15,10 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
 
+# Use playerctl to control media player.
+bindsym $mod+bracketleft exec playerctl previous
+bindsym $mod+bracketright exec playerctl next
+
 # Use brightnessctl to adjust screen brightness.
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
@@ -33,8 +37,10 @@ bindsym $mod+Return exec alacritty
 
 # Keybindings for commonly used apps.
 bindsym $mod+b exec firefox
-bindsym $mod+c exec emacs
+bindsym $mod+c exec emacsclient -c -a emacs
 bindsym $mod+n exec thunar
+bindsym $mod+t exec telegram-desktop
+bindsym $mod+m exec spotify
 
 # Kill focused window.
 bindsym $mod+q kill
@@ -124,9 +130,9 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 # Shortcuts for cycling through workspaces.
-bindsym $mod+Tab workspace back_and_forth
-bindsym $alt+Tab workspace next
-bindsym $alt+Shift+Tab workspace prev
+bindsym $mod+Tab workspace next
+bindsym $mod+Shift+Tab workspace prev
+bindsym $alt+Tab workspace back_and_forth
 
 # Reload, restart and exit i3.
 bindsym $mod+Shift+c reload
@@ -157,5 +163,5 @@ exec_always --no-startup-id light-locker
 
 # Setup daemons for status bar, compositor and notifications.
 exec_always --no-startup-id ~/.config/polybar/launch.sh
-exec_always --no-startup-id pkill picom; picom --experimental-backends
+# exec_always --no-startup-id pkill picom; picom --experimental-backends
 exec_always --no-startup-id dunst
