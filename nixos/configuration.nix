@@ -55,6 +55,7 @@
     gvfs
     less
     ledger
+    libsecret
     maim
     pass
     pandoc
