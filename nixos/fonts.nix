@@ -4,13 +4,14 @@
     enableFontDir = true;
     enableGhostscriptFonts = true;
     fonts = with pkgs; [
+      ia-writer-duospace
+      inter
       iosevka
       libre-baskerville
       nerdfonts
       source-code-pro
       source-sans-pro
       source-serif-pro
-      ia-writer-duospace
     ];
 
     fontconfig = {
