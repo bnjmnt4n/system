@@ -5,6 +5,7 @@
     [
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
+
       ./overlays.nix
       ./fonts.nix
       ./emacs.nix
@@ -14,6 +15,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Use a recent Linux kernel (5.8).
   boot.kernelPackages = pkgs.linuxPackages_5_8;
 
   networking.hostName = "bnjmnt4n";
@@ -130,16 +132,10 @@
     fluminurs
   ];
 
-  # Convenient shell integration with nix-shell.
-  services.lorri.enable = true;
-
-  # Fish shell.
-  programs.fish.enable = true;
-
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  # Enable sound.
+  # Enable sound and Bluetooth.
   sound.enable = true;
   hardware.pulseaudio = {
     enable = true;
@@ -171,19 +167,29 @@
   };
 
   # Use i3wm.
-  services.xserver.windowManager.i3.enable = true;
-  services.xserver.windowManager.i3.package = pkgs.i3-gaps;
+  services.xserver.windowManager.i3 = {
+    enable = true;
+    package = pkgs.i3-gaps;
+  };
 
   # Use picom compositor.
-  services.picom.enable = true;
-  services.picom.vSync = true;
-  services.picom.backend = "glx";
+  services.picom = {
+    enable = true;
+    vSync = true;
+    backend = "glx";
+  };
 
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
 
   # Enable Docker.
   virtualisation.docker.enable = true;
+
+  # Convenient shell integration with nix-shell.
+  services.lorri.enable = true;
+
+  # Fish shell.
+  programs.fish.enable = true;
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
