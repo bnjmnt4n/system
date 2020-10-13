@@ -27,7 +27,7 @@
       doom-variable-pitch-font (font-spec :family "Libre Baskerville")
       doom-serif-font (font-spec :family "Libre Baskerville"))
 
-(setq doom-theme 'doom-flatwhite)
+(setq doom-theme 'modus-vivendi)
 
 (setq display-line-numbers-type t)
 
