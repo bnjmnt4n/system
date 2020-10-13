@@ -179,8 +179,13 @@
     backend = "glx";
   };
 
+  # Power management.
+  powerManagement.enable = true;
+  services.upower.enable = true;
+
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
+  programs.seahorse.enable = true;
 
   # Enable Docker.
   virtualisation.docker.enable = true;
