@@ -1,4 +1,7 @@
 # Obtained from https://github.com/eendroroy/alacritty-theme/blob/c1a8c5a9d492957433df48d7fc2251ab628dd223/themes/doom_one.yml.
+
+background_opacity: 0.95
+
 # Colors (Doom One)
 colors:
   # Default colors
