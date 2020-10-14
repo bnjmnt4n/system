@@ -125,6 +125,7 @@
     pavucontrol
     redshift
     tdesktop
+    webtorrent_desktop
 
     # Videoconferencing
     zoom-us # hmmm...
