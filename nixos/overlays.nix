@@ -3,7 +3,7 @@
 {
   nixpkgs.overlays = [
     (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/f9c0c80515b08361b9e5c7c9740dd6e0978c266c.tar.gz;
+      url = https://github.com/nix-community/emacs-overlay/archive/0910ccae22b3530ef8ebf5006e84c335c8ef1087.tar.gz;
     }))
     (self: super: {
       fluminurs = with pkgs;
