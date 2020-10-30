@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -35,6 +35,8 @@
     font = "Lat2-Terminus16";
     keyMap = "us";
   };
+
+  location.provider = "geoclue2";
 
   time.timeZone = "Asia/Singapore";
 
@@ -123,7 +125,6 @@
     dropbox
     musescore
     pavucontrol
-    redshift
     tdesktop
     webtorrent_desktop
 
@@ -133,6 +134,22 @@
 
     # LumiNUS CLI client
     fluminurs
+
+    (
+      pkgs.writeTextFile {
+        name = "startsway";
+        destination = "/bin/startsway";
+        executable = true;
+        text = ''
+          #! ${pkgs.bash}/bin/bash
+
+          # first import environment variables from the login manager
+          systemctl --user import-environment
+          # then start the service
+          exec systemctl --user start sway.service
+        '';
+      }
+    )
   ];
 
   # Enable CUPS to print documents.
@@ -150,14 +167,9 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
-  services.xserver.xkbOptions = "eurosign:e,caps:escape";
 
-  # Configure DPI for my laptop.
-  # Reference: https://gist.github.com/domenkozar/b3c945035af53fa816e0ac460f1df853#x-server-resolution
-  # TODO: should this be in a separate specialized module?
-  services.xserver.monitorSection = ''
-    DisplaySize 338 190
-  '';
+  # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
+  services.interception-tools.enable = true;
 
   # Enable touchpad support.
   services.xserver.libinput.enable = true;
@@ -167,19 +179,6 @@
     enable = true;
     background = /home/bnjmnt4n/background-image;
     greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
-  };
-
-  # Use i3wm.
-  services.xserver.windowManager.i3 = {
-    enable = true;
-    package = pkgs.i3-gaps;
-  };
-
-  # Use picom compositor.
-  services.picom = {
-    enable = true;
-    vSync = true;
-    backend = "glx";
   };
 
   # Power management.
@@ -198,6 +197,70 @@
 
   # Fish shell.
   programs.fish.enable = true;
+
+  programs.sway = {
+    enable = true;
+    extraPackages = with pkgs; [
+      swaylock # lockscreen
+      swayidle
+      xwayland # for legacy apps
+      waybar # status bar
+      mako # notification daemon
+      kanshi # autorandr
+    ];
+  };
+
+  systemd.user.targets.sway-session = {
+    description = "Sway compositor session";
+    documentation = [ "man:systemd.special(7)" ];
+    bindsTo = [ "graphical-session.target" ];
+    wants = [ "graphical-session-pre.target" ];
+    after = [ "graphical-session-pre.target" ];
+  };
+
+  systemd.user.services.sway = {
+    description = "Sway - Wayland window manager";
+    documentation = [ "man:sway(5)" ];
+    bindsTo = [ "graphical-session.target" ];
+    wants = [ "graphical-session-pre.target" ];
+    after = [ "graphical-session-pre.target" ];
+    # We explicitly unset PATH here, as we want it to be set by
+    # systemctl --user import-environment in startsway
+    environment.PATH = lib.mkForce null;
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = ''
+        ${pkgs.dbus}/bin/dbus-run-session ${pkgs.sway}/bin/sway --debug
+      '';
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
+
+  # Screen colour temperature management.
+  services.redshift = {
+    enable = true;
+    # Redshift with wayland support isn't present in nixos-19.09 atm. You have to cherry-pick the commit from https://github.com/NixOS/nixpkgs/pull/68285 to do that.
+    package = pkgs.redshift-wlr;
+  };
+
+  programs.waybar.enable = true;
+
+  systemd.user.services.kanshi = {
+    description = "Kanshi output autoconfig ";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      # kanshi doesn't have an option to specifiy config file yet, so it looks
+      # at .config/kanshi/config
+      ExecStart = ''
+        ${pkgs.kanshi}/bin/kanshi
+      '';
+      RestartSec = 5;
+      Restart = "always";
+    };
+  };
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
