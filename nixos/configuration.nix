@@ -56,7 +56,6 @@
     aspellDicts.en
     brightnessctl
     direnv
-    dunst
     fd
     file
     fzf
@@ -66,7 +65,6 @@
     less
     ledger
     libsecret
-    maim
     pass
     pandoc
     ripgrep
@@ -75,14 +73,10 @@
     starship
     tree
     wget
-    xclip
     xdg_utils
 
     # System bar and trays
-    polybarFull
     networkmanagerapplet
-    blueman
-    pasystray
 
     # Archiving
     unzip
@@ -111,7 +105,6 @@
     zathura
 
     # Screencasting
-    simplescreenrecorder
     gifsicle
     imagemagick
 
