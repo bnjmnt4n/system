@@ -80,9 +80,6 @@
     blueman
     pasystray
 
-    # Lightweight locker for lightdm.
-    lightlocker
-
     # Archiving
     unzip
     unrar
@@ -164,22 +161,8 @@
   };
   hardware.bluetooth.enable = true;
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
-  services.xserver.layout = "us";
-
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools.enable = true;
-
-  # Enable touchpad support.
-  services.xserver.libinput.enable = true;
-
-  # Use lightdm.
-  services.xserver.displayManager.lightdm = {
-    enable = true;
-    background = /home/bnjmnt4n/background-image;
-    greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
-  };
 
   # Power management.
   powerManagement.enable = true;
@@ -197,6 +180,14 @@
 
   # Fish shell.
   programs.fish.enable = true;
+
+  # GDM.
+  # TODO: this needs to be enabled even though we are running GDM on Wayland.
+  services.xserver.enable = true;
+  services.xserver.displayManager.gdm = {
+    enable = true;
+    wayland = true;
+  };
 
   programs.sway = {
     enable = true;
