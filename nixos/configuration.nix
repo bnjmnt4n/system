@@ -36,7 +36,11 @@
     keyMap = "us";
   };
 
-  location.provider = "geoclue2";
+  location = {
+    latitude = 1.3521;
+    longitude = 103.8198;
+    # provider = "geoclue2";
+  };
 
   time.timeZone = "Asia/Singapore";
 
@@ -232,8 +236,7 @@
   # Screen colour temperature management.
   services.redshift = {
     enable = true;
-    # Redshift with wayland support isn't present in nixos-19.09 atm. You have to cherry-pick the commit from https://github.com/NixOS/nixpkgs/pull/68285 to do that.
-    package = pkgs.redshift-wlr;
+    package = pkgs.gammastep;
   };
 
   programs.waybar.enable = true;
