@@ -9,6 +9,7 @@
 (package! modus-vivendi-theme)
 (package! org-gcal)
 (package! org-download)
+(package! anki-editor)
 (package! mathpix.el
   :recipe (:host github :repo "jethrokuan/mathpix.el"))
 
