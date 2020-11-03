@@ -98,17 +98,23 @@
 
     # Media
     gimp
+    # ffmpeg-full
+    gifsicle
+    imagemagick
+    mpv
     playerctl
     spotify
     vlc
 
+    # Screenshots/screen-recording
+    grim
+    slurp
+    sway-contrib.grimshot
+    wf-recorder
+
     # PDF
     ghostscript
     zathura
-
-    # Screencasting
-    gifsicle
-    imagemagick
 
     # Database
     sqlite
