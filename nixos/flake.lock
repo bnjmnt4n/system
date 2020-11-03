@@ -1,0 +1,83 @@
+{
+  "nodes": {
+    "emacs-pgtk": {
+      "inputs": {
+        "emacs-pgtk-nativecomp": "emacs-pgtk-nativecomp",
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1602224844,
+        "narHash": "sha256-w7snN4argtZfqNfEJpvbU50F9Qx1QRdUI1BWX3CaqRk=",
+        "owner": "mjlbach",
+        "repo": "emacs-pgtk-nativecomp-overlay",
+        "rev": "b517b806ff6313fec99eb42292b1ebabf047b473",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mjlbach",
+        "repo": "emacs-pgtk-nativecomp-overlay",
+        "rev": "b517b806ff6313fec99eb42292b1ebabf047b473",
+        "type": "github"
+      }
+    },
+    "emacs-pgtk-nativecomp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1602200331,
+        "narHash": "sha256-+5aQKcWEV9l1Rf71ejnkI9ZFyr0kvKR8sJacc72IXYc=",
+        "owner": "flatwhatson",
+        "repo": "emacs",
+        "rev": "920d458ab5971c8729f26449926b0436a72138ba",
+        "type": "github"
+      },
+      "original": {
+        "owner": "flatwhatson",
+        "ref": "pgtk-nativecomp",
+        "repo": "emacs",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1601282935,
+        "narHash": "sha256-WQAFV6sGGQxrRs3a+/Yj9xUYvhTpukQJIcMbIi7LCJ4=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "588973065fce51f4763287f0fda87a174d78bf48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1603758576,
+        "narHash": "sha256-xKFmWVx+rFInBao3gtmvXcd0LjHD1+0c1Ef5PJDrbuM=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "1dc37370c489b610f8b91d7fdd40633163ffbafd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "emacs-pgtk": "emacs-pgtk",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

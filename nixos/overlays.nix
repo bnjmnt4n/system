@@ -1,13 +1,7 @@
-{config, pkgs, ...}:
+{ pkgs, ... }:
 
 {
   nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/0910ccae22b3530ef8ebf5006e84c335c8ef1087.tar.gz;
-    }))
-    (import (builtins.fetchTarball {
-      url = https://github.com/mjlbach/emacs-pgtk-nativecomp-overlay/archive/51710b9ad5fc346f5ac4149a11439e3b4c83aa10.tar.gz;
-    }))
     (self: super: {
       fluminurs = with pkgs;
         rustPlatform.buildRustPackage rec {

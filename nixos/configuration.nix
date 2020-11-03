@@ -184,7 +184,7 @@
     libinput.enable = true;
     displayManager.lightdm = {
       enable = true;
-      background = /home/bnjmnt4n/background-image;
+#      background = ./background-image.jpg;
       greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
     };
   };
