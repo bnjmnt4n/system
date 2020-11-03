@@ -194,16 +194,26 @@
     wayland = true;
   };
 
+  # Sway window manager.
   programs.sway = {
     enable = true;
     extraPackages = with pkgs; [
-      swaylock # lockscreen
+      swaylock              # Lockscreen
       swayidle
-      xwayland # for legacy apps
-      waybar # status bar
-      mako # notification daemon
-      kanshi # autorandr
+      xwayland              # For legacy Xorg-based apps
+      waybar                # Status bar
+      mako                  # Notification daemon
+
+      # TODO: not being used currently.
+      kanshi                # Autorandr
+      wofi
     ];
+    extraSessionCommands = ''
+      export MOZ_ENABLE_WAYLAND="1";
+      export MOZ_USE_XINPUT2="1";
+      export XDG_CURRENT_DESKTOP="sway";
+      export XDG_SESSION_TYPE="wayland";
+    '';
   };
 
   systemd.user.targets.sway-session = {
@@ -234,21 +244,22 @@
     };
   };
 
+  # Wayland-based status bar.
+  programs.waybar.enable = true;
+
   # Screen colour temperature management.
   services.redshift = {
     enable = true;
-    package = pkgs.gammastep;
+    package = pkgs.redshift-wlr;
   };
 
-  programs.waybar.enable = true;
 
+  # TODO: this is not used.
   systemd.user.services.kanshi = {
-    description = "Kanshi output autoconfig ";
+    description = "Kanshi output autoconfig";
     wantedBy = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
-      # kanshi doesn't have an option to specifiy config file yet, so it looks
-      # at .config/kanshi/config
       ExecStart = ''
         ${pkgs.kanshi}/bin/kanshi
       '';
