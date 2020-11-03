@@ -42,6 +42,10 @@ bindsym --release Shift+Print exec grimshot copy area
 bindsym --release $mod+Print exec grimshot save active ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
 bindsym --release $mod+Shift+Print exec grimshot save area ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
 
+# Notifications
+bindsym Control+Space exec makoctl dismiss
+bindsym Control+Shift+Space exec makoctl dismiss --all
+
 # Use Mouse+$mod to drag floating windows.
 floating_modifier $mod
 
