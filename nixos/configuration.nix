@@ -11,7 +11,13 @@
       ./emacs.nix
     ];
 
-  nix.trustedUsers = [ "root" "bnjmnt4n" ];
+  nix = {
+    package = pkgs.nixUnstable;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+    trustedUsers = [ "root" "bnjmnt4n" ];
+  };
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
