@@ -170,6 +170,19 @@
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools.enable = true;
 
+  # LightDM.
+  # TODO: look into a more lightweight solution like greetd in the future.
+  services.xserver = {
+    enable = true;
+    layout = "us";
+    libinput.enable = true;
+    displayManager.lightdm = {
+      enable = true;
+      background = /home/bnjmnt4n/background-image;
+      greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
+    };
+  };
+
   # Power management.
   powerManagement.enable = true;
   services.upower.enable = true;
@@ -186,14 +199,6 @@
 
   # Fish shell.
   programs.fish.enable = true;
-
-  # GDM.
-  # TODO: this needs to be enabled even though we are running GDM on Wayland.
-  services.xserver.enable = true;
-  services.xserver.displayManager.gdm = {
-    enable = true;
-    wayland = true;
-  };
 
   # Sway window manager.
   programs.sway = {
