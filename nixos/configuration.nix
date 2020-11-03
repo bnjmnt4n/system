@@ -87,7 +87,8 @@
     # File manager
     xfce.thunar
 
-    # Browser
+    # Browsers
+    chromium
     firefox
 
     # Editors
