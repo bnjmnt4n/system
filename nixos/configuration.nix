@@ -74,6 +74,7 @@
     starship
     tree
     wget
+    wl-clipboard
     xdg_utils
 
     # System bar and trays
