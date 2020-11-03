@@ -1,5 +1,13 @@
 # Configure DPI
-output eDP-1 scale 1.5 bg ~/.background-image stretch
+output eDP-1 scale 1.5
+
+# Background image
+output * bg ~/.background-image stretch
+
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+}
 
 # Use the Super key (Windows key) as the default modifier, and Alt as an alternative for some commands.
 set $mod Mod4
