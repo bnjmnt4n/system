@@ -62,6 +62,7 @@
     gitAndTools.gitFull
     gitAndTools.gh
     gvfs
+    jq
     less
     ledger
     libsecret
