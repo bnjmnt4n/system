@@ -11,6 +11,7 @@
       ./emacs.nix
       ./wayland.nix
       ./lightdm.nix
+      ./browsers.nix
     ];
 
   nix = {
@@ -96,10 +97,6 @@
     # File manager
     xfce.thunar
 
-    # Browsers
-    chromium
-    firefox
-
     # Editors
     vscode
     vim
@@ -171,15 +168,6 @@
 
   # Fish shell.
   programs.fish.enable = true;
-
-  # Enable WebRTC-based screen-sharing.
-  # TODO: this is currently broken.
-  services.pipewire.enable = true;
-
-  xdg.portal.enable = true;
-  xdg.portal.gtkUsePortal = true;
-  xdg.portal.extraPortals = with pkgs;
-    [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
