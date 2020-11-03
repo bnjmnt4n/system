@@ -148,13 +148,6 @@ bindsym $mod+Tab workspace next
 bindsym $mod+Shift+Tab workspace prev
 bindsym $alt+Tab workspace back_and_forth
 
-# Reload, restart and exit i3.
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
-# TODO
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
-bindsym $mod+Shift+q exec light-locker-command -l
-
 # Resize window.
 mode "resize" {
     bindsym h resize shrink width 10 px or 10 ppt
@@ -173,6 +166,34 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
+# Reload, restart and exit sway.
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+
+set $mode_system System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI
+mode "$mode_system" {
+    bindsym l exec $lock, mode "default"
+    bindsym e exit
+    bindsym s exec --no-startup-id systemctl suspend, mode "default"
+    bindsym r exec --no-startup-id systemctl reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id systemctl poweroff -i, mode "default"
+    bindsym Shift+r exec --no-startup-id systemctl reboot --firmware-setup, mode "default"
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+e mode "$mode_system"
+
+# Lock screen.
+set $lock 'swaylock -F -f -e -K -l -i ~/.background-image -c 000000'
+bindsym $mod+Shift+q exec $lock
+
+# Idle configuration
+exec swayidle -w \
+         timeout 300 $lock \
+         timeout 600 'swaymsg "output * dpms off"' \
+         resume 'swaymsg "output * dpms on"' \
+         before-sleep $lock
 
 # TODO: enable via services?
 exec_always --no-startup-id 'pkill mako; mako'
