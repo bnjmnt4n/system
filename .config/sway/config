@@ -60,7 +60,6 @@ bindsym $mod+q kill
 
 # Rofi for launching programs.
 bindsym $mod+d exec rofi -show drun -theme clean
-bindsym $mod+o exec rofi -modi 'Files:~/.config/rofi/scripts/file-finder.sh' -show Files
 
 # Window navigation.
 bindsym $mod+h focus left
