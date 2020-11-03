@@ -173,8 +173,8 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# TODO
-exec_always --no-startup-id light-locker
-exec_always --no-startup-id dunst
 
-exec_always --no-startup-id pkill waybar; waybar
+# TODO: enable via services?
+exec_always --no-startup-id 'pkill mako; mako'
+exec --no-startup-id 'redshift -l 1.3521:103.8198'
+exec --no-startup-id waybar
