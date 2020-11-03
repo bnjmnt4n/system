@@ -217,7 +217,6 @@
       mako                  # Notification daemon
 
       # TODO: not being used currently.
-      kanshi                # Autorandr
       wofi
     ];
     extraSessionCommands = ''
@@ -273,20 +272,6 @@
   xdg.portal.gtkUsePortal = true;
   xdg.portal.extraPortals = with pkgs;
     [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
-
-  # TODO: this is not used.
-  systemd.user.services.kanshi = {
-    description = "Kanshi output autoconfig";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      ExecStart = ''
-        ${pkgs.kanshi}/bin/kanshi
-      '';
-      RestartSec = 5;
-      Restart = "always";
-    };
-  };
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
