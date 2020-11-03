@@ -37,10 +37,10 @@ bindsym --locked $mod+XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym --locked $mod+XF86MonBrightnessDown exec brightnessctl set 5%-
 
 # Keybinding for screenshots.
-bindsym --release Print exec maim | xclip -selection clipboard -t image/png
-bindsym --release Shift+Print exec maim -s | xclip -selection clipboard -t image/png
-bindsym --release $mod+Print exec maim ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
-bindsym --release $mod+Shift+Print exec maim -s ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
+bindsym --release Print exec grimshot copy active
+bindsym --release Shift+Print exec grimshot copy area
+bindsym --release $mod+Print exec grimshot save active ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
+bindsym --release $mod+Shift+Print exec grimshot save area ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png
 
 # Use Mouse+$mod to drag floating windows.
 floating_modifier $mod
