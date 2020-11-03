@@ -10,6 +10,7 @@
       ./fonts.nix
       ./emacs.nix
       ./wayland.nix
+      ./lightdm.nix
     ];
 
   nix = {
@@ -153,19 +154,6 @@
 
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools.enable = true;
-
-  # LightDM.
-  # TODO: look into a more lightweight solution like greetd in the future.
-  services.xserver = {
-    enable = true;
-    layout = "us";
-    libinput.enable = true;
-    displayManager.lightdm = {
-      enable = true;
-#      background = ./background-image.jpg;
-      greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
-    };
-  };
 
   # Power management.
   powerManagement.enable = true;
