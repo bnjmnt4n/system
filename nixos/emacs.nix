@@ -5,7 +5,6 @@
     ([pkgs.emacsGccPgtk] ++
      (with pkgs; [
        imagemagick
-       git
        ripgrep
        coreutils
        fd
