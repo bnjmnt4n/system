@@ -4,8 +4,9 @@
   imports = [
     ./git.nix
     ./browsers.nix
-    ./emacs.nix
     ./wayland.nix
+    ./emacs.nix
+    ./vim.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
@@ -57,7 +58,6 @@
 
     # Editors
     vscode
-    vim
 
     # Media
     gimp
@@ -95,6 +95,10 @@
     # LumiNUS CLI client
     fluminurs
   ];
+
+  home.sessionVariables = {
+    EDITOR = "emacs";
+  };
 
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
