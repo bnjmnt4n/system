@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./alacritty.nix
     ./git.nix
     ./browsers.nix
     ./wayland.nix
@@ -20,9 +21,6 @@
   home.homeDirectory = "/home/bnjmnt4n";
 
   home.packages = with pkgs; [
-    # Terminal emulator
-    alacritty
-
     # System
     aspell
     aspellDicts.en
