@@ -85,6 +85,7 @@
     bitwarden
     bitwarden-cli
     dropbox
+    libreoffice
     musescore
     pavucontrol
     tdesktop
