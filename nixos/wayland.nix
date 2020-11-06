@@ -1,14 +1,16 @@
 { pkgs, ... }:
 
 {
-  imports = [ ./sway.nix ];
+  imports = [
+    ./sway.nix
+    ./mako.nix
+  ];
 
   home.packages = with pkgs; [
     swaylock              # Lockscreen
     swayidle
     xwayland              # For legacy Xorg-based apps
     waybar                # Status bar
-    mako                  # Notification daemon
 
     # TODO: not being used currently.
     wofi
