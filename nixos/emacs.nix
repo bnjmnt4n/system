@@ -1,6 +1,15 @@
 { pkgs, ... }:
 
 {
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacsGccPgtk;
+  };
+  services.emacs.enable = true;
+
+  # Include Doom Emacs CLI in PATH.
+  home.sessionPath = [ "~/.emacs.d/bin" ];
+
   home.packages = with pkgs; [
     imagemagick
     ripgrep
@@ -18,10 +27,4 @@
       mimeType = "x-scheme-handler/org-protocol";
     })
   ];
-
-  programs.emacs = {
-    enable = true;
-    package = pkgs.emacsGccPgtk;
-  };
-  services.emacs.enable = true;
 }

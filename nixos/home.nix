@@ -25,7 +25,6 @@
     aspell
     aspellDicts.en
     brightnessctl
-    direnv
     fd
     file
     fzf
@@ -41,7 +40,6 @@
     ripgrep
     rofi
     rsync
-    starship
     tree
     wget
     xdg_utils
@@ -102,6 +100,21 @@
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
 
+  # Switch environments easily.
+  programs.direnv = {
+    enable = true;
+    enableBashIntegration = true;
+    enableFishIntegration = true;
+    # TODO: enableNixDirenvIntegration?
+  };
+
+  # Fast Rust-powered shell prompt.
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+    enableFishIntegration = true;
+  };
+
   # Fish shell.
   programs.fish = {
     enable = true;
@@ -109,16 +122,6 @@
       # TODO: use home-manager's modules for some of this.
       # Clear greeting.
       set fish_greeting
-
-      # Include doom in PATH.
-      set PATH $PATH $HOME/.emacs.d/bin
-
-      # Fast Rust-powered shell prompt.
-      # https://starship.rs/
-      eval (starship init fish)
-
-      # direnv integration.
-      eval (direnv hook fish)
     '';
   };
 }
