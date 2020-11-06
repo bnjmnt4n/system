@@ -1,6 +1,7 @@
 { pkgs, ... }:
 
 {
+  imports = [ ./sway.nix ];
 
   home.packages = with pkgs; [
     swaylock              # Lockscreen
@@ -23,15 +24,6 @@
     sway-contrib.grimshot
     wf-recorder
   ];
-
-  wayland.windowManager.sway = {
-    enable = true;
-    package = null;
-    config = {
-      bars = [];
-    };
-    systemdIntegration = true;
-  };
 
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = "1";
