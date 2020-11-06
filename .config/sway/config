@@ -206,7 +206,10 @@ exec swayidle -w \
          resume 'swaymsg "output * dpms on"' \
          before-sleep $lock
 
+# Use waybar as the status bar.
+bar {
+    swaybar_command waybar
+}
+
 # TODO: enable via services?
 exec_always --no-startup-id 'pkill mako; mako'
-exec --no-startup-id 'redshift -l 1.3521:103.8198'
-exec --no-startup-id waybar
