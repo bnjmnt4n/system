@@ -3,6 +3,11 @@
 {
   home.packages = with pkgs; [
     chromium
-    firefox
   ];
+
+  programs.firefox = {
+    enable = true;
+    # TODO: use mainline pkgs.firefox.
+    package = pkgs.firefox-wayland;
+  };
 }
