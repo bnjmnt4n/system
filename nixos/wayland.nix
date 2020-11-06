@@ -3,6 +3,7 @@
 {
   imports = [
     ./sway.nix
+    ./waybar.nix
     ./mako.nix
   ];
 
@@ -10,7 +11,6 @@
     swaylock              # Lockscreen
     swayidle
     xwayland              # For legacy Xorg-based apps
-    waybar                # Status bar
 
     # TODO: not being used currently.
     wofi
@@ -33,9 +33,6 @@
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_TYPE = "wayland";
   };
-
-  # Wayland-based status bar.
-  programs.waybar.enable = true;
 
   # Screen colour temperature management.
   services.redshift = {
