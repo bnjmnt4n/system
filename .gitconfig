@@ -1,6 +1,0 @@
-[user]
-	name = Benjamin Tan
-	email = demoneaux@gmail.com
-
-[credential]
-	helper = /run/current-system/sw/bin/git-credential-libsecret

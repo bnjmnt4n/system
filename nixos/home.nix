@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./git.nix
     ./browsers.nix
     ./emacs.nix
     ./wayland.nix
@@ -28,8 +29,6 @@
     fd
     file
     fzf
-    gitAndTools.gitFull
-    gitAndTools.gh
     gvfs
     jq
     less
