@@ -46,8 +46,8 @@
         };
         backlight = {
           interval = 30;
-          on-scroll-down = "brightnessctl set 1%-";
-          on-scroll-up = "brightnessctl set 1%+";
+          on-scroll-down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%-";
+          on-scroll-up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+";
         };
         pulseaudio = {
           format = "{volume}% {icon}";
@@ -63,7 +63,7 @@
             default = [ "" "" ];
           };
           scroll-step = 1;
-          on-click = "pavucontrol";
+          on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
         };
         battery = {
           format = "{capacity}% {icon}";
