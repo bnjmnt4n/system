@@ -23,11 +23,11 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-(setq doom-font (font-spec :family "Iosevka" :size 24)
-      doom-variable-pitch-font (font-spec :family "Libre Baskerville")
-      doom-serif-font (font-spec :family "Libre Baskerville"))
+(setq doom-font (font-spec :family "Iosevka" :size 16)
+      doom-variable-pitch-font (font-spec :family "Libre Baskerville" :height 1.0)
+      doom-serif-font (font-spec :family "Libre Baskerville" :height 1.0))
 
-(setq doom-theme 'modus-vivendi)
+(setq doom-theme 'modus-operandi)
 
 (setq display-line-numbers-type t)
 
@@ -35,7 +35,8 @@
 (setq org-directory "~/org/"
       org-agenda-dir (concat org-directory "agenda/")
       org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$")
-      org-roam-directory (concat org-directory "kb/"))
+      org-roam-directory (concat org-directory "kb/")
+      +org-roam-open-buffer-on-find-file nil)
 
 (after! org
   (setq org-capture-templates
@@ -46,7 +47,19 @@
                :time-prompt t)
           ("c" "org-protocol-capture" entry (file ,(concat org-agenda-dir "inbox.org"))
                "* TODO [[%:link][%:description]]\n\n %i"
-               :immediate-finish t))))
+               :immediate-finish t)))
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
+
+;; Convert screenshots to LaTeX formulas.
+(use-package! mathpix.el
+  :commands (mathpix-screenshot)
+  :init
+  (map! "C-x m" #'mathpix-screenshot)
+  (setq mathpix-screenshot-method "grimshot save area %s"
+        mathpix-app-id 'bnjmnt4n/mathpix-app-id
+        mathpix-app-key 'bnjmnt4n/mathpix-app-key))
 
 ;; Sync with Google Calendar.
 (use-package! org-gcal
@@ -95,22 +108,14 @@
       (make-directory dirname t)
       (expand-file-name filename-with-timestamp dirname)))
   :config
-  (setq org-download-screenshot-method
-        (cond (IS-MAC "screencapture -i %s")
-              (IS-LINUX
-               (cond ((executable-find "maim")  "maim -u -s %s")
-                     ((executable-find "scrot") "scrot -s %s")))))
-  (setq org-download-method '+org/org-download-method))
+  (setq org-download-screenshot-method "grimshot save area %s"
+        org-download-method '+org/org-download-method))
 
-;; Convert screenshots to LaTeX formulas.
-(use-package! mathpix.el
-  :commands (mathpix-screenshot)
+(use-package anki-editor
+  :commands
+  anki-editor-mode
   :init
-  (map! "C-x m" #'mathpix-screenshot)
-  :config
-  (setq mathpix-screenshot-method "maim -u -s %s"
-        mathpix-app-id 'bnjmnt4n/mathpix-app-id
-        mathpix-app-key 'bnjmnt4n/mathpix-app-key))
+  (setq-default anki-editor-use-math-jax t))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
