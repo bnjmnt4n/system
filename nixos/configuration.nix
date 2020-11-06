@@ -96,10 +96,6 @@
     extraPackages = [];
   };
 
-  # Secrets management.
-  services.gnome3.gnome-keyring.enable = true;
-  programs.seahorse.enable = true;
-
   # Enable WebRTC-based screen-sharing.
   # TODO: this is currently broken.
   services.pipewire.enable = true;

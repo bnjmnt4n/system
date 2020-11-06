@@ -85,6 +85,7 @@
     libreoffice
     musescore
     pavucontrol
+    gnome3.seahorse
     tdesktop
     webtorrent_desktop
 
@@ -102,6 +103,9 @@
 
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
+
+  # Secrets management.
+  services.gnome-keyring.enable = true;
 
   # Switch environments easily.
   programs.direnv = {
