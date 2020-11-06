@@ -5,6 +5,7 @@
     ./sway.nix
     ./waybar.nix
     ./mako.nix
+    ./gammastep.nix
   ];
 
   home.packages = with pkgs; [
@@ -32,13 +33,5 @@
     MOZ_USE_XINPUT2 = "1";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_TYPE = "wayland";
-  };
-
-  # Screen colour temperature management.
-  services.redshift = {
-    enable = true;
-    latitude = "1.3521";
-    longitude = "103.8198";
-    package = pkgs.redshift-wlr;
   };
 }
