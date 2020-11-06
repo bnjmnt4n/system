@@ -23,4 +23,5 @@
     enable = true;
     package = pkgs.emacsGccPgtk;
   };
+  services.emacs.enable = true;
 }
