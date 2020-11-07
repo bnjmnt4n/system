@@ -24,9 +24,8 @@
         "sway/window" = {
           max-length = 50;
         };
-        # TODO: fix idle inhibitor display.
         idle_inhibitor = {
-          format = "{status} {icon}";
+          format = "{icon}";
           format-icons = {
             activated = "";
             deactivated = "";
