@@ -58,7 +58,7 @@
 
     # Media
     gimp
-    # ffmpeg-full
+    ffmpeg-full
     gifsicle
     imagemagick
     mpv
