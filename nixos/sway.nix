@@ -55,10 +55,10 @@ let
   # Idle/lock commands.
   lock_cmd = "${pkgs.swaylock}/bin/swaylock -F -f -e -K -l -i ~/.background-image -c '#000000'";
   idle_cmd = ''${pkgs.swayidle}/bin/swayidle -w \
-    timeout 300 \"${lock_cmd}\" \
-    timeout 600 \"swaymsg 'output * dpms off'\" \
-    resume \"swaymsg 'output * dpms off'\" \
-    before-sleep \"${lock_cmd}\"'';
+    timeout 300 "${lock_cmd}" \
+    timeout 600 "swaymsg 'output * dpms off'" \
+    resume "swaymsg 'output * dpms on'" \
+    before-sleep "${lock_cmd}"'';
 in
 {
   wayland.windowManager.sway = {
