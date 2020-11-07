@@ -6,7 +6,7 @@
       user-mail-address "demoneaux@gmail.com")
 
 ;; Private configuration.
-(require 'secrets)
+(load! "secrets.el")
 
 ;; Open emacs in a maximized window.
 (add-to-list 'initial-frame-alist '(fullboth . maximized))
@@ -58,8 +58,8 @@
   :init
   (map! "C-x m" #'mathpix-screenshot)
   (setq mathpix-screenshot-method "grimshot save area %s"
-        mathpix-app-id 'bnjmnt4n/mathpix-app-id
-        mathpix-app-key 'bnjmnt4n/mathpix-app-key))
+        mathpix-app-id bnjmnt4n/mathpix-app-id
+        mathpix-app-key bnjmnt4n/mathpix-app-key))
 
 ;; Sync with Google Calendar.
 (use-package! org-gcal
@@ -67,8 +67,8 @@
   :init
   (map! "C-x c" #'org-gcal-sync)
   :config
-  (setq org-gcal-client-id 'bnjmnt4n/org-gcal-client-id
-        org-gcal-client-secret 'bnjmnt4n/org-gcal-client-secret
+  (setq org-gcal-client-id bnjmnt4n/org-gcal-client-id
+        org-gcal-client-secret bnjmnt4n/org-gcal-client-secret
         org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-agenda-dir "schedule.org")))))
 
 ;; Easy copy-and-paste/screenshot of images.
