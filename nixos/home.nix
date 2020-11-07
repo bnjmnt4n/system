@@ -36,7 +36,6 @@
     pass
     pandoc
     ripgrep
-    rofi
     rsync
     tree
     wget

@@ -15,7 +15,9 @@ let
   spotify = "${pkgs.spotify}/bin/spotify";
 
   # Launcher command.
-  rofi = "${pkgs.rofi}/bin/rofi -show drun -theme clean";
+  launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
+  # TODO: get binary from package?
+  find_files = "find-files";
 
   # Outputs.
   output_laptop = "eDP-1";
@@ -104,7 +106,9 @@ in
         "${modifier}+t" = "exec ${telegram}";
         "${modifier}+m" = "exec ${spotify}";
 
-        "${modifier}+d" = "exec ${rofi}";
+        # Wofi commands.
+        "${modifier}+d" = "exec ${launcher}";
+        "${modifier}+Shift+o" = "exec ${find_files}";
 
         # Media controls.
         "XF86AudioPlay" = "exec ${media_play_pause}";

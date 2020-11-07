@@ -6,6 +6,7 @@
     ./waybar.nix
     ./mako.nix
     ./gammastep.nix
+    ./wofi.nix
   ];
 
   home.packages = with pkgs; [
@@ -13,12 +14,8 @@
     swayidle
     xwayland              # For legacy Xorg-based apps
 
-    # TODO: not being used currently.
-    wofi
-
     brightnessctl
     jq
-    rofi
     wl-clipboard
 
     # Screenshots/screen-recording
