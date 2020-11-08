@@ -94,7 +94,10 @@
   ];
 
   home.sessionVariables = {
-    EDITOR = "emacs";
+    TERMINAL = "alacritty";
+    EDITOR = "emacsclient -nw -c -a emacs";
+    VISUAL = "emacsclient -c -a emacs";
+    BROWSER = "firefox";
   };
 
   # Convenient shell integration with nix-shell.
