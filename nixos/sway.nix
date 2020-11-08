@@ -108,7 +108,7 @@ in
 
         # Wofi commands.
         "${modifier}+d" = "exec ${launcher}";
-        "${modifier}+Shift+o" = "exec ${find_files}";
+        "${modifier}+o" = "exec ${find_files}";
 
         # Media controls.
         "XF86AudioPlay" = "exec ${media_play_pause}";

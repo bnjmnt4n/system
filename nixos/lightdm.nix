@@ -7,9 +7,16 @@
     enable = true;
     layout = "us";
     libinput.enable = true;
+    # Configure DPI for my laptop.
+    # Reference: https://gist.github.com/domenkozar/b3c945035af53fa816e0ac460f1df853#x-server-resolution
+    # TODO: should this be in a separate specialized module?
+    monitorSection = ''
+      DisplaySize 338 190
+    '';
     displayManager.lightdm = {
       enable = true;
-#      background = ./background-image.jpg;
+      # TODO: use a separate repository for background images?
+      # background = ./background-image.jpg;
       greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
     };
   };
