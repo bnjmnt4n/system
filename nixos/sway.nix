@@ -49,6 +49,7 @@ let
 
   # Status bar.
   waybar = "${pkgs.waybar}/bin/waybar";
+  hide_waybar = "${pkgs.killall}/bin/killall -SIGUSR1 waybar";
 
   mode_system = "System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI";
 
@@ -63,7 +64,6 @@ in
 {
   wayland.windowManager.sway = {
     enable = true;
-    package = null;
     systemdIntegration = true;
     wrapperFeatures = {
       base = true;
@@ -95,6 +95,14 @@ in
       };
       window = {
         border = 0;
+        commands = [
+          { criteria = { app_id = "mpv"; }; command = "sticky enable"; }
+          { criteria = { app_id = "mpv"; }; command = "floating enable"; }
+          {
+            criteria = { title = "^(.*) Indicator"; };
+            command = "floating enable";
+          }
+        ];
       };
       keybindings = {
         "${modifier}+Return" = "exec ${terminal}";
@@ -111,27 +119,30 @@ in
         "${modifier}+o" = "exec ${find_files}";
 
         # Media controls.
-        "XF86AudioPlay" = "exec ${media_play_pause}";
-        "XF86AudioNext" = "exec ${media_next}";
-        "XF86AudioPrev" = "exec ${media_prev}";
-        "${modifier}+bracketright" = "exec ${media_next}";
-        "${modifier}+bracketleft" = "exec ${media_prev}";
+        "--locked XF86AudioPlay" = "exec ${media_play_pause}";
+        "--locked XF86AudioNext" = "exec ${media_next}";
+        "--locked XF86AudioPrev" = "exec ${media_prev}";
+        "--locked ${modifier}+bracketright" = "exec ${media_next}";
+        "--locked ${modifier}+bracketleft" = "exec ${media_prev}";
 
         # Volume controls.
-        "XF86AudioRaiseVolume" = "exec ${volume_up}";
-        "XF86AudioLowerVolume" = "exec ${volume_down}";
-        "XF86AudioMute" = "exec ${volume_mute}";
-        "XF86AudioMicMute" = "exec ${mic_mute}";
+        "--locked XF86AudioRaiseVolume" = "exec ${volume_up}";
+        "--locked XF86AudioLowerVolume" = "exec ${volume_down}";
+        "--locked XF86AudioMute" = "exec ${volume_mute}";
+        "--locked XF86AudioMicMute" = "exec ${mic_mute}";
 
         # Screen brightness controls.
-        "XF86MonBrightnessUp" = "exec ${brightness_up}";
-        "XF86MonBrightnessDown" = "exec ${brightness_down}";
+        "--locked XF86MonBrightnessUp" = "exec ${brightness_up}";
+        "--locked XF86MonBrightnessDown" = "exec ${brightness_down}";
 
         # Keybinding for screenshots.
-        "Print" = "exec ${screenshot_copy_screen}";
-        "Shift+Print" = "exec ${screenshot_copy_region}";
-        "${modifier}+Print" = "exec ${screenshot_save_screen}";
-        "${modifier}+Shift+Print" = "exec ${screenshot_save_region}";
+        "--release Print" = "exec ${screenshot_copy_screen}";
+        "--release Shift+Print" = "exec ${screenshot_copy_region}";
+        "--release ${modifier}+Print" = "exec ${screenshot_save_screen}";
+        "--release ${modifier}+Shift+Print" = "exec ${screenshot_save_region}";
+
+        # Hide waybar.
+        "${modifier}+grave" = "exec ${hide_waybar}";
 
         # Notifications
         "Control+Space" = "exec ${notifications_dismiss}";

@@ -9,6 +9,7 @@
     ./wofi.nix
   ];
 
+  # Used within sway configuration.
   home.packages = with pkgs; [
     swaylock              # Lockscreen
     swayidle
@@ -17,6 +18,7 @@
     brightnessctl
     jq
     wl-clipboard
+    killall
 
     # Screenshots/screen-recording
     grim
