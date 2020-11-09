@@ -7,8 +7,7 @@
 
   programs.firefox = {
     enable = true;
-    # TODO: use mainline pkgs.firefox.
-    package = pkgs.firefox-wayland;
+    package = pkgs.firefox;
     # profiles = {
     #   default = {
     #     name = "default";

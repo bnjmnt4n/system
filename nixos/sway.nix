@@ -1,6 +1,5 @@
 { pkgs, ... }:
 
-# TODO: bindsym --locked and --release.
 let
   # Modifiers.
   modifier = "Mod4";
@@ -8,7 +7,7 @@ let
 
   # Applications.
   terminal = "${pkgs.alacritty}/bin/alacritty";
-  browser = "${pkgs.firefox-wayland}/bin/firefox";
+  browser = "${pkgs.firefox}/bin/firefox";
   editor = "${pkgs.emacsGccPgtk}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
@@ -70,6 +69,21 @@ in
       gtk = true;
     };
     xwayland = true;
+    extraSessionCommands = ''
+      export SDL_VIDEODRIVER=wayland
+      # Requires `qt5.qtwayland`
+      export QT_QPA_PLATFORM=wayland
+      export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+
+      # Enlightenment and stuff?
+      export ELM_ENGINE=wayland_egl
+      export ECORE_EVAS_ENGINE=wayland_egl
+
+      # Fix for some Java AWT applications (e.g. Android Studio)
+      export _JAVA_AWT_WM_NONREPARENTING=1
+
+      export XDG_CURRENT_DESKTOP=sway
+    '';
     config = rec {
       inherit modifier;
       inherit terminal;
@@ -122,6 +136,7 @@ in
         "--locked XF86AudioPlay" = "exec ${media_play_pause}";
         "--locked XF86AudioNext" = "exec ${media_next}";
         "--locked XF86AudioPrev" = "exec ${media_prev}";
+        "--locked ${modifier}+backslash" = "exec ${media_play_pause}";
         "--locked ${modifier}+bracketright" = "exec ${media_next}";
         "--locked ${modifier}+bracketleft" = "exec ${media_prev}";
 

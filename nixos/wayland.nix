@@ -14,6 +14,7 @@
     swaylock              # Lockscreen
     swayidle
     xwayland              # For legacy Xorg-based apps
+    qt5.qtwayland
 
     brightnessctl
     jq

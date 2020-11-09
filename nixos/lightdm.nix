@@ -13,6 +13,7 @@
     monitorSection = ''
       DisplaySize 338 190
     '';
+    displayManager.defaultSession = "sway";
     displayManager.lightdm = {
       enable = true;
       # TODO: use a separate repository for background images?
