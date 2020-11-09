@@ -4,6 +4,7 @@
   programs.emacs = {
     enable = true;
     package = pkgs.emacsGccPgtk;
+    extraPackages = epkgs: [ epkgs.vterm ];
   };
   services.emacs.enable = true;
 
