@@ -5,13 +5,15 @@ This repository contains my dotfiles, including my [Nix OS][nixos] configuration
 ## Setup
 
 ```sh
-# Clone the repository
+# Clone the repository.
 $ git clone https://github.com/bnjmnt4n/dotfiles.git
-# Copies files to ~ (requires `rsync`)
-$ ./sync.sh
+# Rebuilds my NixOS configuration.
+$ sudo nixos-rebuiild switch --flake 'dotfiles/nixos/#'
+# Sync Doom configuration to `$HOME/config/doom`.
+$ ./dotfiles/doom/sync.sh
 ```
 
-I'm currently running [Nix OS][nixos] with [i3wm][i3wm], and using [Doom Emacs][doom-emacs] as my editor (accompanied by vim and Visual Studio Code occasionally).
+I'm currently running [Nix OS][nixos] with [Sway][sway] window manager on Wayland, and using [Doom Emacs][doom-emacs] as my editor.
 
 ## References and Inspiration
 
@@ -23,7 +25,7 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 - [@k-vernooy's dotfiles][k-vernooy/dotfiles]
 
 [nixos]: https://nixos.org/
-[i3wm]: https://i3wm.org/
+[sway]: https://swaywm.org/
 [doom-emacs]: https://github.com/hlissner/doom-emacs
 [andywhite37/dual-boot]: https://github.com/andywhite37/nixos/blob/9a3c13be14d3de4104322bb09efbf74245acffbd/DUAL_BOOT_WINDOWS_GUIDE.md
 [jethrokuan/nix-config]: https://github.com/jethrokuan/nix-config
