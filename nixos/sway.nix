@@ -5,6 +5,8 @@ let
   modifier = "Mod4";
   alt = "Mod1";
 
+  font = "Iosevka 10";
+
   # Applications.
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
@@ -87,6 +89,7 @@ in
     config = rec {
       inherit modifier;
       inherit terminal;
+      fonts = [ font ];
       input = {
         "type:touchpad" = {
           tap = "enabled";
