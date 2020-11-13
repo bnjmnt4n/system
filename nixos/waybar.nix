@@ -15,7 +15,7 @@
       ];
       modules-left = [ "sway/workspaces" "sway/mode" ];
       modules-center = [ "sway/window" ];
-      modules-right = [ "idle_inhibitor" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
+      modules-right = [ "idle_inhibitor" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
       modules = {
         "sway/workspaces" = {
           all-outputs = true;
@@ -44,9 +44,12 @@
           max-length = 50;
         };
         backlight = {
-          interval = 30;
+          format = "{percent}% {icon}";
+          format-icons = [ "" "" ];
+          interval = 60;
           on-scroll-down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%-";
           on-scroll-up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+";
+          on-click = "${pkgs.brightnessctl}/bin/brightnessctl set 50%";
         };
         pulseaudio = {
           format = "{volume}% {icon}";

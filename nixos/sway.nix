@@ -77,7 +77,7 @@ in
       export QT_QPA_PLATFORM=wayland
       export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 
-      # Enlightenment and stuff?
+      # Enlightenment
       export ELM_ENGINE=wayland_egl
       export ECORE_EVAS_ENGINE=wayland_egl
 
@@ -117,8 +117,18 @@ in
       window = {
         border = 0;
         commands = [
-          { criteria = { app_id = "mpv"; }; command = "sticky enable"; }
-          { criteria = { app_id = "mpv"; }; command = "floating enable"; }
+          {
+            criteria = { app_id = "mpv"; };
+            command = "floating enable, sticky enable";
+          }
+          {
+            criteria = { app_id = "pavucontrol"; };
+            command = "floating enable, sticky enable, resize set width 400px 600px, move position cursor, move down 35";
+          }
+          {
+            criteria = { title = "^zoom$"; };
+            command = "floating enable";
+          }
           {
             criteria = { title = "^(.*) Indicator"; };
             command = "floating enable";
