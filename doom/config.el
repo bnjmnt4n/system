@@ -115,7 +115,26 @@
   :commands
   anki-editor-mode
   :init
-  (setq-default anki-editor-use-math-jax t))
+  ; Not actually needed since we override the HTML export backend.
+  (setq-default anki-editor-use-math-jax t)
+  :config
+  (setq bnjmnt4n/anki-editor-cloze-counter 0)
+  (defun bnjmnt4n/reset-anki-editor-cloze-counter ()
+    (setq bnjmnt4n/anki-editor-cloze-counter 0))
+  (defun bnjmnt4n/anki-editor-bold-italic-transcoder (_bold contents _info)
+    (setq bnjmnt4n/anki-editor-cloze-counter (1+ bnjmnt4n/anki-editor-cloze-counter))
+    (format "{{c%d::%s}}" bnjmnt4n/anki-editor-cloze-counter contents))
+  ; Override anki-editor's HTML backend.
+  (setq anki-editor--ox-anki-html-backend
+      (org-export-create-backend
+       :parent 'html
+       :transcoders '((latex-fragment . anki-editor--ox-latex-for-mathjax)
+                      (latex-environment . anki-editor--ox-latex-for-mathjax)
+                      (bold . bnjmnt4n/anki-editor-bold-italic-transcoder)
+                      (italic . bnjmnt4n/anki-editor-bold-italic-transcoder))))
+  (advice-add 'anki-editor--build-fields :before #'bnjmnt4n/reset-anki-editor-cloze-counter)
+  (advice-add 'anki-editor-export-subtree-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter)
+  (advice-add 'anki-editor-convert-region-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
