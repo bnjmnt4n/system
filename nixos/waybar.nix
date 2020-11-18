@@ -42,6 +42,7 @@
           tooltip-format-ethernet = "{ifname} ";
           tooltip-format-disconnected = "Disconnected";
           max-length = 50;
+          on-click = "${pkgs.networkmanagerapplet}/bin/nm-applet --indicator";
         };
         backlight = {
           format = "{percent}% {icon}";
