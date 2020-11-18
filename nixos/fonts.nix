@@ -12,8 +12,6 @@
       iosevka
       jetbrains-mono
       libre-baskerville
-      nerdfonts
-      # TODO: overpass doesn't seem to be working.
       overpass
       source-code-pro
       source-sans-pro
@@ -23,9 +21,9 @@
     fontconfig = {
       enable = true;
       defaultFonts = {
-      monospace = [ "Source Code Pro" ];
-      sansSerif = [ "Source Sans Pro" ];
-      serif = [ "Source Serif Pro" ];
+        monospace = [ "Iosevka" ];
+        sansSerif = [ "Source Sans Pro" ];
+        serif = [ "Source Serif Pro" ];
       };
     };
   };
