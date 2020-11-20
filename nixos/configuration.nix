@@ -62,8 +62,8 @@
   services.interception-tools.enable = true;
 
   # Power management.
-  powerManagement.enable = true;
   services.upower.enable = true;
+  powerManagement.powertop.enable = true;
 
   # Enable Docker.
   virtualisation.docker.enable = true;
