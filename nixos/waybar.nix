@@ -73,7 +73,7 @@
           format-icons = [ "" "" "" "" "" ];
         };
         clock = {
-          format-alt = "{:%a, %d %b  %H:%M}";
+          format-alt = "{:%a, %d %b %H:%M}";
         };
         tray = {
           icon-size = 15;
