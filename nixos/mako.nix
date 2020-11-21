@@ -4,6 +4,7 @@
   # Wayland notification daemon.
   programs.mako = {
     enable = true;
+    layer = "overlay";
     anchor = "top-right";
     maxVisible = 3;
     font = "Source Sans Pro 14px";
