@@ -25,6 +25,7 @@
 
   # Use a recent Linux kernel (5.8).
   boot.kernelPackages = pkgs.linuxPackages_5_8;
+  hardware.enableRedistributableFirmware = true;
 
   networking.hostName = "bnjmnt4n";
   networking.networkmanager.enable = true; # Alternative to wpa_supplicant.
@@ -102,7 +103,6 @@
   security.pam.services.lightdm.enableGnomeKeyring = true;
 
   # Enable WebRTC-based screen-sharing.
-  # TODO: this is currently broken.
   services.pipewire.enable = true;
 
   xdg.portal.enable = true;
