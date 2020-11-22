@@ -8,6 +8,7 @@
     ./wayland.nix
     ./emacs.nix
     ./vim.nix
+    ./spotify.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
@@ -63,7 +64,6 @@
     imagemagick
     mpv
     playerctl
-    spotify
     vlc
 
     # PDF
