@@ -2,7 +2,7 @@
 
 {
   nixpkgs.overlays = [
-    inputs.emacs-pgtk-nativecomp-overlay.overlay
+    inputs.emacs-overlay.overlay
     inputs.nixpkgs-wayland.overlay
     (self: super: {
       fluminurs = with pkgs;

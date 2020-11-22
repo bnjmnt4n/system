@@ -10,7 +10,7 @@ let
   # Applications.
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
-  editor = "${pkgs.emacsGccPgtk}/bin/emacsclient -c -a emacs";
+  editor = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
   # TODO: spotifyd service seems wonky at times.

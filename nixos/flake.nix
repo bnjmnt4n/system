@@ -5,8 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
-    emacs-pgtk-nativecomp-overlay.url =
-      "github:mjlbach/emacs-pgtk-nativecomp-overlay?rev=b517b806ff6313fec99eb42292b1ebabf047b473";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs:
