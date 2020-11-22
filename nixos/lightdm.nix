@@ -17,7 +17,7 @@
     displayManager.lightdm = {
       enable = true;
       # TODO: use a separate repository for background images?
-      # background = ./background-image.jpg;
+      background = ./background-image.jpg;
       greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
     };
   };
