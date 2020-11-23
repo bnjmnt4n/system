@@ -13,7 +13,8 @@ let
   editor = "${pkgs.emacsGccPgtk}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
-  spotify = "${pkgs.spotify}/bin/spotify";
+  # TODO: spotifyd service seems wonky at times.
+  spotify = ''"systemctl restart --user spotifyd.service; ${terminal} --title spotify --command spt"'';
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
