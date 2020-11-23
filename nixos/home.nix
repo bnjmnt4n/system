@@ -9,6 +9,7 @@
     ./emacs.nix
     ./vim.nix
     ./spotify.nix
+    ./mail.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
