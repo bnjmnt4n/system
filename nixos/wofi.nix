@@ -3,14 +3,6 @@
 {
   home.packages = [
     pkgs.wofi
-    (
-      pkgs.writeTextFile {
-        name = "find-files";
-        destination = "/bin/find-files";
-        executable = true;
-        text = pkgs.lib.readFile ../scripts/find-files.sh;
-      }
-    )
   ];
 
   home.file.".config/wofi/config".text = ''

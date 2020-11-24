@@ -18,8 +18,12 @@ let
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
-  # TODO: get binary from package?
-  find_files = "find-files";
+  # Simple file finder.
+  find_files = pkgs.writeShellScript "find-files.sh" ''
+    cd ~
+    FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
+    xdg-open "$HOME/$FILE"
+  '';
 
   # Outputs.
   output_laptop = "eDP-1";
