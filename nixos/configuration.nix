@@ -60,6 +60,9 @@
   };
   hardware.bluetooth.enable = true;
 
+  # Enable blueman applet.
+  services.blueman.enable = true;
+
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools.enable = true;
 

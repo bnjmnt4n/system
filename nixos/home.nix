@@ -101,6 +101,9 @@
     BROWSER = "firefox";
   };
 
+  # Bluetooth controls.
+  services.blueman-applet.enable = true;
+
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
 
