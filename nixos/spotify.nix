@@ -1,5 +1,18 @@
 { pkgs, ... }:
 
+let
+  # https://gist.github.com/ohhskar/efe71e82337ed54b9aa704d3df28d2ae.
+  notificationsScript = pkgs.writeShellScript "notifications.sh" ''
+    if [ "$PLAYER_EVENT" = "start" ] || [ "$PLAYER_EVENT" = "change" ];
+    then
+      track=$(${pkgs.playerctl}/bin/playerctl metadata title)
+      artist_album=$(${pkgs.playerctl}/bin/playerctl metadata --format "{{ artist }}
+{{ album }}")
+
+      ${pkgs.libnotify}/bin/notify-send -u low "$track" "$artist_album"
+    fi
+  '';
+in
 {
   # Spotify daemon.
   services.spotifyd = {
@@ -13,6 +26,7 @@
         username = "demoneaux";
         device_name = "spotifyd";
         use_keyring = "true";
+        onevent = "${notificationsScript}";
       };
     };
   };

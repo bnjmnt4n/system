@@ -34,6 +34,7 @@
     jq
     less
     ledger
+    libnotify
     libsecret
     pass
     pandoc
