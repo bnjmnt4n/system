@@ -306,6 +306,7 @@ in
       }];
       startup = [
         { always = true; command = "${pkgs.mako}/bin/mako"; }
+        { always = true; command = "${pkgs.systemd}/bin/systemd-notify --ready || true"; }
         { command = "${idle_cmd}"; }
       ];
     };
