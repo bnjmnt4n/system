@@ -14,7 +14,8 @@ let
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
   # TODO: spotifyd service seems wonky at times.
-  spotify = ''"systemctl restart --user spotifyd.service; ${terminal} --title spotify --command spt"'';
+  # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
+  spotify = ''"systemctl restart --user spotifyd.service; ${terminal} --title spotify --class alacritty_spotify --command spt &; sleep 1; swaymsg scratchpad show"'';
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
@@ -50,7 +51,6 @@ let
   screenshot_save_region = "${pkgs.sway-contrib.grimshot}/bin/grimshot save area ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png";
 
   # Notifications.
-  notifications_dismiss = "${pkgs.mako}/bin/makoctl dismiss";
   notifications_dismiss_all = "${pkgs.mako}/bin/makoctl dismiss --all";
 
   # Status bar.
@@ -123,6 +123,10 @@ in
         border = 0;
         commands = [
           {
+            criteria = { app_id = "alacritty_spotify"; };
+            command = "floating enable, move scratchpad";
+          }
+          {
             criteria = { app_id = "mpv"; };
             command = "floating enable, sticky enable";
           }
@@ -182,8 +186,7 @@ in
         "${modifier}+grave" = "exec ${hide_waybar}";
 
         # Notifications
-        "Control+Space" = "exec ${notifications_dismiss}";
-        "Control+Shift+Space" = "exec ${notifications_dismiss_all}";
+        "Control+Space" = "exec ${notifications_dismiss_all}";
 
         # Kill focused window.
         "${modifier}+q" = "kill";
