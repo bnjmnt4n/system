@@ -26,6 +26,7 @@
     # System
     aspell
     aspellDicts.en
+    bat
     brightnessctl
     fd
     file
@@ -64,6 +65,7 @@
     ffmpeg-full
     gifsicle
     imagemagick
+    imv
     mpv
     playerctl
     vlc
