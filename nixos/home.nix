@@ -68,8 +68,10 @@
     playerctl
     vlc
 
+    # LaTeX
+    texlive.combined.scheme-full
+
     # PDF
-    ghostscript
     zathura
 
     # Database

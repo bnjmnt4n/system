@@ -89,12 +89,6 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "20.03";
 
-  # The following should probably live inside home.nix or another module.
-  # TODO: installing this in home-manager breaks the build.
-  environment.systemPackages = [
-    pkgs.texlive.combined.scheme-full
-  ];
-
   # Sway.
   programs.sway = {
     enable = true;

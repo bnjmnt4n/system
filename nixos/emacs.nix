@@ -17,7 +17,6 @@
     coreutils
     fd
     clang
-    # texlive.combined.scheme-full
 
     (makeDesktopItem {
       name = "org-protocol";
