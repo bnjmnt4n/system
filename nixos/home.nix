@@ -2,14 +2,11 @@
 
 {
   imports = [
-    ./alacritty.nix
     ./git.nix
-    ./browsers.nix
-    ./wayland.nix
     ./emacs.nix
     ./vim.nix
-    ./spotify.nix
     ./mail.nix
+    ./desktop-env.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
@@ -27,7 +24,6 @@
     aspell
     aspellDicts.en
     bat
-    brightnessctl
     fd
     file
     fzf
@@ -45,69 +41,31 @@
     wget
     xdg_utils
 
-    # System bar and trays
-    networkmanagerapplet
-
     # Archiving
     unzip
     unrar
     xz
     zip
 
-    # File manager
-    xfce.thunar
-
-    # Editors
-    vscode
-
     # Media
-    gimp
     ffmpeg-full
     gifsicle
     imagemagick
-    imv
-    mpv
-    playerctl
-    vlc
 
     # LaTeX
     texlive.combined.scheme-full
 
-    # PDF
-    zathura
-
     # Database
     sqlite
     graphviz
-
-    # Apps
-    anki
-    bitwarden
-    bitwarden-cli
-    dropbox
-    libreoffice
-    musescore
-    pavucontrol
-    tdesktop
-    webtorrent_desktop
-
-    # Videoconferencing
-    zoom-us # hmmm...
-    teams
 
     # LumiNUS CLI client
     fluminurs
   ];
 
   home.sessionVariables = {
-    TERMINAL = "alacritty";
     EDITOR = "emacsclient -nw -c -a emacs";
-    VISUAL = "emacsclient -c -a emacs";
-    BROWSER = "firefox";
   };
-
-  # Bluetooth controls.
-  services.blueman-applet.enable = true;
 
   # Convenient shell integration with nix-shell.
   services.lorri.enable = true;
