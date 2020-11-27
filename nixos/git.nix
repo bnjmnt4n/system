@@ -10,6 +10,7 @@
     delta = {
       enable = true;
     };
+    lfs.enable = true;
     extraConfig = {
       credential = {
         helper = "${pkgs.gitAndTools.gitFull}/bin/git-credential-libsecret";
@@ -19,5 +20,7 @@
 
   programs.gh.enable = true;
 
-  home.packages = [ pkgs.libsecret ];
+  home.packages = with pkgs; [
+    libsecret
+  ];
 }
