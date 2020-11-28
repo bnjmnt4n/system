@@ -3,7 +3,7 @@
 {
   imports = [
     ./alacritty.nix
-    ./browsers.nix
+    ./browsers/default.nix
     ./wayland.nix
     ./spotify.nix
   ];

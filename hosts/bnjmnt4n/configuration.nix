@@ -5,9 +5,9 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
 
-    ./cachix.nix
-    ./fonts.nix   # TODO: should this be in home-manager?
-    ./lightdm.nix
+    ../../modules/cachix.nix
+    ../../modules/fonts.nix   # TODO: should this be in home-manager?
+    ../../modules/lightdm.nix
   ];
 
   nix = {

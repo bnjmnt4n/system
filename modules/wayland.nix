@@ -3,7 +3,7 @@
 {
   imports = [
     ./sway.nix
-    ./waybar.nix
+    ./waybar/default.nix
     ./mako.nix
     ./gammastep.nix
     ./wofi.nix

@@ -6,7 +6,6 @@
     ./emacs.nix
     ./vim.nix
     ./mail.nix
-    ./desktop-env.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''

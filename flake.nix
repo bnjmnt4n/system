@@ -9,22 +9,22 @@
     emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
   {
     nixosConfigurations = {
       bnjmnt4n = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./overlays.nix
-          ./configuration.nix
+          ({ ... }: { _module.args.inputs = inputs; })
+          ./modules/overlays.nix
+          ./hosts/bnjmnt4n/configuration.nix
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.bnjmnt4n = import ./home.nix;
+            home-manager.users.bnjmnt4n = import ./hosts/bnjmnt4n/home.nix;
           }
         ];
-        specialArgs = { inherit inputs; };
       };
     };
   };
