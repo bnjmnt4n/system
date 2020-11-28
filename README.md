@@ -1,6 +1,6 @@
-# bnjmnt4n/dotfiles
+# bnjmnt4n/home
 
-This repository contains my dotfiles, including my [NixOS][nixos] configuration. This is very much a work-in-progress, and will probably change drastically as I figure out a setup that suits me.
+This repository contains my home environment, largely consisting of my [NixOS][nixos] configuration. This is very much a work-in-progress, and will probably change drastically as I figure out a setup that suits me.
 
 ## Setup
 
@@ -9,7 +9,11 @@ This repository contains my dotfiles, including my [NixOS][nixos] configuration.
 $ git clone https://github.com/bnjmnt4n/dotfiles.git
 
 # Rebuilds my NixOS configuration.
-$ sudo nixos-rebuiild switch --flake 'dotfiles/nixos/#'
+$ sudo nixos-rebuiild switch --flake 'dotfiles#bnjmnt4n'
+
+# Setup cachix.
+$ cachix use nix-community
+$ cachix use nixpkgs-wayland
 
 # Sync Doom configuration to `$HOME/config/doom`.
 $ ./dotfiles/doom/sync.sh
