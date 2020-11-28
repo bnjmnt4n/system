@@ -2,11 +2,11 @@
   "nodes": {
     "cachix": {
       "locked": {
-        "lastModified": 1604368813,
-        "narHash": "sha256-UOLaURSO448k+4bGJlaSMYeo2F5F6CuFo9VoYDkhmsk=",
+        "lastModified": 1606086654,
+        "narHash": "sha256-VFl+3eGIMqNp7cyOMJ6TjM/+UcsLKtodKoYexrlTJMI=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "d105075a1fd870b1d1617a6008cb38b443e65433",
+        "rev": "19db3e5ea2777daa874563b5986288151f502e27",
         "type": "github"
       },
       "original": {
@@ -18,11 +18,11 @@
     },
     "cmpkgs": {
       "locked": {
-        "lastModified": 1604628793,
-        "narHash": "sha256-UcWa6b/KxpVAodtVeoOFlDTNM0aQNz45ANnYP20HaCA=",
+        "lastModified": 1606389506,
+        "narHash": "sha256-l1q6vU5811XxLM42XHEpcCPFSx0m3XqPnoMzgpYBzIA=",
         "owner": "colemickens",
         "repo": "nixpkgs",
-        "rev": "efe53b2b7b2620d2241ff0a7ed0c28db4deaaec3",
+        "rev": "ad6d66959a8c3901d65b71055b9fe4c395566baf",
         "type": "github"
       },
       "original": {
@@ -34,11 +34,11 @@
     },
     "emacs-overlay": {
       "locked": {
-        "lastModified": 1606177157,
-        "narHash": "sha256-i2t++fGlAl93Q2v8BEs4pXDJ4AWUHMTyzc964+ARTsY=",
+        "lastModified": 1606451742,
+        "narHash": "sha256-3+2zyDWLl26mePI+MtKeFvZnhQ6CCJLO2QytArQHwCQ=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "28c31e0ae90b6fcf51f2d02c5d43fe1715dc6393",
+        "rev": "30314df007c5ee8176229c09f20f766e71171925",
         "type": "github"
       },
       "original": {
@@ -49,7 +49,9 @@
     },
     "home-manager": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1605635123,
@@ -67,40 +69,6 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1605669797,
-        "narHash": "sha256-dYFA9QsVxwBLQGziqtixXinBqdFBVjtlAagsgdL7Eaw=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "a823dee9d9cdcbf9a3fd22a073e75a5bfb2b36eb",
-        "type": "github"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
-      }
-    },
-    "nixpkgs-wayland": {
-      "inputs": {
-        "cachix": "cachix",
-        "cmpkgs": "cmpkgs",
-        "nixpkgs": "nixpkgs_3"
-      },
-      "locked": {
-        "lastModified": 1605510521,
-        "narHash": "sha256-A6zQYBh6M78RssrYeU1vC/wmdvzva5NcTSvjeq4UPzw=",
-        "owner": "colemickens",
-        "repo": "nixpkgs-wayland",
-        "rev": "a4a2faf3af4316f3f4ef244853954036431cff58",
-        "type": "github"
-      },
-      "original": {
-        "owner": "colemickens",
-        "repo": "nixpkgs-wayland",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
         "lastModified": 1605225031,
         "narHash": "sha256-W+7blIrccTCTyQCCE4aGn1cFrGIuTinN96GxZrJiojs=",
         "owner": "nixos",
@@ -115,13 +83,33 @@
         "type": "github"
       }
     },
-    "nixpkgs_3": {
+    "nixpkgs-wayland": {
+      "inputs": {
+        "cachix": "cachix",
+        "cmpkgs": "cmpkgs",
+        "nixpkgs": "nixpkgs_2"
+      },
       "locked": {
-        "lastModified": 1605225031,
-        "narHash": "sha256-W+7blIrccTCTyQCCE4aGn1cFrGIuTinN96GxZrJiojs=",
+        "lastModified": 1606454881,
+        "narHash": "sha256-4h+TX9Sq2e48PbjHLjynct7/WukstYUZEf1eQq7UyQo=",
+        "owner": "colemickens",
+        "repo": "nixpkgs-wayland",
+        "rev": "3ac16342b4081b364fa810ee5bbfde5b50cf9a99",
+        "type": "github"
+      },
+      "original": {
+        "owner": "colemickens",
+        "repo": "nixpkgs-wayland",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1605988311,
+        "narHash": "sha256-PA+kgq46NApOAJlmBNJHs5DwsIrY+jodM0e4g7VtXyY=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "2deeb58f49480f468adca6b08291322de4dbce6b",
+        "rev": "2247d824fe07f16325596acc7faa286502faffd1",
         "type": "github"
       },
       "original": {
@@ -135,7 +123,7 @@
       "inputs": {
         "emacs-overlay": "emacs-overlay",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "nixpkgs-wayland": "nixpkgs-wayland"
       }
     }
