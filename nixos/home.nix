@@ -41,6 +41,8 @@
     wget
     xdg_utils
 
+    cachix
+
     # Archiving
     unzip
     unrar
