@@ -28,6 +28,18 @@
   boot.kernelPackages = pkgs.linuxPackages_5_8;
   hardware.enableRedistributableFirmware = true;
 
+  # Hardware accelerated video playback.
+  # See https://nixos.wiki/wiki/Accelerated_Video_Playback.
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      (vaapiIntel.override { enableHybridCodec = true; })
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-media-driver
+    ];
+  };
+
   networking.hostName = "bnjmnt4n";
   networking.networkmanager.enable = true; # Alternative to wpa_supplicant.
 
