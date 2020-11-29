@@ -5,7 +5,7 @@
   programs.mako = {
     enable = true;
     layer = "overlay";
-    anchor = "bottom-left";
+    anchor = "bottom-right";
     maxVisible = 3;
     font = "Source Sans Pro 14px";
     backgroundColor = "#285577CC";
