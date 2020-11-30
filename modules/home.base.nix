@@ -68,15 +68,14 @@
     EDITOR = "emacsclient -nw -c -a emacs";
   };
 
-  # Convenient shell integration with nix-shell.
-  services.lorri.enable = true;
-
   # Switch environments easily.
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
-    # TODO: enableNixDirenvIntegration?
+
+    enableNixDirenvIntegration = true;
+    stdlib = pkgs.lib.readFile ./.direnvrc;
   };
 
   # Fast Rust-powered shell prompt.
