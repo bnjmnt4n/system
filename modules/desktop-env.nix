@@ -4,8 +4,9 @@
   imports = [
     ./alacritty.nix
     ./browsers/default.nix
-    ./wayland.nix
+    ./mpv.nix
     ./spotify.nix
+    ./wayland.nix
   ];
 
   home.packages = with pkgs; [
@@ -25,7 +26,6 @@
     # Media
     gimp
     imv
-    mpv
     playerctl # Theoretically not a GUI tool, but only used in GUI environments.
     vlc
 
