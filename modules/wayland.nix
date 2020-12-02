@@ -5,7 +5,7 @@
     ./sway.nix
     ./waybar/default.nix
     ./mako.nix
-    ./gammastep.nix
+    ./wlsunset.nix
     ./wofi.nix
   ];
 
