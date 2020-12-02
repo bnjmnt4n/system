@@ -61,7 +61,7 @@
     graphviz
 
     # LumiNUS CLI client
-    fluminurs
+    # fluminurs
   ];
 
   home.sessionVariables = {
