@@ -26,9 +26,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Use a recent Linux kernel (5.8).
-  boot.kernelPackages = pkgs.linuxPackages_5_8;
+  # Use a recent Linux kernel (5.9).
+  boot.kernelPackages = pkgs.linuxPackages_5_9;
   hardware.enableRedistributableFirmware = true;
+  hardware.cpu.intel.updateMicrocode = true;
 
   # Hardware accelerated video playback.
   # See https://nixos.wiki/wiki/Accelerated_Video_Playback.
