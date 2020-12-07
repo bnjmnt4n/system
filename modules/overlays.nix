@@ -4,6 +4,7 @@
   nixpkgs.overlays = [
     inputs.emacs-overlay.overlay
     inputs.nixpkgs-wayland.overlay
+    inputs.nur.overlay
     (self: super: {
       fluminurs = with pkgs;
         rustPlatform.buildRustPackage rec {
