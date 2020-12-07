@@ -1,5 +1,15 @@
 { pkgs, ... }:
 
+let
+#  wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
+  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+"; # " && ${wob_show_brightness}";
+  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%-"; # " && ${wob_show_brightness}";
+  brightness_middle = "${pkgs.brightnessctl}/bin/brightnessctl set 50%"; # " && ${wob_show_brightness}";
+
+#  wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
+  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 1"; # " && ${wob_show_volume}";
+  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 1"; # " && ${wob_show_volume}";
+in
 {
   # Wayland-based status bar.
   programs.waybar = {
@@ -48,9 +58,9 @@
           format = "{percent}% {icon}";
           format-icons = [ "" "" ];
           interval = 60;
-          on-scroll-down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%-";
-          on-scroll-up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+";
-          on-click = "${pkgs.brightnessctl}/bin/brightnessctl set 50%";
+          on-scroll-down = brightness_down;
+          on-scroll-up = brightness_up;
+          on-click = brightness_middle;
         };
         pulseaudio = {
           format = "{volume}% {icon}";
@@ -66,6 +76,8 @@
             default = [ "" "" ];
           };
           scroll-step = 1;
+          on-scroll-down = volume_down;
+          on-scroll-up = volume_up;
           on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
         };
         battery = {

@@ -23,6 +23,8 @@
         isDefault = true;
         userChrome = pkgs.lib.readFile ./firefox.userChrome.css;
         settings = {
+          "browser.ctrlTab.recentlyUsedOrder" = false;
+          "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
           "experiments.supported" = false;

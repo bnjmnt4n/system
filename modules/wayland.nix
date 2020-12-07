@@ -16,13 +16,8 @@
     xwayland              # For legacy Xorg-based apps
     qt5.qtwayland
 
-    wob
-    pamixer
-    light
-    brightnessctl
     jq
     wl-clipboard
-    killall
 
     # Screenshots/screen-recording
     grim

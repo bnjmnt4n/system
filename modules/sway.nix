@@ -26,30 +26,6 @@ let
     xdg-open "$HOME/$FILE"
   '';
 
-  # Overlay bar.
-  # Based on https://github.com/francma/wob/wiki/wob-wrapper-script.
-  wob = pkgs.writeShellScript "wob.sh" ''
-    is_running_on_this_screen() {
-      pkill -0 $1 || return 1
-      for pid in $(pgrep $1); do
-        WOB_SWAYSOCK="$(tr '\0' '\n' < /proc/$pid/environ | awk -F'=' '/^SWAYSOCK/ {print $2}')"
-        if [[ "$WOB_SWAYSOCK" == "$SWAYSOCK" ]]; then
-          return 0
-        fi
-      done
-      return 1
-    }
-
-    new_value=$1
-    wob_pipe=~/.cache/$(basename $SWAYSOCK).wob
-
-    [[ -p $wob_pipe ]] || mkfifo $wob_pipe
-    is_running_on_this_screen wob || {
-      tail -f $wob_pipe | ${pkgs.wob}/bin/wob &
-    }
-
-    [[ "$new_value" ]] && echo $new_value > $wob_pipe
-  '';
 
   # Outputs.
   output_laptop = "eDP-1";
@@ -60,16 +36,16 @@ let
   media_prev = "${pkgs.playerctl}/bin/playerctl previous";
 
   # Volume.
-  wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
-  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10 && ${wob_show_volume}";
-  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10 && ${wob_show_volume}";
-  volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute && (${pkgs.pamixer}/bin/pamixer --get-mute && ${wob} 0) || ${wob_show_volume}";
+#  wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
+  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10"; # " && ${wob_show_volume}";
+  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10"; # " && ${wob_show_volume}";
+  volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute"; # " && (${pkgs.pamixer}/bin/pamixer --get-mute && ${pkgs.wob}/bin/wob 0) || ${wob_show_volume}";
   mic_mute = "${pkgs.pulseaudioFull}/bin/pactl set-source-mute @DEFAULT_SINK@ toggle";
 
   # Screen brightness.
-  wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
-  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+ && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%- && ${wob_show_brightness}";
+#  wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
+  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+"; # " && ${wob_show_brightness}";
+  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%"; # " && ${wob_show_brightness}";
 
   # Screenshots.
   screenshot_copy_screen = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify copy active";

@@ -17,7 +17,7 @@
         system = "x86_64-linux";
         modules = [
           ({ ... }: { _module.args.inputs = inputs; })
-          ./modules/overlays.nix
+          ./modules/overlays/default.nix
           ./hosts/bnjmnt4n/configuration.nix
           home-manager.nixosModules.home-manager
           {
