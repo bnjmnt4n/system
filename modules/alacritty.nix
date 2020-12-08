@@ -6,6 +6,7 @@
     enable = true;
     settings = {
       background_opacity = 0.95;
+      font.size = 12;
 
       # Colors (Doom One)
       # Obtained from https://github.com/eendroroy/alacritty-theme/blob/c1a8c5a9d492957433df48d7fc2251ab628dd223/themes/doom_one.yml.
