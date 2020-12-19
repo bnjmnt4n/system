@@ -9,7 +9,7 @@ let
 
   # Applications.
   terminal = "${pkgs.alacritty}/bin/alacritty";
-  browser = "${pkgs.firefox-bin}/bin/firefox";
+  browser = "${pkgs.firefox}/bin/firefox";
   editor = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
