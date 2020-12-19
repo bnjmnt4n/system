@@ -45,7 +45,7 @@ let
   # Screen brightness.
 #  wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
   brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+"; # " && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%"; # " && ${wob_show_brightness}";
+  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%-"; # " && ${wob_show_brightness}";
 
   # Screenshots.
   screenshot_copy_screen = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify copy active";
