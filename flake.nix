@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-firefox.url = "github:nixos/nixpkgs?rev=d105075a1fd870b1d1617a6008cb38b443e65433";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
@@ -16,7 +17,10 @@
       bnjmnt4n = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ({ ... }: { _module.args.inputs = inputs; })
+          ({ ... }: {
+            _module.args.inputs = inputs;
+            _module.args.system = "x86_64-linux";
+          })
           ./modules/overlays/default.nix
           ./hosts/bnjmnt4n/configuration.nix
           home-manager.nixosModules.home-manager
