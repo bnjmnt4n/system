@@ -6,6 +6,8 @@
     nixpkgs-firefox.url = "github:nixos/nixpkgs?rev=d105075a1fd870b1d1617a6008cb38b443e65433";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    naersk.url = "github:nmattia/naersk";
+    naersk.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     nur.url = "github:nix-community/NUR";
