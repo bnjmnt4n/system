@@ -26,9 +26,10 @@ I'm currently running [NixOS][nixos] with [swaywm][swaywm], using [Doom Emacs][d
 I've gotten inspiration, and in some cases drawn liberally from the following places:
 
 - [@andywhite37's guide on dual-booting Windows and NixOS][andywhite37/dual-boot]
-- @jethrokuan's [Nix OS configuration][jethrokuan/nix-config] and [dotfiles][jethrokuan/dots], especially for Emacs and Nix OS-related configurations
+- @jethrokuan's [NixOS configuration][jethrokuan/nix-config] and [dotfiles][jethrokuan/dots], especially for Emacs and NixOS-related configurations
 - [doom/sync.sh](./doom/sync.sh) was copied from [@mathiasbynens's dotfiles][mathiasbynens/dotfiles]
 - [@k-vernooy's dotfiles][k-vernooy/dotfiles]
+- [@bqv's NixOS configuration][k-vernooy/dotfiles]
 
 [nixos]: https://nixos.org/
 [swaywm]: https://swaywm.org/
@@ -38,3 +39,4 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 [jethrokuan/dots]: https://github.com/jethrokuan/dots
 [mathiasbynens/dotfiles]: https://github.com/mathiasbynens/dotfiles
 [k-vernooy/dotfiles]: https://github.com/k-vernooy/dotfiles
+[bqv/nixrc]: https://github.com/bqv/nixrc
