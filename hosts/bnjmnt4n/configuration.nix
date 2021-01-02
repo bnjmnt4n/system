@@ -7,6 +7,7 @@
 
     ../../modules/cachix.nix
     ../../modules/fonts.nix   # TODO: should this be in home-manager?
+    ../../modules/console-font.nix
 
     # ../../modules/lightdm.nix
     ../../modules/greetd.nix
@@ -57,7 +58,8 @@
   # Internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
-    font = "Lat2-Terminus16";
+    # Over-ridden by `console-font` module.
+    # font = "Lat2-Terminus16";
     keyMap = "us";
   };
 

@@ -9,7 +9,7 @@
       fira-code-symbols
       ia-writer-duospace
       inter
-      iosevka
+      iosevka-bin
       jetbrains-mono
       libre-baskerville
       overpass
