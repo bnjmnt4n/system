@@ -21,4 +21,6 @@
       greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
     };
   };
+
+  security.pam.services.lightdm.enableGnomeKeyring = true;
 }

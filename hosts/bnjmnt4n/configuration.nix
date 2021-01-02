@@ -7,7 +7,9 @@
 
     ../../modules/cachix.nix
     ../../modules/fonts.nix   # TODO: should this be in home-manager?
-    ../../modules/lightdm.nix
+
+    # ../../modules/lightdm.nix
+    ../../modules/greetd.nix
   ];
 
   nix = {
@@ -107,13 +109,16 @@
   # Sway.
   programs.sway = {
     enable = true;
+    wrapperFeatures = {
+      base = true;
+      gtk = true;
+    };
     extraPackages = [];
   };
 
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
   programs.seahorse.enable = true;
-  security.pam.services.lightdm.enableGnomeKeyring = true;
 
   # Enable WebRTC-based screen-sharing.
   services.pipewire.enable = true;
