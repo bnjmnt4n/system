@@ -4,6 +4,7 @@
   imports = [
     ./alacritty.nix
     ./browsers/default.nix
+    ./gtk.nix
     ./mpv.nix
     ./spotify.nix
     ./wayland.nix

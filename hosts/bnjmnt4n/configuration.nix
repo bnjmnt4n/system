@@ -118,6 +118,10 @@
     extraPackages = [];
   };
 
+  environment.systemPackages = [
+    pkgs.capitaine-cursors
+  ];
+
   # Secrets management.
   services.gnome3.gnome-keyring.enable = true;
   programs.seahorse.enable = true;

@@ -36,14 +36,14 @@ let
   media_prev = "${pkgs.playerctl}/bin/playerctl previous";
 
   # Volume.
-#  wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
+  # wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
   volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10"; # " && ${wob_show_volume}";
   volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10"; # " && ${wob_show_volume}";
   volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute"; # " && (${pkgs.pamixer}/bin/pamixer --get-mute && ${pkgs.wob}/bin/wob 0) || ${wob_show_volume}";
   mic_mute = "${pkgs.pulseaudioFull}/bin/pactl set-source-mute @DEFAULT_SINK@ toggle";
 
   # Screen brightness.
-#  wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
+  # wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
   brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+"; # " && ${wob_show_brightness}";
   brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%-"; # " && ${wob_show_brightness}";
 
@@ -69,6 +69,26 @@ let
     timeout 600 "swaymsg 'output * dpms off'" \
     resume "swaymsg 'output * dpms on'" \
     before-sleep "${lock_cmd}"'';
+
+  # Configure GTK settings for Wayland.
+  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
+  gsettings="${pkgs.glib}/bin/gsettings";
+  gsettings_script = pkgs.writeShellScript "gsettings-auto.sh" ''
+    expression=""
+    for pair in "$@"; do
+      IFS=:; set -- $pair
+      expressions="$expressions -e 's:^$2=(.*)$:${gsettings} set org.gnome.desktop.interface $1 \1:e'"
+    done
+    IFS=
+    echo "" >/tmp/gsettings.log
+    echo exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
+    eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
+  '';
+  gsettings_cmd = ''${gsettings_script} \
+    gtk-theme:gtk-theme-name \
+    icon-theme:gtk-icon-theme-name \
+    font-name:gtk-font-name \
+    cursor-theme:gtk-cursor-theme-name'';
 in
 {
   wayland.windowManager.sway = {
@@ -97,6 +117,9 @@ in
       export MOZ_ENABLE_WAYLAND=1
       export MOZ_DBUS_REMOTE=1
       export MOZ_USE_XINPUT2=1
+    '';
+    extraConfig = ''
+      seat seat0 xcursor_theme "capitaine-cursors"
     '';
     config = rec {
       inherit modifier;
@@ -311,6 +334,7 @@ in
         command = waybar;
       }];
       startup = [
+        { always = true; command = "${gsettings_cmd}"; }
         { always = true; command = "${pkgs.mako}/bin/mako"; }
         { always = true; command = "${pkgs.systemd}/bin/systemd-notify --ready || true"; }
         { command = "${idle_cmd}"; }
