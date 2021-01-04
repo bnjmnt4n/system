@@ -6,7 +6,7 @@
     enable = true;
     package = pkgs.gitAndTools.gitFull;
     userName = "Benjamin Tan";
-    userEmail = "demoneaux@gmail.com";
+    userEmail = "benjamin@dev.ofcr.se";
     delta.enable = true;
     lfs.enable = true;
 

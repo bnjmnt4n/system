@@ -5,7 +5,7 @@
     ./git.nix
     ./emacs.nix
     ./vim.nix
-    ./mail.nix
+    # ./mail.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
