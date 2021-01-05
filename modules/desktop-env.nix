@@ -22,13 +22,13 @@
     xfce.thunar
 
     # Editors
-    vscode
+    vscodium
 
     # Media
     gimp
     imv
     playerctl # Theoretically not a GUI tool, but only used in GUI environments.
-    vlc
+    # vlc
 
     # PDF
     zathura
@@ -40,6 +40,7 @@
     dropbox
     libreoffice
     musescore
+    # octave
     pavucontrol
     tdesktop
     webtorrent_desktop
