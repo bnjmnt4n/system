@@ -15,9 +15,6 @@
     # Theoretically not a GUI tool, but only used in GUI environments.
     brightnessctl
 
-    # System bar and trays
-    networkmanagerapplet
-
     # File manager
     xfce.thunar
 
@@ -57,6 +54,8 @@
     BROWSER = "firefox";
   };
 
-  # Bluetooth controls.
+  # Wifi/Bluetooth applets.
+  xsession.preferStatusNotifierItems = true;
   services.blueman-applet.enable = true;
+  services.network-manager-applet.enable = true;
 }

@@ -10,6 +10,7 @@ let
   # Applications.
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
+  browser_alt = "${pkgs.chromium}/bin/chromium";
   editor = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
@@ -23,9 +24,8 @@ let
   find_files = pkgs.writeShellScript "find-files.sh" ''
     cd ~
     FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
-    xdg-open "$HOME/$FILE"
+    [ -n "$FILE"] && xdg-open "$HOME/$FILE"
   '';
-
 
   # Outputs.
   output_laptop = "eDP-1";
@@ -175,6 +175,7 @@ in
 
         # Keybindings for commonly used apps.
         "${modifier}+b" = "exec ${browser}";
+        "${modifier}+z" = "exec ${browser_alt}";
         "${modifier}+c" = "exec ${editor}";
         "${modifier}+n" = "exec ${explorer}";
         "${modifier}+t" = "exec ${telegram}";
