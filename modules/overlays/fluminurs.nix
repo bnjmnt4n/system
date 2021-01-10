@@ -2,13 +2,13 @@
 
 naersk.buildPackage rec {
   name = "fluminurs";
-  version = "ebfbbbcb3a5ea2fc1ebb5563d2861558084eec36";
+  version = "06ac5fc80f2223c3fa6de66288d0c074344338c0";
 
   src = fetchFromGitHub {
-    owner = "indocomsoft";
+    owner = "fluminurs";
     repo = "fluminurs";
     rev = version;
-    sha256 = "1xbpbwfvj0hxdhi195j9anyv1rji9g0aczsjg7h52rvl8ddvvkq2";
+    sha256 = "1xzs4zb3wwxn2wp6czq7nizp5id373g4p6r47yb73ma64hw95wq6";
   };
 
   buildInputs = [

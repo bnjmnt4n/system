@@ -33,4 +33,10 @@
       };
     };
   };
+
+  home.packages = [
+    (pkgs.writeShellScriptBin "firefox-nightly" ''
+      exec ${pkgs.firefox-nightly}/bin/firefox "''${@}"
+    '')
+  ];
 }

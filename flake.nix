@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-firefox.url = "github:nixos/nixpkgs?rev=d105075a1fd870b1d1617a6008cb38b443e65433";
+    firefox-nightly = { url = "github:colemickens/flake-firefox-nightly"; };
+    firefox-nightly.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     naersk.url = "github:nmattia/naersk";
