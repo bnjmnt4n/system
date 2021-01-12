@@ -29,6 +29,9 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Allow for a greater number of inotify watches.
+  boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
+
   # Use a recent Linux kernel (5.9).
   boot.kernelPackages = pkgs.linuxPackages_5_9;
   hardware.enableRedistributableFirmware = true;

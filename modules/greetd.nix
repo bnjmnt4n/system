@@ -79,5 +79,6 @@
   security.pam.services.greetd = {
     allowNullPassword = true;
     startSession = true;
+    enableGnomeKeyring = true;
   };
 }
