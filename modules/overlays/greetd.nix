@@ -2,12 +2,12 @@
 
 naersk.buildPackage rec {
   name = "greetd";
-  version = "0.6.1";
+  version = "0.7.0";
 
   src = fetchgit {
     url = "https://git.sr.ht/~kennylevinsen/greetd";
     rev = version;
-    sha256 = "Jeb9GkR2OQ5j3xYNU0N64xPb2jDXkkeTb+UlyRGPOYo=";
+    sha256 = "b+S3fuJ8gjnSQzLHl3Bs9iO/Un2ynggAplz01GjJvFI=";
   };
 
   buildInputs = [
