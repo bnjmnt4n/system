@@ -36,6 +36,7 @@
     pandoc
     ripgrep
     rsync
+    tmux
     tree
     wget
     xdg_utils
