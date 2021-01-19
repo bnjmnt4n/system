@@ -213,7 +213,7 @@ in
         "${modifier}+grave" = "exec ${hide_waybar}";
 
         # Notifications
-        "Control+Space" = "exec ${notifications_dismiss_all}";
+        "Control+Shift+Space" = "exec ${notifications_dismiss_all}";
 
         # Kill focused window.
         "${modifier}+q" = "kill";

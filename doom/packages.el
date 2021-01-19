@@ -12,6 +12,7 @@
 (package! anki-editor)
 (package! mathpix.el
   :recipe (:host github :repo "jethrokuan/mathpix.el"))
+(package! lsp-java :pin "33364a268a61366f1a07596e9fe7bd0f6d73fd90")
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;(package! some-package)
