@@ -26,7 +26,7 @@
        (evil +everywhere)
        file-templates
        fold
-       (format +onsave)
+       format ; (format +onsave)
        snippets
 
        :emacs
@@ -51,7 +51,7 @@
        editorconfig
        (eval +overlay)
        lookup
-       lsp
+       (lsp +peek)
        magit
        pdf
 
