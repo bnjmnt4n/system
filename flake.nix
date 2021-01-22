@@ -18,7 +18,7 @@
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
   {
     nixosConfigurations = {
-      bnjmnt4n = nixpkgs.lib.nixosSystem {
+      gastropod = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ({ ... }: {
@@ -26,12 +26,12 @@
             _module.args.system = "x86_64-linux";
           })
           ./modules/overlays/default.nix
-          ./hosts/bnjmnt4n/configuration.nix
+          ./hosts/gastropod/configuration.nix
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.bnjmnt4n = import ./hosts/bnjmnt4n/home.nix;
+            home-manager.users.bnjmnt4n = import ./hosts/gastropod/home.nix;
           }
         ];
       };
