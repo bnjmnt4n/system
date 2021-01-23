@@ -4,6 +4,7 @@
   imports = [
     ./git.nix
     ./emacs.nix
+    ./xdg.nix
     ./vim.nix
     # ./mail.nix
   ];
