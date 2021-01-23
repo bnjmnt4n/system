@@ -16,7 +16,12 @@ let
   telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
   # TODO: spotifyd service seems wonky at times.
   # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
-  spotify = ''"systemctl restart --user spotifyd.service; ${terminal} --title spotify --class alacritty_spotify --command spt &; sleep 1; swaymsg scratchpad show"'';
+  spotify = pkgs.writeShellScript "spotify.sh" ''
+    systemctl restart --user spotifyd.service
+    ${terminal} --title spotify --class alacritty_spotify --command spt &
+    sleep 1
+    swaymsg scratchpad show
+  '';
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
@@ -133,7 +138,7 @@ in
       };
       output = {
         "*" = {
-          bg = "~/.background-image fill";
+          background = "~/.background-image fill";
         };
         "${output_laptop}" = {
           scale = "1.5";
@@ -337,7 +342,6 @@ in
       startup = [
         { always = true; command = "${gsettings_cmd}"; }
         { always = true; command = "${pkgs.mako}/bin/mako"; }
-        { always = true; command = "${pkgs.systemd}/bin/systemd-notify --ready || true"; }
         { command = "${idle_cmd}"; }
       ];
     };

@@ -9,7 +9,7 @@ This repository contains my home environment, largely consisting of my [NixOS][n
 $ git clone https://github.com/bnjmnt4n/home.git
 
 # Rebuilds my NixOS configuration.
-$ sudo nixos-rebuild switch --flake 'home#gastropod'
+$ sudo nixos-rebuild switch --flake './home#gastropod'
 
 # Setup cachix.
 $ cachix use nix-community

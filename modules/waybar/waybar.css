@@ -8,7 +8,6 @@
 
 window#waybar {
     background-color: rgba(43, 48, 59, 0.8);
-    border-bottom: 3px solid rgba(100, 114, 125, 0.5);
     color: #ffffff;
     transition-property: background-color;
     transition-duration: .5s;
@@ -37,7 +36,7 @@ window#waybar.chromium {
     background-color: transparent;
     color: #ffffff;
     /* Use box-shadow instead of border so the text isn't offset */
-    box-shadow: inset 0 -3px transparent;
+    box-shadow: inset 0 -3px rgba(255, 255, 255, 0.5);
 }
 
 /* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
@@ -57,7 +56,7 @@ window#waybar.chromium {
 
 #mode {
     background-color: #64727D;
-    border-bottom: 3px solid #ffffff;
+    box-shadow: inset 0 -3px #ffffff;
 }
 
 #clock,
