@@ -16,7 +16,14 @@
     brightnessctl
 
     # File manager
-    xfce.thunar
+    (xfce.thunar.override {
+      thunarPlugins = [
+        xfce.thunar-volman
+        # TODO: seems like the archive plugin does not detect xarchiver as a backend
+        xfce.thunar-archive-plugin
+      ];
+    })
+    xarchiver
 
     # Editors
     vscodium
@@ -44,10 +51,10 @@
 
     # Videoconferencing
     zoom-us # hmmm...
-    teams
   ];
 
   home.sessionVariables = {
+    LIBVA_DRIVER_NAME = "i695";
     TERMINAL = "alacritty";
     EDITOR = "emacsclient -nw -c -a emacs";
     VISUAL = "emacsclient -c -a emacs";
