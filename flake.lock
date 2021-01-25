@@ -141,22 +141,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-firefox": {
-      "locked": {
-        "lastModified": 1604368813,
-        "narHash": "sha256-UOLaURSO448k+4bGJlaSMYeo2F5F6CuFo9VoYDkhmsk=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "d105075a1fd870b1d1617a6008cb38b443e65433",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "d105075a1fd870b1d1617a6008cb38b443e65433",
-        "type": "github"
-      }
-    },
     "nixpkgs-wayland": {
       "inputs": {
         "cachix": "cachix_2",
@@ -216,7 +200,6 @@
         "home-manager": "home-manager",
         "naersk": "naersk",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-firefox": "nixpkgs-firefox",
         "nixpkgs-wayland": "nixpkgs-wayland",
         "nur": "nur"
       }

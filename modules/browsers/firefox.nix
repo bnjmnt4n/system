@@ -29,6 +29,10 @@
           "experiments.supported" = false;
           "extensions.pocket.enabled" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
+          # Hardware acceleration related settings.
+          "gfx.webrender.all" = true;
+          "widget.wayland-dmabuf-vaapi.enabled" = true;
         };
       };
     };
