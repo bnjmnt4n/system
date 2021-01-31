@@ -28,6 +28,7 @@
     file
     fzf
     gvfs
+    htop
     jq
     less
     ledger

@@ -166,11 +166,20 @@ in
             command = "floating enable, sticky enable, resize set width 400px 600px, move position cursor, move down 35";
           }
           {
-            criteria = { title = "^zoom$"; };
+            criteria = { title = "^(.*) Indicator"; };
+            command = "floating enable";
+          }
+          # Zoom
+          {
+            criteria = { title = "^Zoom Meeting$"; };
+            command = "inhibit_idle visible";
+          }
+          {
+            criteria = { title = "^Chat$|^Participants"; };
             command = "floating enable";
           }
           {
-            criteria = { title = "^(.*) Indicator"; };
+            criteria = { title = "^zoom$|Choose ONE of the audio conference options"; };
             command = "floating enable";
           }
         ];

@@ -10,10 +10,10 @@
        doom-dashboard
        hl-todo
        ;;hydra
-       modeline
+       (modeline +light)
        nav-flash
        ophints
-       (popup +defaults)
+       (popup +defaults +all)
        treemacs
        ;;unicode
        vc-gutter
@@ -70,7 +70,7 @@
        nix
        (org +pretty +roam)
        ;;python
-       (ruby +rails +lsp)
+       ;;(ruby +rails +lsp)
        (rust +lsp)
        sh
        web
