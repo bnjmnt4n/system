@@ -7,7 +7,7 @@
   console.font = toString (pkgs.ttf-console-font {
     fontfile = "${pkgs.iosevka}/share/fonts/truetype/iosevka-regular.ttf";
     dpi = 192;
-    # NOTE: make sure that the font size is les than 32px. (Check with `file /path/to/font`)
+    # NOTE: make sure that the font size is less than 32px. (Check with `file /path/to/font`)
     ptSize = 10;
   });
 }

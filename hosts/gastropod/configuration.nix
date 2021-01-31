@@ -5,6 +5,8 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
 
+    ../../modules/grub.nix # Alternatively, ../../modules/systemd-boot.nix
+
     ../../modules/cachix.nix
     ../../modules/fonts.nix   # TODO: should this be in home-manager?
     ../../modules/console-font.nix
@@ -24,10 +26,6 @@
   };
 
   nixpkgs.config.allowUnfree = true;
-
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
 
   # Allow for a greater number of inotify watches.
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
@@ -97,6 +95,10 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
+  # services.samba = {
+  #   enable = true;
+  #   package = pkgs.sambaFull;
+  # };
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {
