@@ -5,6 +5,7 @@
     ./alacritty.nix
     ./browsers/default.nix
     ./gtk.nix
+    ./java-env.nix
     ./mpv.nix
     ./spotify.nix
     ./wayland.nix
@@ -39,6 +40,7 @@
 
     # Apps
     anki
+    appimage-run
     bitwarden
     bitwarden-cli
     dropbox

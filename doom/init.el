@@ -8,6 +8,7 @@
 
        :ui
        doom-dashboard
+       doom-quit
        hl-todo
        ;;hydra
        (modeline +light)

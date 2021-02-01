@@ -3,6 +3,6 @@
 {
   imports = [
     ../../modules/home.base.nix
-    ../../modules/desktop-env.nix
+    ../../modules/graphical.nix
   ];
 }
