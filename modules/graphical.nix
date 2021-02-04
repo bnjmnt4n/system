@@ -5,7 +5,7 @@
     ./alacritty.nix
     ./browsers/default.nix
     ./gtk.nix
-    ./java-env.nix
+    ./misc.nix
     ./mpv.nix
     ./spotify.nix
     ./wayland.nix
