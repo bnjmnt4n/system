@@ -1,5 +1,19 @@
 { pkgs, ... }:
 
+let
+  # TODO: figure out a better way to do this.
+  searchJson = ./search.json;
+  searchJsonMozlz4 = pkgs.stdenv.mkDerivation {
+    pname = "search-json-mozlz4";
+    version = "latest";
+    src = ./.;
+    phases = "installPhase";
+    installPhase = ''
+      mkdir -p $out
+      ${pkgs.mozlz4a}/bin/mozlz4a ${searchJson} $out/search.json.mozlz4
+    '';
+  };
+in
 {
   programs.firefox = {
     enable = true;
@@ -24,10 +38,12 @@
         settings = {
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
+          "browser.urlbar.suggest.searches" = false;
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
           "experiments.supported" = false;
           "extensions.pocket.enabled" = false;
+          "middlemouse.paste" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
           # Hardware acceleration related settings.
@@ -37,6 +53,9 @@
       };
     };
   };
+
+  # TODO: merge into firefox.profiles?
+  home.file.".mozilla/firefox/default/search.json.mozlz4".source = "${searchJsonMozlz4}/search.json.mozlz4";
 
   home.packages = [
     (pkgs.writeShellScriptBin "firefox-nightly" ''
