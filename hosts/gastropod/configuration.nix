@@ -30,8 +30,8 @@
   # Allow for a greater number of inotify watches.
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
 
-  # Use a recent Linux kernel (5.9).
-  boot.kernelPackages = pkgs.linuxPackages_5_9;
+  # Use a recent Linux kernel (5.10).
+  boot.kernelPackages = pkgs.linuxPackages_5_10;
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
 
