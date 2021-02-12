@@ -32,7 +32,7 @@
   {
     nixosConfigurations = {
       gastropod = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
         modules = [
           ({ ... }: {
             system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
@@ -48,6 +48,23 @@
             home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
           }
         ];
+      };
+    };
+
+    homeConfigurations = {
+      gastropod = home-manager.lib.homeManagerConfiguration {
+        inherit system;
+        username = "bnjmnt4n";
+        homeDirectory = "/home/bnjmnt4n";
+        configuration = {
+          imports = [
+            # TODO: use a custom nixpkgs instead?
+            ({ ... }: {
+              nixpkgs.overlays = overlays;
+            })
+            ./hosts/gastropod/bnjmnt4n.nix
+          ];
+        };
       };
     };
   };
