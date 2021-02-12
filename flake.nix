@@ -3,12 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    firefox-nightly = { url = "github:colemickens/flake-firefox-nightly"; };
-    firefox-nightly.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:bnjmnt4n/home-manager/flake";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     naersk.url = "github:nmattia/naersk";
     naersk.inputs.nixpkgs.follows = "nixpkgs";
+    firefox-nightly = { url = "github:colemickens/flake-firefox-nightly"; };
+    firefox-nightly.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland?rev=f0fd29ba034c207dfe385b1565b020ec4446e9b8";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
@@ -16,7 +16,6 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
-
   let
     system = "x86_64-linux";
     overlays = [
@@ -30,6 +29,10 @@
       })
       (import ./pkgs/default.nix)
     ];
+    pkgs = import nixpkgs {
+      inherit system overlays;
+      config.allowUnfree = true;
+    };
   in
   {
     nixosConfigurations = {
@@ -40,7 +43,8 @@
             system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
             nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
             nix.registry.nixpkgs.flake = nixpkgs;
-            nixpkgs.overlays = overlays;
+            # Use our custom instance of nixpkgs with overlays and `allowUnfree`.
+            nixpkgs = { inherit pkgs; };
           })
           ./hosts/gastropod/configuration.nix
           home-manager.nixosModules.home-manager
@@ -54,19 +58,11 @@
     };
 
     homeConfigurations = {
-      gastropod = home-manager.lib.homeManagerConfiguration {
-        inherit system;
+      bnjmnt4n = home-manager.lib.homeManagerConfiguration {
+        inherit system pkgs;
         username = "bnjmnt4n";
         homeDirectory = "/home/bnjmnt4n";
-        configuration = {
-          imports = [
-            # TODO: use a custom nixpkgs instead?
-            ({ ... }: {
-              nixpkgs.overlays = overlays;
-            })
-            ./hosts/gastropod/bnjmnt4n.nix
-          ];
-        };
+        configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
     };
   };
