@@ -15,22 +15,37 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
+
+  let
+    system = "x86_64-linux";
+    overlays = [
+      inputs.emacs-overlay.overlay
+      inputs.nixpkgs-wayland.overlay
+      inputs.nur.overlay
+      (final: prev: {
+        naersk = inputs.naersk.lib.${system};
+        firefox-nightly = inputs.firefox-nightly.packages.${system}.firefox-nightly-bin;
+      })
+      (import ./pkgs/default.nix)
+    ];
+  in
   {
     nixosConfigurations = {
       gastropod = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ({ ... }: {
-            _module.args.inputs = inputs;
-            _module.args.system = "x86_64-linux";
+            system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+            nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+            nix.registry.nixpkgs.flake = nixpkgs;
+            nixpkgs.overlays = overlays;
           })
-          ./modules/overlays/default.nix
           ./hosts/gastropod/configuration.nix
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.bnjmnt4n = import ./hosts/gastropod/home.nix;
+            home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
           }
         ];
       };

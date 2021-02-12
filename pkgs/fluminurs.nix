@@ -1,4 +1,4 @@
-{ lib, naersk, fetchFromGitHub, openssl, pkg-config, stdenv, ... }:
+{ lib, naersk, fetchFromGitHub, openssl, pkg-config, ... }:
 
 naersk.buildPackage rec {
   name = "fluminurs";
@@ -16,9 +16,9 @@ naersk.buildPackage rec {
     pkg-config
   ];
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Luminus CLI";
-    homepage = https://github.com/indocomsoft/fluminurs;
+    homepage = https://github.com/fluminurs/fluminurs;
     license = licenses.mit;
     platforms = platforms.all;
   };

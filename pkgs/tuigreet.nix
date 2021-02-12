@@ -10,6 +10,5 @@ naersk.buildPackage rec {
     sha256 = "lTa6q55tJv+FqnYcpfjxgViWd2/5HfpIk6XoX5uRKms=";
   };
 
-  buildInputs = [
-  ];
+  buildInputs = [];
 }

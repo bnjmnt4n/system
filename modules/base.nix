@@ -97,4 +97,6 @@
       set fish_greeting
     '';
   };
+
+  programs.bash.enable = true;
 }
