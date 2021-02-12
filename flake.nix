@@ -11,6 +11,7 @@
     naersk.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland?rev=f0fd29ba034c207dfe385b1565b020ec4446e9b8";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nur.url = "github:nix-community/NUR";
   };
 
@@ -20,6 +21,7 @@
     system = "x86_64-linux";
     overlays = [
       inputs.emacs-overlay.overlay
+      inputs.neovim-nightly-overlay.overlay
       inputs.nixpkgs-wayland.overlay
       inputs.nur.overlay
       (final: prev: {
