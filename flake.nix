@@ -65,5 +65,16 @@
         configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
     };
+
+    # Convenient shortcuts to switch configurations within this repository.
+    devShell.${system} =
+      let scripts = import ./lib/scripts.nix { inherit pkgs; };
+        in
+      pkgs.mkShell {
+        nativeBuildInputs = with scripts; [
+          switchHome
+          switchNixos
+        ];
+      };
   };
 }
