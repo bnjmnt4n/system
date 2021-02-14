@@ -2,12 +2,12 @@
 { pkgs }:
 
 {
-  switchNixos = pkgs.writeShellScriptBin "switch-nixos" ''
+  switchNixos = pkgs.writeShellScriptBin "swn" ''
     set -euo pipefail
     sudo nixos-rebuild switch --flake . $@
   '';
 
-  switchHome = pkgs.writeShellScriptBin "switch-home" ''
+  switchHome = pkgs.writeShellScriptBin "swh" ''
     set -euo pipefail
     export PATH=${with pkgs; lib.makeBinPath [ gitMinimal jq nixUnstable ]}
     usr="''${1:-$USER}"

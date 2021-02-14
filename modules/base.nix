@@ -14,17 +14,16 @@
     { allowUnfree = true; }
   '';
 
+  # TODO: shift to flake.nix?
   programs.home-manager.enable = true;
   home.stateVersion = "20.09";
-
-  home.username = "bnjmnt4n";
-  home.homeDirectory = "/home/bnjmnt4n";
 
   home.packages = with pkgs; [
     # System
     aspell
     aspellDicts.en
     bat
+    exa
     fd
     file
     fzf
@@ -33,16 +32,13 @@
     jq
     less
     ledger
-    libnotify
-    libsecret
-    pass
     pandoc
     ripgrep
     rsync
     tmux
     tree
     wget
-    xdg_utils
+    xdg-utils
 
     cachix
 
@@ -53,7 +49,7 @@
     zip
 
     # Media
-    ffmpeg-full
+    ffmpeg
     gifsicle
     imagemagick
 
@@ -93,7 +89,6 @@
   programs.fish = {
     enable = true;
     shellInit = ''
-      # TODO: use home-manager's modules for some of this.
       # Clear greeting.
       set fish_greeting
     '';

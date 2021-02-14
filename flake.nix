@@ -5,76 +5,82 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager.url = "github:bnjmnt4n/home-manager/flake";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    naersk.url = "github:nmattia/naersk";
-    naersk.inputs.nixpkgs.follows = "nixpkgs";
-    firefox-nightly = { url = "github:colemickens/flake-firefox-nightly"; };
-    firefox-nightly.inputs.nixpkgs.follows = "nixpkgs";
-    nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland?rev=f0fd29ba034c207dfe385b1565b020ec4446e9b8";
+    nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     nur.url = "github:nix-community/NUR";
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
-  let
-    system = "x86_64-linux";
-    overlays = [
-      inputs.emacs-overlay.overlay
-      inputs.neovim-nightly-overlay.overlay
-      inputs.nixpkgs-wayland.overlay
-      inputs.nur.overlay
-      (final: prev: {
-        naersk = inputs.naersk.lib.${system};
-        firefox-nightly = inputs.firefox-nightly.packages.${system}.firefox-nightly-bin;
-      })
-      (import ./pkgs/default.nix)
-    ];
-    pkgs = import nixpkgs {
-      inherit system overlays;
-      config.allowUnfree = true;
-    };
-  in
-  {
-    nixosConfigurations = {
-      gastropod = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          ({ ... }: {
-            system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
-            nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-            nix.registry.nixpkgs.flake = nixpkgs;
-            # Use our custom instance of nixpkgs with overlays and `allowUnfree`.
-            nixpkgs = { inherit pkgs; };
-          })
-          ./hosts/gastropod/configuration.nix
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
-          }
-        ];
+    let
+      overlays = [
+        inputs.nixpkgs-wayland.overlay
+        inputs.emacs-overlay.overlay
+        inputs.neovim-nightly-overlay.overlay
+        inputs.nur.overlay
+        (import ./pkgs/default.nix)
+      ];
+      makePkgs = system: import nixpkgs {
+        inherit system overlays;
+        config.allowUnfree = true;
       };
-    };
+      makeNixosConfiguration = { system, configuration, module }:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            home-manager.nixosModules.home-manager
+            {
+              system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+              nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+              nix.registry.nixpkgs.flake = nixpkgs;
+              # Use our custom instance of nixpkgs.
+              nixpkgs = {
+                pkgs = makePkgs system;
+              };
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+            }
+            configuration
+            module
+          ];
+        };
+      makeHomeManagerConfiguration = { system, username, configuration }:
+        home-manager.lib.homeManagerConfiguration {
+          inherit system username configuration;
+          pkgs = makePkgs system;
+          homeDirectory = "/home/${username}";
+        };
+    in
+    {
+      nixosConfigurations.gastropod = makeNixosConfiguration {
+        system = "x86_64-linux";
+        configuration = ./hosts/gastropod/configuration.nix;
+        # TODO: abstract home-manager user handling.
+        module = {
+          home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
+        };
+      };
 
-    homeConfigurations = {
-      bnjmnt4n = home-manager.lib.homeManagerConfiguration {
-        inherit system pkgs;
+      homeConfigurations.bnjmnt4n = makeHomeManagerConfiguration {
+        system = "x86_64-linux";
         username = "bnjmnt4n";
-        homeDirectory = "/home/bnjmnt4n";
         configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
-    };
 
-    # Convenient shortcuts to switch configurations within this repository.
-    devShell.${system} =
-      let scripts = import ./lib/scripts.nix { inherit pkgs; };
+      # Convenient shortcuts to switch configurations within this repository.
+      devShell =
+        let
+          system = "x86_64-linux"; # Default solely to x86_64-linux for now.
+          pkgs = makePkgs system;
+          scripts = import ./lib/scripts.nix { inherit pkgs; };
         in
-      pkgs.mkShell {
-        nativeBuildInputs = with scripts; [
-          switchHome
-          switchNixos
-        ];
-      };
-  };
+        {
+          "${system}" = pkgs.mkShell {
+            nativeBuildInputs = with scripts; [
+              switchHome
+              switchNixos
+            ];
+          };
+        };
+    };
 }

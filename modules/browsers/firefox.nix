@@ -2,15 +2,14 @@
 
 let
   # TODO: figure out a better way to do this.
-  searchJson = ./search.json;
+  searchJson = ./firefox.search.json;
   searchJsonMozlz4 = pkgs.stdenv.mkDerivation {
     pname = "search-json-mozlz4";
     version = "latest";
     src = ./.;
     phases = "installPhase";
     installPhase = ''
-      mkdir -p $out
-      ${pkgs.mozlz4a}/bin/mozlz4a ${searchJson} $out/search.json.mozlz4
+      ${pkgs.mozlz4a}/bin/mozlz4a ${searchJson} $out
     '';
   };
 in
@@ -55,11 +54,5 @@ in
   };
 
   # TODO: merge into firefox.profiles?
-  home.file.".mozilla/firefox/default/search.json.mozlz4".source = "${searchJsonMozlz4}/search.json.mozlz4";
-
-  home.packages = [
-    (pkgs.writeShellScriptBin "firefox-nightly" ''
-      exec ${pkgs.firefox-nightly}/bin/firefox "''${@}"
-    '')
-  ];
+  home.file.".mozilla/firefox/default/search.json.mozlz4".source = searchJsonMozlz4;
 }

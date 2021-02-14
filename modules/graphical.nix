@@ -5,7 +5,6 @@
     ./alacritty.nix
     ./browsers/default.nix
     ./gtk.nix
-    ./misc.nix
     ./mpv.nix
     ./spotify.nix
     ./wayland.nix

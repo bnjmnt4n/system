@@ -2,22 +2,6 @@
   "nodes": {
     "cachix": {
       "locked": {
-        "lastModified": 1612995862,
-        "narHash": "sha256-VJPQtC8WDPvQVQGolJqp2i43Yr9bvbyqGK3oWMa5+8g=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "2394284537b89471c87065b040d3dedd8b5907fe",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "nixos-20.09",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "cachix_2": {
-      "locked": {
         "lastModified": 1611179033,
         "narHash": "sha256-NMepSdxJt8mFfgWHUT2o7u2yKZ8l2KD+FWbNDiR8Ufk=",
         "owner": "nixos",
@@ -44,28 +28,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "type": "github"
-      }
-    },
-    "firefox-nightly": {
-      "inputs": {
-        "cachix": "cachix",
-        "mozilla": "mozilla",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1613045203,
-        "narHash": "sha256-1//8ZE4MDoijkkjVN1yUGKLuinW5zJBOSPrh6Fai9To=",
-        "owner": "colemickens",
-        "repo": "flake-firefox-nightly",
-        "rev": "dbeee2cd1ce3def452de2ffd38718890fc7be36a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "colemickens",
-        "repo": "flake-firefox-nightly",
         "type": "github"
       }
     },
@@ -137,42 +99,6 @@
         "type": "github"
       }
     },
-    "mozilla": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1603906276,
-        "narHash": "sha256-RsNPnEKd7BcogwkqhaV5kI/HuNC4flH/OQCC/4W5y/8=",
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "rev": "8c007b60731c07dd7a052cce508de3bb1ae849b4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "mozilla",
-        "repo": "nixpkgs-mozilla",
-        "type": "github"
-      }
-    },
-    "naersk": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1612192764,
-        "narHash": "sha256-7EnLtZQWP6511G1ZPA7FmJlqAr3hWsAYb24tvTvJ/ec=",
-        "owner": "nmattia",
-        "repo": "naersk",
-        "rev": "6e149bfd726a8ebefa415f2d713ba6d942435abd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nmattia",
-        "repo": "naersk",
-        "type": "github"
-      }
-    },
     "neovim-nightly": {
       "flake": false,
       "locked": {
@@ -230,22 +156,21 @@
     },
     "nixpkgs-wayland": {
       "inputs": {
-        "cachix": "cachix_2",
+        "cachix": "cachix",
         "nixpkgs": "nixpkgs_3",
         "unstableSmall": "unstableSmall"
       },
       "locked": {
-        "lastModified": 1611330999,
-        "narHash": "sha256-NaXlhmBqcpfxV+v7yWD3lgkwyCeVcJuUQd7wkSgNrO0=",
+        "lastModified": 1613004821,
+        "narHash": "sha256-1CWAVY+Mhcz122LSIEnChszB32QpV5NZ1qxwlAENwvc=",
         "owner": "colemickens",
         "repo": "nixpkgs-wayland",
-        "rev": "f0fd29ba034c207dfe385b1565b020ec4446e9b8",
+        "rev": "c2bf18c492c57ca36105c95a1771ed83b207a20d",
         "type": "github"
       },
       "original": {
         "owner": "colemickens",
         "repo": "nixpkgs-wayland",
-        "rev": "f0fd29ba034c207dfe385b1565b020ec4446e9b8",
         "type": "github"
       }
     },
@@ -315,9 +240,7 @@
     "root": {
       "inputs": {
         "emacs-overlay": "emacs-overlay",
-        "firefox-nightly": "firefox-nightly",
         "home-manager": "home-manager",
-        "naersk": "naersk",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-wayland": "nixpkgs-wayland",

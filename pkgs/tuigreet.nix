@@ -1,14 +1,23 @@
-{ lib, naersk, fetchgit, pam, ... }:
+{ lib, rustPlatform, fetchFromGitHub }:
 
-naersk.buildPackage rec {
-  name = "tuigreet";
-  version = "0.1.1";
+rustPlatform.buildRustPackage rec {
+  pname = "tuigreet";
+  version = "0.2.0";
 
-  src = fetchgit {
-    url = "https://github.com/apognu/tuigreet";
+  src = fetchFromGitHub {
+    owner = "apognu";
+    repo = pname;
     rev = version;
-    sha256 = "lTa6q55tJv+FqnYcpfjxgViWd2/5HfpIk6XoX5uRKms=";
+    sha256 = "1fk8ppxr3a8vdp7g18pp3sgr8b8s11j30mcqpdap4ai14v19idh8";
   };
 
-  buildInputs = [];
+  cargoSha256 = "0qpambizjy6z44spnjnh2kd8nay5953mf1ga2iff2mjlv97zpq22";
+
+  meta = with lib; {
+    description = "Graphical console greter for greetd";
+    homepage = "https://github.com/apognu/tuigreet";
+    license = licenses.gpl3Plus;
+    maintainers = with maintainers; [ luc65r ];
+    platforms = platforms.linux;
+  };
 }

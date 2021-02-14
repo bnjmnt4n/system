@@ -7,16 +7,19 @@ This repository contains my home environment, largely consisting of my [NixOS][n
 ```sh
 # Clone the repository.
 $ git clone https://github.com/bnjmnt4n/home.git
+$ cd home
 
 # Rebuilds my NixOS configuration.
-$ sudo nixos-rebuild switch --flake './home#gastropod'
+$ sudo nixos-rebuild switch --flake '.#gastropod'
+# Or `switchn`
 
-# Setup cachix.
-$ cachix use nix-community
-$ cachix use nixpkgs-wayland
+# Rebuilds my home-manager configuration.
+$ nix build '.#homeConfigurations.bnjmnt4n.activationPackage'
+$ ./result/activate
+# Or `switchh`
 
 # Sync Doom configuration to `$HOME/config/doom`.
-$ ./home/doom/sync.sh
+$ ./doom/sync.sh
 ```
 
 I'm currently running [NixOS][nixos] with [swaywm][swaywm], using [Doom Emacs][doom-emacs] as my editor.

@@ -69,7 +69,7 @@
        ledger
        markdown
        nix
-       (org +pretty +roam)
+       (org +roam)
        ;;python
        ;;(ruby +rails +lsp)
        (rust +lsp)

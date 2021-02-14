@@ -2,7 +2,7 @@
 # Ported from http://urchlay.naptime.net/repos/ttf-console-fonts
 # Upstream license is WTFPL (http://www.wtfpl.net/txt/copying)
 
-{ stdenv, lib, runCommand, otf2bdf, bdf2psf }:
+{ lib, runCommand, otf2bdf, bdf2psf }:
 
 { fontfile, dpi, ptSize }:
 

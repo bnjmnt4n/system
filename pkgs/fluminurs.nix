@@ -1,8 +1,8 @@
-{ lib, naersk, fetchFromGitHub, openssl, pkg-config, ... }:
+{ lib, rustPlatform, fetchFromGitHub, openssl, pkg-config }:
 
-naersk.buildPackage rec {
-  name = "fluminurs";
-  version = "06ac5fc80f2223c3fa6de66288d0c074344338c0";
+rustPlatform.buildRustPackage rec {
+  pname = "fluminurs";
+  version = "1.2.0";
 
   src = fetchFromGitHub {
     owner = "fluminurs";
@@ -11,14 +11,20 @@ naersk.buildPackage rec {
     sha256 = "1xzs4zb3wwxn2wp6czq7nizp5id373g4p6r47yb73ma64hw95wq6";
   };
 
-  buildInputs = [
+  cargoSha256 = "aFEKe5v0dTg82Fvwl6K7lYrE+S58iO7ybhy88r7QAnw=";
+
+  nativeBuildInputs = [
     openssl
     pkg-config
   ];
 
+  buildInputs = [
+    openssl
+  ];
+
   meta = with lib; {
-    description = "Luminus CLI";
-    homepage = https://github.com/fluminurs/fluminurs;
+    description = "A CLI client in Rust to access the reverse-engineered LumiNUS API";
+    homepage = "https://github.com/fluminurs/fluminurs";
     license = licenses.mit;
     platforms = platforms.all;
   };
