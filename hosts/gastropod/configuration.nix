@@ -1,18 +1,16 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, ... }:
 
 {
   imports = [
-    # Include the results of the hardware scan.
     ./hardware-configuration.nix
 
-    ../../modules/grub.nix # Alternatively, ../../modules/systemd-boot.nix
+    ../../nixos/binary-caches.nix
 
-    ../../modules/cachix.nix
-    ../../modules/fonts.nix   # TODO: should this be in home-manager?
-    ../../modules/console-font.nix
+    ../../nixos/console-font.nix
+    ../../nixos/bootloader/grub.nix # ../../nixos/bootloader/systemd-boot.nix
+    ../../nixos/login/greetd.nix # ../../nixos/login/lightdm.nix
 
-    # ../../modules/lightdm.nix
-    ../../modules/greetd.nix
+    ../../nixos/fonts.nix
   ];
 
   nix = {
@@ -24,8 +22,6 @@
     '';
     trustedUsers = [ "root" "bnjmnt4n" ];
   };
-
-  nixpkgs.config.allowUnfree = true;
 
   # Allow for a greater number of inotify watches.
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;

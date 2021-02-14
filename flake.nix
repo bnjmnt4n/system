@@ -24,7 +24,7 @@
         inherit system overlays;
         config.allowUnfree = true;
       };
-      makeNixosConfiguration = { system, configuration, module }:
+      makeNixosConfiguration = { system, configuration, modules }:
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
@@ -40,9 +40,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
             }
-            configuration
-            module
-          ];
+          ] ++ modules;
         };
       makeHomeManagerConfiguration = { system, username, configuration }:
         home-manager.lib.homeManagerConfiguration {
@@ -54,11 +52,13 @@
     {
       nixosConfigurations.gastropod = makeNixosConfiguration {
         system = "x86_64-linux";
-        configuration = ./hosts/gastropod/configuration.nix;
-        # TODO: abstract home-manager user handling.
-        module = {
-          home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
-        };
+        modules = [
+          ./hosts/gastropod/configuration.nix
+          # TODO: abstract home-manager user handling.
+          {
+            home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
+          }
+        ];
       };
 
       homeConfigurations.bnjmnt4n = makeHomeManagerConfiguration {

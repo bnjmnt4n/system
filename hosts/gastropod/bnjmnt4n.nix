@@ -2,8 +2,8 @@
 
 {
   imports = [
-    ../../modules/base.nix
-    ../../modules/graphical.nix
+    ../../home/base.nix
+    ../../home/graphical.nix
   ];
 
   # TODO: remove?
