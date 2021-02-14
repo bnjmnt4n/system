@@ -6,7 +6,6 @@
     ./emacs.nix
     ./neovim.nix
     ./xdg.nix
-    ./vim.nix
     # ./mail.nix
   ];
 
