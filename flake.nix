@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # TODO: switch back to upstream home-manager after
+    # https://github.com/nix-community/home-manager/pull/1767 is merged.
     home-manager.url = "github:bnjmnt4n/home-manager/flake";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
@@ -24,7 +26,7 @@
         inherit system overlays;
         config.allowUnfree = true;
       };
-      makeNixosConfiguration = { system, configuration, modules }:
+      makeNixosConfiguration = { system, modules }:
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [

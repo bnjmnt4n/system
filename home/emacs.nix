@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.emacs = {
@@ -9,7 +9,7 @@
   services.emacs.enable = true;
 
   # Include Doom Emacs CLI in PATH.
-  home.sessionPath = [ "~/.emacs.d/bin" ];
+  home.sessionPath = [ "${config.home.homeDirectory}/.emacs.d/bin" ];
 
   home.packages = with pkgs; [
     imagemagick
