@@ -25,7 +25,7 @@ in
       global = {
         username = "demoneaux";
         device_name = "spotifyd";
-        use_keyring = "true";
+        use_keyring = true;
         onevent = "${notificationsScript}";
       };
     };
