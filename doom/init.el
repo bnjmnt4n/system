@@ -8,7 +8,6 @@
 
        :ui
        doom-dashboard
-       doom-quit
        hl-todo
        ;;hydra
        (modeline +light)
@@ -76,6 +75,7 @@
        sh
        web
        yaml
+       (zig +lsp)
 
        :email
        ;;notmuch
