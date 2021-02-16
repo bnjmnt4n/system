@@ -13,7 +13,7 @@
   # Miscellaneous/temporary packages.
   home.packages = with pkgs; [
     jetbrains.idea-community
-    openjdk
+    openjdk11
     qtspim
   ];
 }

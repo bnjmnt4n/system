@@ -5,8 +5,8 @@ let
   notificationsScript = pkgs.writeShellScript "notifications.sh" ''
     if [ "$PLAYER_EVENT" = "start" ] || [ "$PLAYER_EVENT" = "change" ];
     then
-      track=$(${pkgs.playerctl}/bin/playerctl metadata title)
-      artist_album=$(${pkgs.playerctl}/bin/playerctl metadata --format "{{ artist }}
+      track=$(${pkgs.playerctl}/bin/playerctl --player=spotifyd metadata title)
+      artist_album=$(${pkgs.playerctl}/bin/playerctl --player=spotifyd metadata --format "{{ artist }}
 {{ album }}")
 
       ${pkgs.libnotify}/bin/notify-send -u low "$track" "$artist_album"
