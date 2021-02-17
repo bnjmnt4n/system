@@ -9,8 +9,10 @@
 
 (use-package! zig-mode
   :mode "\\.zig$"
+  :hook (zig-mode . rainbow-delimiters-mode)
   :init
   :config
+  ;; Disable zig-mode's default format on save behaviour.
   (setq zig-format-on-save nil)
 
   (when (featurep! +lsp)
