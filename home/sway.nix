@@ -104,24 +104,13 @@ in
       gtk = true;
     };
     xwayland = true;
-    extraSessionCommands = ''
-      export SDL_VIDEODRIVER=wayland
-      # Requires `qt5.qtwayland`
-      export QT_QPA_PLATFORM=wayland
-      export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
-
-      # Enlightenment
-      export ELM_ENGINE=wayland_egl
-      export ECORE_EVAS_ENGINE=wayland_egl
-
-      # Fix for some Java AWT applications (e.g. Android Studio)
-      export _JAVA_AWT_WM_NONREPARENTING=1
+    extraSessionCommands = let
+      scripts = import ../lib/scripts.nix { inherit pkgs; };
+    in ''
+      . ${scripts.waylandSession}
 
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP=sway
-      export MOZ_ENABLE_WAYLAND=1
-      export MOZ_DBUS_REMOTE=1
-      export MOZ_USE_XINPUT2=1
     '';
     extraConfig = ''
       seat seat0 xcursor_theme "capitaine-cursors"
