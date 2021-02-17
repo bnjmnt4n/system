@@ -3,6 +3,7 @@
 {
   imports = [
     ./git.nix
+    ./gpg.nix
     ./emacs.nix
     ./neovim.nix
     ./xdg.nix
