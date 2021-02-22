@@ -25,7 +25,7 @@ $ nix develop
 $ swn # Switch to the NixOS configuration.
 $ swh # Switch to the new home configuration.
 
-# Sync Doom configuration to `$HOME/config/doom`.
+# Sync Doom configuration to `$HOME/.config/doom`.
 $ ./doom/sync.sh
 ```
 

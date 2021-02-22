@@ -15,5 +15,6 @@
     jetbrains.idea-community
     openjdk11
     qtspim
+    teams
   ];
 }

@@ -2,10 +2,8 @@
   description = "bnjmnt4n's NixOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # TODO: switch back to upstream home-manager after
-    # https://github.com/nix-community/home-manager/pull/1767 is merged.
-    home-manager.url = "github:bnjmnt4n/home-manager/flake";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
     emacs-overlay.url = "github:nix-community/emacs-overlay";

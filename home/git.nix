@@ -77,10 +77,11 @@
       # Show the user email for the current repository.
       whoami = "config user.email";
     };
+
     extraConfig = {
-      credential = {
-        helper = "${pkgs.gitAndTools.gitFull}/bin/git-credential-libsecret";
-      };
+      credential.helper = "${pkgs.gitAndTools.gitFull}/bin/git-credential-libsecret";
+      init.defaultBranch = "main";
+      pull.rebase = true;
     };
   };
 
