@@ -47,7 +47,6 @@
     musescore
     # octave
     pavucontrol
-    tdesktop
     webtorrent_desktop
 
     # Videoconferencing

@@ -115,7 +115,7 @@
   :commands
   anki-editor-mode
   :init
-  ; Not actually needed since we override the HTML export backend.
+  ;; Not actually needed since we override the HTML export backend.
   (setq-default anki-editor-use-math-jax t)
   :config
   (setq bnjmnt4n/anki-editor-cloze-counter 0)
@@ -124,7 +124,7 @@
   (defun bnjmnt4n/anki-editor-bold-italic-transcoder (_bold contents _info)
     (setq bnjmnt4n/anki-editor-cloze-counter (1+ bnjmnt4n/anki-editor-cloze-counter))
     (format "{{c%d::%s}}" bnjmnt4n/anki-editor-cloze-counter contents))
-  ; Override anki-editor's HTML backend.
+  ;; Override anki-editor's HTML backend.
   (setq anki-editor--ox-anki-html-backend
       (org-export-create-backend
        :parent 'html
@@ -136,7 +136,23 @@
   (advice-add 'anki-editor-export-subtree-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter)
   (advice-add 'anki-editor-convert-region-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter))
 
-(setq +notmuch-sync-backend 'mbsync)
+;; Telegram client.
+(use-package! telega
+  :commands
+  telega
+  :init
+  (map! :map telega-msg-button-map "k" nil)
+  (add-hook 'telega-load-hook 'telega-notifications-mode))
+
+(defun =telegram ()
+  "Activate (or switch to) `telega' in its workspace."
+  (interactive)
+  (+workspace-switch "telegram" t)
+  (doom/switch-to-scratch-buffer)
+  (telega)
+  (+workspace/display))
+
+;; Update feeds when entering elfeed.
 (add-hook! 'elfeed-search-mode-hook 'elfeed-update)
 
 ;; Here are some additional functions/macros that could help you configure Doom:
