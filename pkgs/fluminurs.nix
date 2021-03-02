@@ -2,21 +2,22 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "fluminurs";
-  version = "3c461078047dd2e645a4080d3179d676a2c4fea5";
+  version = "b516f6e79ee33a14fe11601d4ee1b0783b1b6d3e";
 
   src = fetchFromGitHub {
     owner = "fluminurs";
     repo = "fluminurs";
     rev = version;
-    sha256 = "Y51NYYSfuPW8vqy+kIByfPUbnHgZpTwkD0OrjL9vT3A=";
+    sha256 = "L8jna5lLm44pOobdtwKU4eIr16DbwLt35kk0jFkgCHg=";
   };
 
-  cargoSha256 = "kYAVlBnYN8uRUt0Y/XIYwmgs5WTMly7A9znanT1OR6Y=";
+  cargoSha256 = "p0flRp2j6t5E0dIy96J/8IBj22EmSaXxfuPtcXZk5Ts=";
 
   cargoBuildFlags = [
     "--bin"
     "fluminurs-cli"
-    "--features=\"cli\""
+    "--features"
+    "cli"
   ];
 
   nativeBuildInputs = [

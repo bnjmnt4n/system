@@ -13,6 +13,8 @@
   # Miscellaneous/temporary packages.
   home.packages = with pkgs; [
     jetbrains.idea-community
+    musescore
+    # octave
     openjdk11
     qtspim
     teams

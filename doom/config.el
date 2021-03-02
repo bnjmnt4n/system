@@ -152,6 +152,19 @@
   (telega)
   (+workspace/display))
 
+;; Transmission client.
+(use-package! transmission
+  :defer t)
+
+;; Spotify client.
+(use-package! spotify-client
+  :commands
+  global-spotify-client-remote-mode
+  :init
+  (setq spotify-client-transport 'connect
+        spotify-client-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
+        spotify-client-oauth2-client-id bnjmnt4n/spotify-app-client-id))
+
 ;; Update feeds when entering elfeed.
 (add-hook! 'elfeed-search-mode-hook 'elfeed-update)
 

@@ -13,7 +13,7 @@
        (modeline +light)
        nav-flash
        ophints
-       (popup +defaults +all)
+       (popup +defaults)
        treemacs
        ;;unicode
        vc-gutter

@@ -44,10 +44,8 @@
     bitwarden-cli
     dropbox
     libreoffice
-    musescore
-    # octave
     pavucontrol
-    webtorrent_desktop
+    transmission
 
     # Videoconferencing
     zoom-us # hmmm...
