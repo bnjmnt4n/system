@@ -1,28 +1,12 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
 (setq user-full-name "Benjamin Tan"
-      user-mail-address "demoneaux@gmail.com")
+      user-mail-address "bnjmnt4n@ofcr.se")
 
 ;; Private configuration.
 (load! "secrets.el")
 
-;; Open emacs in a maximized window.
-(add-to-list 'initial-frame-alist '(fullboth . maximized))
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
-;; are the three important ones:
-;;
-;; + `doom-font'
-;; + `doom-variable-pitch-font'
-;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;;
-;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
-;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+;; Basic display configuration.
 (setq doom-font (font-spec :family "Iosevka" :size 16)
       doom-variable-pitch-font (font-spec :family "Libre Baskerville" :height 1.0)
       doom-serif-font (font-spec :family "Libre Baskerville" :height 1.0))
@@ -107,13 +91,11 @@
                                             (file-name-extension filename))))
       (make-directory dirname t)
       (expand-file-name filename-with-timestamp dirname)))
-  :config
   (setq org-download-screenshot-method "grimshot save area %s"
         org-download-method '+org/org-download-method))
 
-(use-package anki-editor
-  :commands
-  anki-editor-mode
+(use-package! anki-editor
+  :commands (anki-editor-mode)
   :init
   ;; Not actually needed since we override the HTML export backend.
   (setq-default anki-editor-use-math-jax t)
@@ -138,11 +120,10 @@
 
 ;; Telegram client.
 (use-package! telega
-  :commands
-  telega
+  :commands (telega)
   :init
   (map! :map telega-msg-button-map "k" nil)
-  (add-hook 'telega-load-hook 'telega-notifications-mode))
+  (add-hook 'telega-load-hook #'telega-notifications-mode))
 
 (defun =telegram ()
   "Activate (or switch to) `telega' in its workspace."
@@ -158,29 +139,11 @@
 
 ;; Spotify client.
 (use-package! spotify-client
-  :commands
-  global-spotify-client-remote-mode
+  :commands (global-spotify-client-remote-mode)
   :init
   (setq spotify-client-transport 'connect
         spotify-client-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
         spotify-client-oauth2-client-id bnjmnt4n/spotify-app-client-id))
 
 ;; Update feeds when entering elfeed.
-(add-hook! 'elfeed-search-mode-hook 'elfeed-update)
-
-;; Here are some additional functions/macros that could help you configure Doom:
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
+(add-hook 'elfeed-search-mode-hook #'elfeed-update)
