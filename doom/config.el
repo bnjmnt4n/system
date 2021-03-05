@@ -1,7 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 (setq user-full-name "Benjamin Tan"
-      user-mail-address "bnjmnt4n@ofcr.se")
+      user-mail-address "benjamin@dev.ofcr.se")
 
 ;; Private configuration.
 (load! "secrets.el")
@@ -13,7 +13,27 @@
 
 (setq doom-theme 'modus-operandi)
 
-(setq display-line-numbers-type t)
+;; TODO: display relative line numbers in normal mode, and absolute line numbers in insert mode?
+(setq display-line-numbers-type 'relative)
+
+;; Loosen the split width threshold since my laptop screen width is smaller.
+(setq split-width-threshold 140)
+
+;; Custom frame title format, copied from https://tecosaur.github.io/emacs-config/config.html#window-title.
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              "\.org$" ""
+              (replace-regexp-in-string
+               ".*/[0-9]*-?" "☰ "
+               (subst-char-in-string ?_ ?  buffer-file-name)))
+           "%b"))
+        (:eval
+         (let ((project-name (doom-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p)  " ◉ %s" " ● %s") project-name))))))
 
 ;; org-mode configuration.
 (setq org-directory "~/org/"
@@ -65,7 +85,8 @@
   org-download-clipboard
   org-download-dnd-base64
   :init
-  (map! :map org-mode-map
+  (map! :after org
+        :map org-mode-map
         :localleader
         (:prefix "a"
           "c" #'org-download-screenshot
@@ -94,12 +115,11 @@
   (setq org-download-screenshot-method "grimshot save area %s"
         org-download-method '+org/org-download-method))
 
+;; Anki editor.
 (use-package! anki-editor
   :commands (anki-editor-mode)
-  :init
-  ;; Not actually needed since we override the HTML export backend.
-  (setq-default anki-editor-use-math-jax t)
   :config
+  ;; Used to transform bold and italics into cloze completions.
   (setq bnjmnt4n/anki-editor-cloze-counter 0)
   (defun bnjmnt4n/reset-anki-editor-cloze-counter ()
     (setq bnjmnt4n/anki-editor-cloze-counter 0))
@@ -122,8 +142,16 @@
 (use-package! telega
   :commands (telega)
   :init
-  (map! :map telega-msg-button-map "k" nil)
-  (add-hook 'telega-load-hook #'telega-notifications-mode))
+  ;; Display chats on a split buffer to the right.
+  (set-popup-rules!
+    '(("^\\*Telega Root\\*$" :ignore t)
+      ("^\\*Telegram Message Info\\*$" :height 0.35 :select t :modeline nil)
+      ("^\\*Telegram Chat Info\\*$" :height 0.4 :select t :modeline nil)
+      ("^◀" :side right :width 120 :quit current :select t :modeline t)))
+  ;; Display system notifications.
+  (add-hook 'telega-load-hook #'telega-notifications-mode)
+  :config
+  (map! :map telega-msg-button-map "k" nil))
 
 (defun =telegram ()
   "Activate (or switch to) `telega' in its workspace."
@@ -140,10 +168,23 @@
 ;; Spotify client.
 (use-package! spotify-client
   :commands (global-spotify-client-remote-mode)
-  :init
+  :config
   (setq spotify-client-transport 'connect
         spotify-client-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
-        spotify-client-oauth2-client-id bnjmnt4n/spotify-app-client-id))
+        spotify-client-oauth2-client-id bnjmnt4n/spotify-app-client-id)
+  (set-popup-rules!
+    '(("^\\*\\(Playlists:\\|Playlist \\(Tracks\\|Search\\):\\|Album:\\|Track Search:\\|\\(Featured Playlists\\|Recently Played\\)\\*$\\)"
+        :side right :width 0.5 :select t :quit current :modeline t)
+      ("^\\*Devices\\*$" :height 0.35 :select t))))
 
 ;; Update feeds when entering elfeed.
-(add-hook 'elfeed-search-mode-hook #'elfeed-update)
+(after! elfeed
+  (add-hook 'elfeed-search-mode-hook #'elfeed-update)
+  (set-popup-rule! "^\\*elfeed-entry"
+    :size 0.75 :actions '(display-buffer-below-selected)
+    :select t :quit 'current :ttl t))
+
+(use-package! magit-delta
+  :commands (magit-delta-mode))
+(after! magit
+  (add-hook 'magit-mode-hook #'magit-delta-mode))

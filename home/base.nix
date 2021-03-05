@@ -23,6 +23,7 @@
     aspell
     aspellDicts.en
     bat
+    delta
     exa
     fd
     file

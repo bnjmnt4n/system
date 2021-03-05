@@ -26,8 +26,8 @@
   # Allow for a greater number of inotify watches.
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
 
-  # Use a recent Linux kernel (5.10).
-  boot.kernelPackages = pkgs.linuxPackages_5_10;
+  # Use a recent Linux kernel (5.11).
+  boot.kernelPackages = pkgs.linuxPackages_5_11;
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
 
@@ -69,15 +69,41 @@
 
   # Enable sound and Bluetooth.
   sound.enable = true;
-  hardware.pulseaudio = {
-    enable = true;
-    # Only the full PulseAudio build has Bluetooth support.
-    package = pkgs.pulseaudioFull;
-  };
   hardware.bluetooth.enable = true;
 
   # Enable blueman applet.
   services.blueman.enable = true;
+
+  # Pipewire.
+  # See https://github.com/NixOS/nixpkgs/issues/102547.
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+
+    media-session.enable = true;
+    media-session.bluezMonitorConfig = {
+      properties.bluez5 = {
+        msbc-support = true;
+        sbc-xq-support = true;
+      };
+      rules = [
+        {
+          matches = [ { device.name = "~bluez_card.*"; } ];
+          actions = { update-props = {}; };
+        }
+        {
+          matches = [
+            { device.name = "~bluez_input.*"; }
+            { device.name = "~bluez_output.*"; }
+          ];
+          actions = { update-props = {}; };
+        }
+      ];
+    };
+  };
 
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools.enable = true;
@@ -101,7 +127,7 @@
     isNormalUser = true;
     shell = pkgs.fish;
     extraGroups = [
-      "wheel" "networkmanager" "docker" "sway"
+      "wheel" "networkmanager" "docker" "sway" "audio"
     ];
   };
 
@@ -128,8 +154,6 @@
   programs.seahorse.enable = true;
 
   # Enable WebRTC-based screen-sharing.
-  services.pipewire.enable = true;
-
   xdg.portal.enable = true;
   xdg.portal.gtkUsePortal = true;
   xdg.portal.extraPortals = with pkgs;

@@ -20,6 +20,7 @@ in
     package = pkgs.spotifyd.override {
       withKeyring = true;
       withMpris = true;
+      withALSA = false;
       withPulseAudio = true;
     };
     settings = {

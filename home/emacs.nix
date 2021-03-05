@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   programs.emacs = {
@@ -9,7 +9,14 @@
       epkgs.telega
     ];
   };
+
   services.emacs.enable = true;
+  # Start after graphical session so we can read/write from Wayland keyboard
+  # without having to restart the daemon.
+  systemd.user.services.emacs = {
+    Unit.After = [ "graphical-session.target" ];
+    Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
+  };
 
   # Include Doom Emacs CLI in PATH.
   home.sessionPath = [ "${config.home.homeDirectory}/.emacs.d/bin" ];

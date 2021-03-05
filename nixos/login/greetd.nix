@@ -15,20 +15,14 @@
       '';
     in ''
       [terminal]
-      vt = 1
+      vt = 2
 
       [default_session]
       command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd ${sway_cmd}"
       user = "greeter"
-
-      [initial_session]
-      command = "${sway_cmd}"
-      user = "bnjmnt4n"
     '';
   };
 
-  systemd.services."autovt@tty1".enable = lib.mkForce false;
-  systemd.services."getty@tty1".enable = lib.mkForce false;
   systemd.services.display-manager = lib.mkForce {
     enable = lib.mkForce true;
     description = "Greetd";
@@ -38,9 +32,8 @@
     after = [
       "systemd-user-sessions.service"
       "plymouth-quit-wait.service"
-      "getty@tty1.service"
+      "getty@tty2.service"
     ];
-    conflicts = [ "getty@tty1.service" ];
     aliases = [ "greetd.service" ];
 
     serviceConfig = {

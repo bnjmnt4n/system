@@ -13,11 +13,13 @@ let
   browser_alt = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
   editor = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
-  telegram = "${pkgs.tdesktop}/bin/telegram-desktop";
+  telegram = "${editor} -e '(=telegram)'";
   # TODO: spotifyd service seems wonky at times.
   # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
   spotify = pkgs.writeShellScript "spotify.sh" ''
-    systemctl restart --user spotifyd.service
+    if ! systemctl --user is-active spotifyd >/dev/null; then
+      systemctl --user start spotifyd
+    fi
     ${terminal} --title spotify --class alacritty_spotify --command spt &
     sleep 1
     swaymsg scratchpad show
