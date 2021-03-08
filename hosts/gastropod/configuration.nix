@@ -36,7 +36,6 @@
   hardware.opengl = {
     enable = true;
     extraPackages = with pkgs; [
-      (vaapiIntel.override { enableHybridCodec = true; })
       vaapiVdpau
       libvdpau-va-gl
       intel-media-driver

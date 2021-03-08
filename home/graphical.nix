@@ -52,7 +52,7 @@
   ];
 
   home.sessionVariables = {
-    LIBVA_DRIVER_NAME = "i695";
+    LIBVA_DRIVER_NAME = "iHD";
     TERMINAL = "alacritty";
     EDITOR = "emacsclient -nw -c -a emacs";
     VISUAL = "emacsclient -c -a emacs";

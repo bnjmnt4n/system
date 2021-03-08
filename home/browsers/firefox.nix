@@ -48,6 +48,8 @@ in
           # Hardware acceleration related settings.
           "gfx.webrender.all" = true;
           "widget.wayland-dmabuf-vaapi.enabled" = true;
+          "media.ffmpeg.vaapi.enabled" = true;
+          "media.ffmpeg.vaapi-drm-display.enabled" = true;
         };
       };
     };
