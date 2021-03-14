@@ -83,24 +83,9 @@
     pulse.enable = true;
 
     media-session.enable = true;
-    media-session.bluezMonitorConfig = {
-      properties.bluez5 = {
-        msbc-support = true;
-        sbc-xq-support = true;
-      };
-      rules = [
-        {
-          matches = [ { device.name = "~bluez_card.*"; } ];
-          actions = { update-props = {}; };
-        }
-        {
-          matches = [
-            { device.name = "~bluez_input.*"; }
-            { device.name = "~bluez_output.*"; }
-          ];
-          actions = { update-props = {}; };
-        }
-      ];
+    media-session.config.bluez-monitor.properties = {
+      "bluez5.msbc-support" = true;
+      "bluez5.sbc-xq-support" = true;
     };
   };
 
@@ -116,10 +101,8 @@
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
-  # services.samba = {
-  #   enable = true;
-  #   package = pkgs.sambaFull;
-  # };
+
+  services.udev.packages = [ pkgs.android-udev-rules ];
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {

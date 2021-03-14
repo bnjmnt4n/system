@@ -20,14 +20,11 @@ in
     package = pkgs.spotifyd.override {
       withKeyring = true;
       withMpris = true;
-      withALSA = false;
-      withPulseAudio = true;
     };
     settings = {
       global = {
         username = "demoneaux";
         device_name = "spotifyd";
-        backend = "pulseaudio";
         use_keyring = true;
         onevent = "${notificationsScript}";
       };

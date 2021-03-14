@@ -24,6 +24,7 @@
       ];
     })
     xarchiver
+    android-file-transfer # Simple Android GUI
 
     # Editors
     vscodium

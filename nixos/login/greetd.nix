@@ -18,7 +18,7 @@
       vt = 2
 
       [default_session]
-      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd ${sway_cmd}"
+      command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --asterisks --time --cmd ${sway_cmd}"
       user = "greeter"
     '';
   };
