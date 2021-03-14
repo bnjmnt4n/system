@@ -188,3 +188,6 @@
   :commands (magit-delta-mode))
 (after! magit
   (add-hook 'magit-mode-hook #'magit-delta-mode))
+
+;; Notmuch config.
+(setq +notmuch-sync-backend 'mbsync)

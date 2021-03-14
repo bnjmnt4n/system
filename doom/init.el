@@ -78,7 +78,7 @@
        (zig +lsp)
 
        :email
-       ;;notmuch
+       notmuch
 
        :app
        (rss +org)

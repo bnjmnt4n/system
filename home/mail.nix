@@ -14,19 +14,29 @@
 
   # Based on https://beb.ninja/post/email/
   accounts.email.accounts = {
-    gmail = {
-      address = "demoneaux@gmail.com";
-      userName = "demoneaux@gmail.com";
-      flavor = "gmail.com";
-      passwordCommand = "secret-tool lookup application gmail";
+    ofcrse = {
+      address = "bnjmnt4n@ofcr.se";
+      userName = "bnjmnt4n@ofcr.se";
+      flavor = "plain";
+      passwordCommand = "secret-tool lookup application ofcrse";
       primary = true;
       mbsync = {
         enable = true;
         create = "both";
         expunge = "both";
-        patterns = [ "*" "[Gmail]*" ]; # "[Gmail]/Sent Mail" ];
+        patterns = [ "*" ];
+      };
+      imap = {
+        host = "imap.fastmail.com";
+        port = 993;
+        tls.enable = true;
       };
       msmtp.enable = true;
+      smtp = {
+        host = "imap.fastmail.com";
+        port = 587;
+        tls.useStartTls = true;
+      };
       notmuch.enable = true;
       realName = "Benjamin Tan";
     };

@@ -5,9 +5,9 @@
     ./git.nix
     ./gpg.nix
     ./emacs.nix
+    ./mail.nix
     ./neovim.nix
     ./xdg.nix
-    # ./mail.nix
   ];
 
   home.file.".config/nixpkgs/config.nix".text = ''
