@@ -22,11 +22,15 @@ $ ./result/activate
 
 # Alternatively
 $ nix develop
-$ swn # Switch to the NixOS configuration.
+$ swn # Switch to the new NixOS configuration.
 $ swh # Switch to the new home configuration.
 
 # Sync Doom configuration to `$HOME/.config/doom`.
-$ ./doom/sync.sh
+# Only needs to be done on first install.
+ln -s doom ./.config/doom
+
+# Update dependencies.
+nix flake update
 ```
 
 ## Inspiration

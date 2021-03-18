@@ -7,7 +7,7 @@
 (load! "secrets.el")
 
 ;; Basic display configuration.
-(setq doom-font (font-spec :family "Iosevka" :size 16)
+(setq doom-font (font-spec :family "Iosevka" :size 18)
       doom-variable-pitch-font (font-spec :family "Libre Baskerville" :height 1.0)
       doom-serif-font (font-spec :family "Libre Baskerville" :height 1.0))
 

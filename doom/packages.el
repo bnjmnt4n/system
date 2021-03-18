@@ -2,8 +2,7 @@
 ;;; $DOOMDIR/packages.el
 
 ;; Themes
-(package! modus-operandi-theme)
-(package! modus-vivendi-theme)
+(package! modus-themes)
 
 ;; Extensions
 (package! anki-editor)

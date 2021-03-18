@@ -7,30 +7,41 @@
     settings = {
       env.TERM = "xterm-256color";
 
-      background_opacity = 0.95;
       font = {
         normal.family = "Iosevka Term";
-        size = 12;
+        size = 14;
       };
 
-      # Colors (Doom One)
-      # Obtained from https://github.com/eendroroy/alacritty-theme/blob/c1a8c5a9d492957433df48d7fc2251ab628dd223/themes/doom_one.yml.
+      window.padding = {
+        x = 5;
+        y = 5;
+      };
+
+      # Modus Operandi theme
       colors = {
-        # Default colors
         primary = {
-          background = "0x282c34";
-          foreground = "0xbbc2cf";
+          background = "#ffffff";
+          foreground = "#000000";
         };
-        # Normal colors
         normal = {
-          black   = "0x282c34";
-          red     = "0xff6c6b";
-          green   = "0x98be65";
-          yellow  = "0xecbe7b";
-          blue    = "0x51afef";
-          magenta = "0xc678dd";
-          cyan    = "0x46d9ff";
-          white   = "0xbbc2cf";
+          black   = "#000000";
+          red     = "#a60000";
+          green   = "#005e00";
+          yellow  = "#813e00";
+          blue    = "#0031a9";
+          magenta = "#721045";
+          cyan    = "#00538b";
+          white   = "#bfbfbf";
+        };
+        bright = {
+          black   = "#595959";
+          red     = "#972500";
+          green   = "#315b00";
+          yellow  = "#70480f";
+          blue    = "#2544bb";
+          magenta = "#5317ac";
+          cyan    = "#005a5f";
+          white   = "#ffffff";
         };
       };
     };

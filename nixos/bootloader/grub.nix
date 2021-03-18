@@ -12,7 +12,6 @@
     version = 2;
     useOSProber = true;
 
-    # TODO: switch to newer version of Iosevka.
     font = "${pkgs.iosevka}/share/fonts/truetype/iosevka-regular.ttf";
     fontSize = 32;
   };

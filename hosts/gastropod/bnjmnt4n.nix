@@ -18,5 +18,18 @@
     openjdk11
     qtspim
     teams
+    (rWrapper.override {
+      packages = with rPackages; [
+        Rcmdr
+        RcmdrMisc
+        sem
+        rmarkdown
+        rgl
+        multcomp
+        lmtest
+        leaps
+        aplpack
+      ];
+    })
   ];
 }
