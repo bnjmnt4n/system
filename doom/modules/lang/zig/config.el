@@ -8,25 +8,13 @@
 ;; zig-mode
 
 (use-package! zig-mode
-  :mode "\\.zig$"
   :hook (zig-mode . rainbow-delimiters-mode)
-  :init
   :config
   ;; Disable zig-mode's default format on save behaviour.
   (setq zig-format-on-save nil)
-
   (when (featurep! +lsp)
-    (add-hook 'zig-mode-local-vars-hook #'lsp!)
-    (after! lsp-mode
-      (add-to-list 'lsp-language-id-configuration '(zig-mode . "zig"))
-      (lsp-register-client
-        (make-lsp-client
-          :new-connection (lsp-stdio-connection "~/repos/zls/zig-cache/bin/zls")
-          :major-modes '(zig-mode)
-          :server-id 'zls)))))
-
-(map! :localleader
-      (:after zig-mode
+    (add-hook 'zig-mode-local-vars-hook #'lsp!))
+  (map! :localleader
         :map zig-mode-map
         "b" #'zig-compile
         "f" #'zig-format-buffer

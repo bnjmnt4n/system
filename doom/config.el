@@ -13,8 +13,29 @@
 
 (setq doom-theme 'modus-operandi)
 
-;; TODO: display relative line numbers in normal mode, and absolute line numbers in insert mode?
-(setq display-line-numbers-type 'relative)
+;; Display visual line numbers in normal mode, and absolute line numbers in insert mode.
+;; Based on https://github.com/Townk/doom-emacs-private/blob/f4deeb1cff770a81ebd3e38dbab26017d5726a1a/config.org#line-numbers-1
+(setq display-line-numbers-type 'visual)
+
+(defun bnjmnt4n/line-number-absolute-h ()
+  "If line numbers are visible, set the current line number type to `absolute'."
+  (if display-line-numbers
+      (setq display-line-numbers t)))
+
+(defun bnjmnt4n/line-number-visual-h ()
+  "If line numbers are visible, set the current line number type to `visual'."
+  (if display-line-numbers
+      (setq display-line-numbers 'visual)))
+
+;; Attach hooks to changes in Evil state.
+(after! evil
+  (add-hook! '(evil-emacs-state-entry-hook
+               evil-insert-state-entry-hook) #'bnjmnt4n/line-number-absolute-h)
+  (add-hook! '(evil-emacs-state-exit-hook
+               evil-insert-state-exit-hook) #'bnjmnt4n/line-number-visual-h)
+
+  ;; Ensure that line numbers are displayed in any coding buffer.
+  (setq-hook! 'prog-mode-hook display-line-numbers-type 'visual))
 
 ;; Loosen the split width threshold since my laptop screen width is smaller.
 (setq split-width-threshold 140)
@@ -34,6 +55,49 @@
          (let ((project-name (doom-project-name)))
            (unless (string= "-" project-name)
              (format (if (buffer-modified-p)  " ◉ %s" " ● %s") project-name))))))
+
+;; Customize Doom dashboard.
+(defun bnjmnt4n/custom-banner ()
+  (let* ((banner '(""
+                   ""
+                   ""
+                   ""
+                   ""
+                   ""
+                   " D O O M"
+                   "E M A C S"
+                   ""
+                   ""
+                   ""
+                   ""))
+         (longest-line (apply #'max (mapcar #'length banner))))
+    (put-text-property
+     (point)
+     (dolist (line banner (point))
+       (insert (+doom-dashboard--center
+                +doom-dashboard--width
+                (concat line (make-string (max 0 (- longest-line (length line))) 32)))
+               "\n"))
+     'face 'doom-dashboard-banner)))
+
+(setq +doom-dashboard-ascii-banner-fn #'bnjmnt4n/custom-banner)
+
+;; Remove documentation and private configuration menu items.
+(assoc-delete-all "Open documentation" +doom-dashboard-menu-sections)
+(assoc-delete-all "Open private configuration" +doom-dashboard-menu-sections)
+
+;; Shift open project to first item.
+(let ((item (alist-get "Open project" +doom-dashboard-menu-sections nil nil 'equal)))
+  (push "Open project" item)
+  (assoc-delete-all "Open project" +doom-dashboard-menu-sections)
+  (add-to-list '+doom-dashboard-menu-sections item))
+(plist-put (alist-get "Open project" +doom-dashboard-menu-sections nil nil 'equal)
+           :face '(:inherit (doom-dashboard-menu-title bold)))
+(plist-put (alist-get "Reload last session" +doom-dashboard-menu-sections nil nil 'equal)
+           :face '(:inherit doom-dashboard-menu-title))
+
+;; Remove Doom Emacs icon.
+(remove-hook! '+doom-dashboard-functions #'(doom-dashboard-widget-footer doom-dashboard-widget-loaded))
 
 ;; org-mode configuration.
 (setq org-directory "~/org/"
@@ -184,6 +248,7 @@
     :size 0.75 :actions '(display-buffer-below-selected)
     :select t :quit 'current :ttl t))
 
+;; Enable syntax highlighting in Git diffs.
 (use-package! magit-delta
   :commands (magit-delta-mode))
 (after! magit
@@ -191,3 +256,6 @@
 
 ;; Notmuch config.
 (setq +notmuch-sync-backend 'mbsync)
+
+;; Set zls executable location.
+(setq lsp-zig-zls-executable "~/repos/zls/zig-cache/bin/zls")

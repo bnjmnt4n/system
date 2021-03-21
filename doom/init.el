@@ -63,6 +63,8 @@
        ;;(haskell +dante)
        json
        (java +lsp)
+       ;; TODO: https://github.com/hlissner/doom-emacs/pull/3258#issuecomment-801278842
+       web
        (javascript +lsp)
        ;;latex
        ledger
@@ -73,7 +75,6 @@
        ;;(ruby +rails +lsp)
        (rust +lsp)
        sh
-       web
        yaml
        (zig +lsp)
 
