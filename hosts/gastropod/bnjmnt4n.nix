@@ -22,6 +22,7 @@
       packages = with rPackages; [
         Rcmdr
         RcmdrMisc
+        ggpmisc
         sem
         rmarkdown
         rgl

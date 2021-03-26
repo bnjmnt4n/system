@@ -42,17 +42,20 @@ let
   media_next = "${pkgs.playerctl}/bin/playerctl next";
   media_prev = "${pkgs.playerctl}/bin/playerctl previous";
 
+  scripts = import ../lib/scripts.nix { inherit pkgs; };
+  wob = scripts.wob;
+
   # Volume.
-  # wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
-  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10"; # " && ${wob_show_volume}";
-  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10"; # " && ${wob_show_volume}";
-  volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute"; # " && (${pkgs.pamixer}/bin/pamixer --get-mute && ${pkgs.wob}/bin/wob 0) || ${wob_show_volume}";
+  wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
+  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10 && ${wob_show_volume}";
+  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10 && ${wob_show_volume}";
+  volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute && (${pkgs.pamixer}/bin/pamixer --get-mute && ${wob} 0) || ${wob_show_volume}";
   mic_mute = "${pkgs.pulseaudioFull}/bin/pactl set-source-mute @DEFAULT_SINK@ toggle";
 
   # Screen brightness.
-  # wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
-  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+"; # " && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%-"; # " && ${wob_show_brightness}";
+  wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
+  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+ && ${wob_show_brightness}";
+  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%- && ${wob_show_brightness}";
 
   # Screenshots.
   screenshot_copy_screen = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify copy active";

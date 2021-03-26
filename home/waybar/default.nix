@@ -1,14 +1,17 @@
 { pkgs, ... }:
 
 let
-#  wob_show_brightness = "${pkgs.wob}/bin/wob $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
-  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+"; # " && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%-"; # " && ${wob_show_brightness}";
-  brightness_middle = "${pkgs.brightnessctl}/bin/brightnessctl set 50%"; # " && ${wob_show_brightness}";
+  scripts = import ../../lib/scripts.nix { inherit pkgs; };
+  wob = scripts.wob;
 
-#  wob_show_volume = "${pkgs.wob}/bin/wob $(${pkgs.pamixer}/bin/pamixer --get-volume)";
-  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 1"; # " && ${wob_show_volume}";
-  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 1"; # " && ${wob_show_volume}";
+  wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
+  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+ && ${wob_show_brightness}";
+  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%- && ${wob_show_brightness}";
+  brightness_middle = "${pkgs.brightnessctl}/bin/brightnessctl set 50% && ${wob_show_brightness}";
+
+  wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
+  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 1 && ${wob_show_volume}";
+  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 1 && ${wob_show_volume}";
 in
 {
   # Wayland-based status bar.
