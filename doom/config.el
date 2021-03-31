@@ -232,12 +232,12 @@
   :defer t)
 
 ;; Spotify client.
-(use-package! spotify-client
-  :commands (global-spotify-client-remote-mode)
+(use-package! smudge
+  :commands (global-smudge-remote-mode)
   :config
-  (setq spotify-client-transport 'connect
-        spotify-client-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
-        spotify-client-oauth2-client-id bnjmnt4n/spotify-app-client-id)
+  (setq smudge-transport 'connect
+        smudge-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
+        smudge-oauth2-client-id bnjmnt4n/spotify-app-client-id)
   (set-popup-rules!
     '(("^\\*\\(Playlists:\\|Playlist \\(Tracks\\|Search\\):\\|Album:\\|Track Search:\\|\\(Featured Playlists\\|Recently Played\\)\\*$\\)"
         :side right :width 0.5 :select t :quit current :modeline t)

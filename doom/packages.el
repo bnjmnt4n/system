@@ -11,8 +11,8 @@
 (package! magit-delta)
 (package! org-gcal)
 (package! org-download)
-(package! spotify-client
-  :recipe (:host github :repo "bnjmnt4n/spotify.el"))
+(package! smudge
+  :recipe (:host github :repo "danielfm/smudge"))
 (package! transmission)
 
 ;; TODO: temporarily pin lsp-mode to a newer version.

@@ -99,6 +99,16 @@ let
     icon-theme:gtk-icon-theme-name \
     font-name:gtk-font-name \
     cursor-theme:gtk-cursor-theme-name'';
+  # Change output scales incrementally.
+  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
+  output_scale_cmd = pkgs.writeShellScript "scale-wlr-outputs.sh" ''
+    set -xeuo pipefail
+    delta=''${1}
+    scale="$(swaymsg -t get_outputs | ${pkgs.jq}/bin/jq '.[] | select(.focused == true) | .scale')"
+    printf -v scale "%.1f" "''${scale}"
+    scale="$(echo "''${scale} ''${delta}" | ${pkgs.bc}/bin/bc)"
+    swaymsg output "-" scale "''${scale}"
+  '';
 in
 {
   wayland.windowManager.sway = {
@@ -175,6 +185,14 @@ in
           {
             criteria = { title = "^zoom$|Choose ONE of the audio conference options"; };
             command = "floating enable";
+          }
+          {
+            criteria = { floating = ""; app_id = "emacs"; };
+            command = "opacity 0.95";
+          }
+          {
+            criteria = { floating = ""; app_id = "Alacritty"; };
+            command = "opacity 0.95";
           }
         ];
       };
@@ -306,6 +324,10 @@ in
 
         # Lock.
         "${modifier}+Shift+q" = "exec ${lock_cmd}";
+
+        # Modify output scale.
+        "${modifier}+Ctrl+Alt+equal" = "exec ${output_scale_cmd} +.1";
+        "${modifier}+Ctrl+Alt+minus" = "exec ${output_scale_cmd} -.1";
 
         # Modes.
         "${modifier}+r"  = "mode resize";
