@@ -7,7 +7,6 @@
     package = pkgs.gitAndTools.gitFull;
     userName = "Benjamin Tan";
     userEmail = "benjamin@dev.ofcr.se";
-    delta.enable = true;
     lfs.enable = true;
 
     signing = {
@@ -86,8 +85,4 @@
   };
 
   programs.gh.enable = true;
-
-  home.packages = with pkgs; [
-    libsecret
-  ];
 }

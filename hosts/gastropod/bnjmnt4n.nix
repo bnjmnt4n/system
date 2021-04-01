@@ -30,6 +30,7 @@
         lmtest
         leaps
         aplpack
+        reshape2
       ];
     })
   ];

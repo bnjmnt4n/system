@@ -2,9 +2,11 @@
 
 {
   imports = [
+    ./bat.nix
+    ./delta.nix
+    ./emacs.nix
     ./git.nix
     ./gpg.nix
-    ./emacs.nix
     ./mail.nix
     ./neovim.nix
     ./xdg.nix
@@ -22,8 +24,6 @@
     # System
     aspell
     aspellDicts.en
-    bat
-    delta
     exa
     fd
     file

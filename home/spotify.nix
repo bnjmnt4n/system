@@ -31,6 +31,15 @@ in
     };
   };
 
+  home.file.".config/spotify-tui/config.yml".text = ''
+    theme:
+      active: Cyan
+      analysis_bar_text: Black
+      playbar_text: Black
+      text: Black
+      header: Black
+  '';
+
   home.packages = [
     pkgs.spotify-tui
   ];
