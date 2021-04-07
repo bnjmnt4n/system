@@ -11,9 +11,5 @@
 (package! magit-delta)
 (package! org-gcal)
 (package! org-download)
-(package! smudge
-  :recipe (:host github :repo "danielfm/smudge"))
+(package! smudge)
 (package! transmission)
-
-;; TODO: temporarily pin lsp-mode to a newer version.
-(package! lsp-mode :pin "7a37843b7986243579d86029caedd90f99d95684")

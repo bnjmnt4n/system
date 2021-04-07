@@ -24,6 +24,12 @@ let
     sleep 1
     swaymsg scratchpad show
   '';
+  spotify_force_restart = pkgs.writeShellScript "spotify_force_restart.sh" ''
+    systemctl --user restart spotifyd
+    ${terminal} --title spotify --class alacritty_spotify --command spt &
+    sleep 1
+    swaymsg scratchpad show
+  '';
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
@@ -206,6 +212,7 @@ in
         "${modifier}+n" = "exec ${explorer}";
         "${modifier}+t" = "exec ${telegram}";
         "${modifier}+m" = "exec ${spotify}";
+        "${modifier}+Shift+m" = "exec ${spotify_force_restart}";
 
         # Wofi commands.
         "${modifier}+d" = "exec ${launcher}";

@@ -26,16 +26,13 @@ in
         "eDP-1"
         "HDMI-A-1"
       ];
-      modules-left = [ "sway/workspaces" "sway/mode" ];
-      modules-center = [ "sway/window" ];
+      modules-left = [ "sway/workspaces" "sway/mode" "sway/window" ];
+      modules-center = [];
       modules-right = [ "idle_inhibitor" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
       modules = {
         "sway/workspaces" = {
           all-outputs = true;
           disable-scroll-wraparound = true;
-        };
-        "sway/window" = {
-          max-length = 50;
         };
         idle_inhibitor = {
           format = "{icon}";
