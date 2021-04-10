@@ -9,6 +9,7 @@
     ./gpg.nix
     ./mail.nix
     ./neovim.nix
+    ./tmux.nix
     ./xdg.nix
   ];
 
@@ -36,7 +37,6 @@
     pandoc
     ripgrep
     rsync
-    tmux
     tree
     wget
     xdg-utils

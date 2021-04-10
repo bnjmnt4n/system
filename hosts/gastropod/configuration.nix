@@ -127,8 +127,9 @@
     extraPackages = [];
   };
 
-  environment.systemPackages = [
-    pkgs.capitaine-cursors
+  environment.systemPackages = with pkgs; [
+    networkmanager-fortisslvpn # NUS VPN
+    capitaine-cursors
   ];
 
   # Secrets management.
