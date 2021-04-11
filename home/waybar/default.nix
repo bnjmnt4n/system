@@ -8,6 +8,7 @@ let
   brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+ && ${wob_show_brightness}";
   brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%- && ${wob_show_brightness}";
   brightness_middle = "${pkgs.brightnessctl}/bin/brightnessctl set 50% && ${wob_show_brightness}";
+  brightness_full = "${pkgs.brightnessctl}/bin/brightnessctl set 100% && ${wob_show_brightness}";
 
   wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
   volume_up = "${pkgs.pamixer}/bin/pamixer -ui 1 && ${wob_show_volume}";
@@ -60,7 +61,8 @@ in
           interval = 60;
           on-scroll-down = brightness_down;
           on-scroll-up = brightness_up;
-          on-click = brightness_middle;
+          on-click = brightness_full;
+          on-click-right = brightness_middle;
         };
         pulseaudio = {
           format = "{volume}% {icon}";
@@ -78,7 +80,9 @@ in
           scroll-step = 1;
           on-scroll-down = volume_down;
           on-scroll-up = volume_up;
-          on-click = "${pkgs.pavucontrol}/bin/pavucontrol";
+          on-click = "${pkgs.pamixer}/bin/pamixer --toggle-mute && (${pkgs.pamixer}/bin/pamixer --get-mute && ${wob} 0) || ${wob_show_volume}";
+          on-click-right = "${pkgs.pavucontrol}/bin/pavucontrol";
+          on-click-middle = "${pkgs.blueman}/bin/blueman-applet";
         };
         battery = {
           format = "{capacity}% {icon}";
