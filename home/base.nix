@@ -8,7 +8,7 @@
     ./git.nix
     ./gpg.nix
     ./mail.nix
-    ./neovim.nix
+    ./neovim/default.nix
     ./tmux.nix
     ./xdg.nix
   ];
