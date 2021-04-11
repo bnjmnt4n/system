@@ -20,13 +20,13 @@ let
     if ! systemctl --user is-active spotifyd >/dev/null; then
       systemctl --user start spotifyd
     fi
-    ${terminal} --title spotify --class alacritty_spotify --command spt &
+    ${terminal} --title spotify --class alacritty-spotify --command spt &
     sleep 1
     swaymsg scratchpad show
   '';
   spotify_force_restart = pkgs.writeShellScript "spotify_force_restart.sh" ''
     systemctl --user restart spotifyd
-    ${terminal} --title spotify --class alacritty_spotify --command spt &
+    ${terminal} --title spotify --class alacritty-spotify --command spt &
     sleep 1
     swaymsg scratchpad show
   '';
@@ -164,7 +164,11 @@ in
         border = 0;
         commands = [
           {
-            criteria = { app_id = "alacritty_spotify"; };
+            criteria = { app_id = "floating-term"; };
+            command = "floating enable, opacity 0.95";
+          }
+          {
+            criteria = { app_id = "alacritty-spotify"; };
             command = "floating enable, move scratchpad";
           }
           {
@@ -204,6 +208,7 @@ in
       };
       keybindings = {
         "${modifier}+Return" = "exec ${terminal}";
+        "${modifier}+Shift+Return" = "exec ${terminal} --class floating-term";
 
         # Keybindings for commonly used apps.
         "${modifier}+b" = "exec ${browser}";
@@ -216,7 +221,7 @@ in
 
         # Wofi commands.
         "${modifier}+d" = "exec ${launcher}";
-        "${modifier}+o" = "exec ${find_files}";
+        "${modifier}+p" = "exec ${find_files}";
 
         # Media controls.
         "--locked XF86AudioPlay" = "exec ${media_play_pause}";
@@ -316,14 +321,37 @@ in
         "${modifier}+Shift+9" = "move container to workspace number 9";
         "${modifier}+Shift+0" = "move container to workspace number 10";
 
+        # Move focused container to workspace, and switch to workspace.
+        "${modifier}+Ctrl+1" = "move container to workspace number 1;  workspace number 1";
+        "${modifier}+Ctrl+2" = "move container to workspace number 2;  workspace number 2";
+        "${modifier}+Ctrl+3" = "move container to workspace number 3;  workspace number 3";
+        "${modifier}+Ctrl+4" = "move container to workspace number 4;  workspace number 4";
+        "${modifier}+Ctrl+5" = "move container to workspace number 5;  workspace number 5";
+        "${modifier}+Ctrl+6" = "move container to workspace number 6;  workspace number 6";
+        "${modifier}+Ctrl+7" = "move container to workspace number 7;  workspace number 7";
+        "${modifier}+Ctrl+8" = "move container to workspace number 8;  workspace number 8";
+        "${modifier}+Ctrl+9" = "move container to workspace number 9;  workspace number 9";
+        "${modifier}+Ctrl+0" = "move container to workspace number 10; workspace number 10";
+
         # Scratchpad.
         "${modifier}+Shift+minus" = "move scratchpad";
         "${modifier}+minus"       = "scratchpad show";
 
         # Shortcuts for cycling through workspaces.
-        "${modifier}+Tab" = "workspace next";
-        "${modifier}+Shift+Tab" = "workspace prev";
+        "${modifier}+Shift+Tab" = "workspace prev_on_output";
+        "${modifier}+i" = "workspace prev_on_output";
+        "${modifier}+Shift+i" = "move container to workspace prev_on_output";
+        "${modifier}+Ctrl+i" = "move container to workspace prev_on_output; workspace prev_on_output";
+
+        "${modifier}+Tab" = "workspace next_on_output";
+        "${modifier}+o" = "workspace next_on_output";
+        "${modifier}+Shift+o" = "move container to workspace next_on_output";
+        "${modifier}+Ctrl+o" = "move container to workspace next_on_output; workspace next_on_output";
+
         "${alt}+Tab" = "workspace back_and_forth";
+        "${modifier}+u" = "workspace back_and_forth";
+        "${modifier}+Shift+u" = "move container to workspace back_and_forth";
+        "${modifier}+Ctrl+u" = "move container to workspace back_and_forth; workspace back_and_forth";
 
         # Reload, restart and exit sway.
         "${modifier}+Shift+c" = "reload";
