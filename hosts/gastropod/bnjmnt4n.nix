@@ -4,6 +4,8 @@
   imports = [
     ../../home/base.nix
     ../../home/graphical.nix
+    ../../home/java.nix
+    # ../../home/r.nix
   ];
 
   # TODO: remove?
@@ -12,26 +14,8 @@
 
   # Miscellaneous/temporary packages.
   home.packages = with pkgs; [
-    jetbrains.idea-community
     musescore
     # octave
-    openjdk11
-    qtspim
     teams
-    (rWrapper.override {
-      packages = with rPackages; [
-        Rcmdr
-        RcmdrMisc
-        ggpmisc
-        sem
-        rmarkdown
-        rgl
-        multcomp
-        lmtest
-        leaps
-        aplpack
-        reshape2
-      ];
-    })
   ];
 }
