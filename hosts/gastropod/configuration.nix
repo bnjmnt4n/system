@@ -9,6 +9,7 @@
     ../../nixos/console-font.nix
     ../../nixos/bootloader/grub.nix # ../../nixos/bootloader/systemd-boot.nix
     ../../nixos/login/greetd.nix # ../../nixos/login/lightdm.nix
+    ../../nixos/libinput.nix
 
     ../../nixos/fonts.nix
   ];
