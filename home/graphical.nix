@@ -7,6 +7,7 @@
     ./gtk.nix
     ./mpv.nix
     ./spotify.nix
+    ./vscodium.nix
     ./wayland.nix
   ];
 
@@ -25,9 +26,6 @@
     })
     xarchiver
     android-file-transfer # Simple Android GUI
-
-    # Editors
-    vscodium
 
     # Media
     gimp
