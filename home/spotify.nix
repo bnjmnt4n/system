@@ -31,7 +31,7 @@ in
     };
   };
 
-  home.file.".config/spotify-tui/config.yml".text = ''
+  xdg.configFile."spotify-tui/config.yml".text = ''
     theme:
       active: Cyan
       analysis_bar_text: Black

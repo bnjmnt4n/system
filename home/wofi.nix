@@ -5,7 +5,7 @@
     pkgs.wofi
   ];
 
-  home.file.".config/wofi/config".text = ''
+  xdg.configFile."wofi/config".text = ''
     allow_images=true
     allow_markup=true
     insensitive=true
@@ -15,7 +15,7 @@
     term=alacritty
   '';
 
-  home.file.".config/wofi/style.css".text = ''
+  xdg.configFile."wofi/style.css".text = ''
     window {
       opacity: 0.9;
       font: Source Sans Pro 18px;

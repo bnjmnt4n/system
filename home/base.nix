@@ -13,7 +13,7 @@
     ./xdg.nix
   ];
 
-  home.file.".config/nixpkgs/config.nix".text = ''
+  xdg.configFile."nixpkgs/config.nix".text = ''
     { allowUnfree = true; }
   '';
 
