@@ -1,18 +1,5 @@
 { pkgs, ... }:
 
-let
-  # TODO: figure out a better way to do this.
-  searchJson = ./firefox.search.json;
-  searchJsonMozlz4 = pkgs.stdenv.mkDerivation {
-    pname = "search-json-mozlz4";
-    version = "latest";
-    src = ./.;
-    phases = "installPhase";
-    installPhase = ''
-      ${pkgs.mozlz4a}/bin/mozlz4a ${searchJson} $out
-    '';
-  };
-in
 {
   programs.firefox = {
     enable = true;
@@ -56,5 +43,16 @@ in
   };
 
   # TODO: merge into firefox.profiles?
-  home.file.".mozilla/firefox/default/search.json.mozlz4".source = searchJsonMozlz4;
+  # If there are any updates to the search.json format, run:
+  # nix-shell -p mozlz4a --command "mozlz4a -d ~/.mozilla/firefox/default/search.json.mozlz4 new.search.json"
+  home.file.".mozilla/firefox/default/search.json.mozlz4" = let
+    searchJsonMozlz4 = pkgs.runCommand "generate-search-json-mozlz4" {} ''
+      mkdir $out
+      ${pkgs.jq}/bin/jq -c . < ${./firefox.search.json} > $out/compressed.json
+      ${pkgs.mozlz4a}/bin/mozlz4a $out/compressed.json $out/search.json.mozlz4
+    '';
+  in {
+    source = "${searchJsonMozlz4}/search.json.mozlz4";
+    force = true;
+  };
 }
