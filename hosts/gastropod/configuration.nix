@@ -51,6 +51,9 @@
   networking.useDHCP = false;
   networking.interfaces.wlp0s20f3.useDHCP = true;
 
+  networking.firewall.enable = true;
+  networking.nameservers = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "9.9.9.9" ];
+
   # Internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
