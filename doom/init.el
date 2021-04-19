@@ -60,7 +60,8 @@
        data
        (elixir +lsp)
        emacs-lisp
-       ;;(haskell +dante)
+       (go +lsp)
+       (haskell +dante)
        json
        (java +lsp)
        ;; TODO: https://github.com/hlissner/doom-emacs/pull/3258#issuecomment-801278842
@@ -71,7 +72,7 @@
        markdown
        nix
        (org +roam)
-       ;;python
+       python
        ;;(ruby +rails +lsp)
        (rust +lsp)
        sh

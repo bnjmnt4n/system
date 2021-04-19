@@ -7,6 +7,8 @@
     settings = {
       env.TERM = "xterm-256color";
 
+      background_opacity = 0.99;
+
       font = {
         normal.family = "Iosevka Term";
         size = 14;
@@ -18,6 +20,7 @@
       };
 
       # Modus Operandi theme
+      # TODO: Modus Vivendi?
       colors = {
         primary = {
           background = "#ffffff";
