@@ -1,5 +1,8 @@
 { pkgs, ... }:
 
+let
+  scripts = import ../lib/scripts.nix { inherit pkgs; };
+in
 {
   imports = [
     ./sway.nix
@@ -24,5 +27,6 @@
     slurp
     sway-contrib.grimshot
     wf-recorder
+    scripts.screen-record
   ];
 }

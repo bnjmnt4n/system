@@ -29,7 +29,7 @@ in
       ];
       modules-left = [ "sway/workspaces" "sway/mode" "sway/window" ];
       modules-center = [];
-      modules-right = [ "idle_inhibitor" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
+      modules-right = [ "idle_inhibitor" "custom/wf-recorder" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
       modules = {
         "sway/workspaces" = {
           all-outputs = true;
@@ -94,6 +94,16 @@ in
         tray = {
           icon-size = 15;
           spacing = 8;
+        };
+        "custom/wf-recorder" = {
+          format = "{}";
+          interval = "once";
+          exec = "echo ''";
+          tooltip = false;
+          exec-if = "pgrep wf-recorder";
+          on-click = "${scripts.screen-record}/bin/screen-record";
+          on-click-right = "${scripts.screen-record}/bin/screen-record --check";
+          signal = 8;
         };
       };
     }];

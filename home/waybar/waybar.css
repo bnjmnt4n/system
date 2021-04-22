@@ -44,6 +44,7 @@ window#waybar.empty {
     background-color: #eb4d4b;
 }
 
+#custom-wf-recorder,
 #clock,
 #battery,
 #cpu,

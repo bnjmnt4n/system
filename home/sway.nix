@@ -125,9 +125,7 @@ in
       gtk = true;
     };
     xwayland = true;
-    extraSessionCommands = let
-      scripts = import ../lib/scripts.nix { inherit pkgs; };
-    in ''
+    extraSessionCommands = ''
       . ${scripts.waylandSession}
 
       export XDG_SESSION_TYPE=wayland
