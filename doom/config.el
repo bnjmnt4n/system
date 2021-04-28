@@ -58,20 +58,7 @@
 
 ;; Customize Doom dashboard.
 (defun bnjmnt4n/custom-banner ()
-  (let* ((banner '(""
-                   ""
-                   ""
-                   ""
-                   ""
-                   ""
-                   " D O O M"
-                   "E M A C S"
-                   ""
-                   ""
-                   ""
-                   ""
-                   ""
-                   ""))
+  (let* ((banner '(""))
          (longest-line (apply #'max (mapcar #'length banner))))
     (put-text-property
      (point)

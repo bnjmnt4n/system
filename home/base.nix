@@ -3,6 +3,7 @@
 {
   imports = [
     ./bat.nix
+    ./beets.nix
     ./delta.nix
     ./emacs.nix
     ./git.nix

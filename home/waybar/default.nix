@@ -29,7 +29,7 @@ in
       ];
       modules-left = [ "sway/workspaces" "sway/mode" "sway/window" ];
       modules-center = [];
-      modules-right = [ "idle_inhibitor" "custom/wf-recorder" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
+      modules-right = [ "custom/wf-recorder" "idle_inhibitor" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
       modules = {
         "sway/workspaces" = {
           all-outputs = true;

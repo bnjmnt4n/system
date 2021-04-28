@@ -40,7 +40,8 @@ in
       header: Black
   '';
 
-  home.packages = [
-    pkgs.spotify-tui
+  home.packages = with pkgs; [
+    ncspot
+    spotify-tui
   ];
 }

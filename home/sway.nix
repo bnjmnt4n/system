@@ -11,9 +11,10 @@ let
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
   browser_alt = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
-  editor = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
+  emacs = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
+  editor = emacs;
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
-  telegram = "${editor} -e '(=telegram)'";
+  telegram = "${emacs} -e '(=telegram)'";
   # TODO: spotifyd service seems wonky at times.
   # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
   spotify = pkgs.writeShellScript "spotify.sh" ''
@@ -30,15 +31,23 @@ let
     sleep 1
     swaymsg scratchpad show
   '';
+  spotify_ncspot = pkgs.writeShellScript "spotify_ncspot.sh" ''
+    ${terminal} --title ncspot --class alacritty-spotify --command ncspot &
+    sleep 1
+    swaymsg scratchpad show
+  '';
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
   # Simple file finder.
-  find_files = pkgs.writeShellScript "find-files.sh" ''
+  find_files_bin = pkgs.writeScriptBin "find-files.sh" ''
+    #!/bin/sh
+
     cd ~
     FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
     [ -n "$FILE"] && xdg-open "$HOME/$FILE"
   '';
+  find_files = "${find_files_bin}/find-files.sh";
 
   # Outputs.
   output_laptop = "eDP-1";
@@ -216,6 +225,7 @@ in
         "${modifier}+t" = "exec ${telegram}";
         "${modifier}+m" = "exec ${spotify}";
         "${modifier}+Shift+m" = "exec ${spotify_force_restart}";
+        "${modifier}+Ctrl+m" = "exec ${spotify_ncspot}";
 
         # Wofi commands.
         "${modifier}+d" = "exec ${launcher}";
@@ -244,6 +254,10 @@ in
         "--release Shift+Print" = "exec ${screenshot_copy_region}";
         "--release ${modifier}+Print" = "exec ${screenshot_save_screen}";
         "--release ${modifier}+Shift+Print" = "exec ${screenshot_save_region}";
+
+        # Keybinding for screen recording.
+        "--release Ctrl+Print" = "exec ${scripts.screen-record}/bin/screen-record";
+        "--release Ctrl+Shift+Print" = "exec ${scripts.screen-record}/bin/screen-record -s";
 
         # Hide waybar.
         "${modifier}+grave" = "exec ${hide_waybar}";
