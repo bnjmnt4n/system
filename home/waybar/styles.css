@@ -7,7 +7,7 @@
 }
 
 window#waybar {
-    background-color: rgba(43, 48, 59, 0.8);
+    background-color: rgb(43, 48, 59);
     color: #ffffff;
     transition-property: background-color;
     transition-duration: .5s;
@@ -62,21 +62,6 @@ window#waybar.empty {
     color: #ffffff;
     transition-property: opacity;
     transition-duration: .5s;
-}
-
-window#waybar.empty #clock,
-window#waybar.empty #battery,
-window#waybar.empty #cpu,
-window#waybar.empty #memory,
-window#waybar.empty #temperature,
-window#waybar.empty #backlight,
-window#waybar.empty #network,
-window#waybar.empty #pulseaudio,
-window#waybar.empty #tray,
-window#waybar.empty #window,
-window#waybar.empty #mode,
-window#waybar.empty #idle_inhibitor {
-    opacity: 0.8;
 }
 
 #window {
@@ -156,11 +141,16 @@ label:focus {
     background-color: #2980b9;
 }
 
-#idle_inhibitor {
+#idle_inhibitor,
+#custom-wf-recorder {
     background-color: #2d3436;
 }
 
 #idle_inhibitor.activated {
     background-color: #ecf0f1;
     color: #2d3436;
+}
+
+#custom-wf-recorder.recording {
+    color: #f53c3c;
 }

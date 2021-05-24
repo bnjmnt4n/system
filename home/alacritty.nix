@@ -7,7 +7,7 @@
     settings = {
       env.TERM = "xterm-256color";
 
-      background_opacity = 0.99;
+      background_opacity = 0.95;
 
       font = {
         normal.family = "Iosevka Term";
@@ -15,8 +15,8 @@
       };
 
       window.padding = {
-        x = 5;
-        y = 5;
+        x = 3;
+        y = 3;
       };
 
       # Modus Operandi theme

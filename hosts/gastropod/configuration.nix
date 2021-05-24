@@ -102,6 +102,10 @@
 
   # Enable Docker.
   virtualisation.docker.enable = true;
+  # virtualisation.podman = {
+  #   enable = true;
+  #   dockerCompat = true;
+  # };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -113,7 +117,12 @@
     isNormalUser = true;
     shell = pkgs.fish;
     extraGroups = [
-      "wheel" "networkmanager" "docker" "sway" "audio"
+      "wheel"
+      "audio"
+      "docker"
+      "input"
+      "networkmanager"
+      "sway"
     ];
   };
 
@@ -137,7 +146,7 @@
   ];
 
   # Secrets management.
-  services.gnome3.gnome-keyring.enable = true;
+  services.gnome.gnome-keyring.enable = true;
   programs.seahorse.enable = true;
 
   # Enable WebRTC-based screen-sharing.

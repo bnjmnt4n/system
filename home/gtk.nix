@@ -3,10 +3,21 @@
 {
   gtk = {
     enable = true;
-    iconTheme = { name = "Numix"; package = pkgs.numix-icon-theme; };
-    theme = { name = "Arc-Lighter"; package = pkgs.arc-theme; };
+    font = {
+      name = "Source Sans Pro";
+      size = 12;
+    };
+    theme = {
+      name = "Arc-Lighter";
+      package = pkgs.arc-theme;
+    };
+    iconTheme = {
+      name = "Numix";
+      package = pkgs.numix-icon-theme;
+    };
     gtk3.extraConfig = {
-      gtk-cursor-theme-size = 16;
+      gtk-cursor-theme-name = "capitaine-cursors";
+      gtk-cursor-theme-size = 24;
     };
   };
 }

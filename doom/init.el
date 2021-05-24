@@ -47,7 +47,7 @@
        :tools
        (debugger +lsp)
        direnv
-       ;;docker
+       docker
        editorconfig
        (eval +overlay)
        lookup
@@ -64,6 +64,7 @@
        (haskell +dante)
        json
        (java +lsp)
+       (lua +lsp)
        ;; TODO: https://github.com/hlissner/doom-emacs/pull/3258#issuecomment-801278842
        web
        (javascript +lsp)

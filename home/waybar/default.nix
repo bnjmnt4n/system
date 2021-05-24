@@ -1,24 +1,15 @@
 { pkgs, ... }:
 
 let
+  commands = import ../../lib/commands.nix { inherit pkgs; };
   scripts = import ../../lib/scripts.nix { inherit pkgs; };
-  wob = scripts.wob;
-
-  wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
-  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 1%+ && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 1%- && ${wob_show_brightness}";
-  brightness_middle = "${pkgs.brightnessctl}/bin/brightnessctl set 50% && ${wob_show_brightness}";
-  brightness_full = "${pkgs.brightnessctl}/bin/brightnessctl set 100% && ${wob_show_brightness}";
-
-  wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
-  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 1 && ${wob_show_volume}";
-  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 1 && ${wob_show_volume}";
 in
 {
   # Wayland-based status bar.
   programs.waybar = {
     enable = true;
-    style = pkgs.lib.readFile ./waybar.css;
+    systemd.enable = true;
+    style = pkgs.lib.readFile ./styles.css;
     settings = [{
       layer = "top";
       position = "top";
@@ -59,10 +50,10 @@ in
           format = "{percent}% {icon}";
           format-icons = [ "" "" ];
           interval = 60;
-          on-scroll-down = brightness_down;
-          on-scroll-up = brightness_up;
-          on-click = brightness_full;
-          on-click-right = brightness_middle;
+          on-scroll-down = commands.brightness_down_small;
+          on-scroll-up = commands.brightness_up_small;
+          on-click = commands.brightness_full;
+          on-click-right = commands.brightness_middle;
         };
         pulseaudio = {
           format = "{volume}% {icon}";
@@ -78,11 +69,11 @@ in
             default = [ "" "" ];
           };
           scroll-step = 1;
-          on-scroll-down = volume_down;
-          on-scroll-up = volume_up;
-          on-click = "${pkgs.pamixer}/bin/pamixer --toggle-mute && (${pkgs.pamixer}/bin/pamixer --get-mute && ${wob} 0) || ${wob_show_volume}";
-          on-click-right = "${pkgs.pavucontrol}/bin/pavucontrol";
-          on-click-middle = "${pkgs.blueman}/bin/blueman-applet";
+          on-scroll-down = commands.volume_down_small;
+          on-scroll-up = commands.volume_up_small;
+          on-click = commands.volume_toggle_mute;
+          on-click-right = commands.volume_control;
+          on-click-middle = commands.bluetooth_control;
         };
         battery = {
           format = "{capacity}% {icon}";
@@ -97,10 +88,11 @@ in
         };
         "custom/wf-recorder" = {
           format = "{}";
+          return-type = "json";
           interval = "once";
-          exec = "echo ''";
-          tooltip = false;
-          exec-if = "pgrep wf-recorder";
+          exec = ''pgrep wf-recorder >/dev/null && \
+                    echo '{"text": "","tooltip":"Stop recording","class":"recording"}' || \
+                    echo '{"text": "⏺","tooltip":"Start recording"}' '';
           on-click = "${scripts.screen-record}/bin/screen-record";
           on-click-right = "${scripts.screen-record}/bin/screen-record --check";
           signal = 8;

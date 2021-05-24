@@ -1,6 +1,9 @@
 { pkgs }:
 
-{
+let
+  commands = import ./commands.nix { inherit pkgs; };
+in
+rec {
   # Copied from https://github.com/terlar/nix-config/blob/570134ba7007f68e058855e0d6a1677a9dc3fa27/lib/scripts.nix
   switchNixos = pkgs.writeShellScriptBin "swn" ''
     set -euo pipefail
@@ -124,5 +127,70 @@
       while [ ! -z $(pgrep -x wf-recorder) ]; do true; done
       pkill -RTMIN+8 waybar
     fi
+  '';
+
+  # TODO: spotifyd service seems wonky at times.
+  # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
+  spotify = pkgs.writeShellScript "spotify.sh" ''
+    if ! systemctl --user is-active spotifyd >/dev/null; then
+      systemctl --user start spotifyd
+    fi
+    ${commands.terminal} --title spotify --class alacritty-spotify --command spt &
+    sleep 1
+    swaymsg scratchpad show
+  '';
+
+  spotify_force_restart = pkgs.writeShellScript "spotify_force_restart.sh" ''
+    systemctl --user restart spotifyd
+    ${commands.terminal} --title spotify --class alacritty-spotify --command spt &
+    sleep 1
+    swaymsg scratchpad show
+  '';
+
+  spotify_ncspot = pkgs.writeShellScript "spotify_ncspot.sh" ''
+    ${commands.terminal} --title ncspot --class alacritty-spotify --command ncspot &
+    sleep 1
+    swaymsg scratchpad show
+  '';
+
+  # Simple file finder.
+  find_files_bin = pkgs.writeScriptBin "find-files.sh" ''
+    #!/bin/sh
+
+    cd ~
+    FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
+    [ ! -z "$FILE"] && xdg-open "$HOME/$FILE"
+  '';
+  find_files = "${find_files_bin}/bin/find-files.sh";
+
+  # Configure GTK settings for Wayland.
+  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
+  gsettings="${pkgs.glib}/bin/gsettings";
+  gsettings_script = pkgs.writeShellScript "gsettings-auto.sh" ''
+    expression=""
+    for pair in "$@"; do
+      IFS=:; set -- $pair
+      expressions="$expressions -e 's:^$2=(.*)$:${gsettings} set org.gnome.desktop.interface $1 \1:e'"
+    done
+    IFS=
+    echo "" >/tmp/gsettings.log
+    echo exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
+    eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
+  '';
+  gsettings_cmd = ''${gsettings_script} \
+    gtk-theme:gtk-theme-name \
+    icon-theme:gtk-icon-theme-name \
+    font-name:gtk-font-name \
+    cursor-theme:gtk-cursor-theme-name'';
+
+  # Change output scales incrementally.
+  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
+  output_scale = pkgs.writeShellScript "scale-wlr-outputs.sh" ''
+    set -xeuo pipefail
+    delta=''${1}
+    scale="$(swaymsg -t get_outputs | ${pkgs.jq}/bin/jq '.[] | select(.focused == true) | .scale')"
+    printf -v scale "%.1f" "''${scale}"
+    scale="$(echo "''${scale} ''${delta}" | ${pkgs.bc}/bin/bc)"
+    swaymsg output "-" scale "''${scale}"
   '';
 }

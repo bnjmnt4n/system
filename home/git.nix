@@ -4,7 +4,7 @@
   # Version control for dummies.
   programs.git = {
     enable = true;
-    package = pkgs.gitAndTools.gitFull;
+    package = pkgs.gitFull;
     userName = "Benjamin Tan";
     userEmail = "benjamin@dev.ofcr.se";
     lfs.enable = true;
@@ -78,7 +78,7 @@
     };
 
     extraConfig = {
-      credential.helper = "${pkgs.gitAndTools.gitFull}/bin/git-credential-libsecret";
+      credential.helper = "${pkgs.gitFull}/bin/git-credential-libsecret";
       init.defaultBranch = "main";
       pull.rebase = true;
     };

@@ -53,8 +53,8 @@
   home.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD";
     TERMINAL = "alacritty";
-    EDITOR = "emacsclient -nw -c -a emacs";
-    VISUAL = "emacsclient -c -a emacs";
+    EDITOR = "nvim";
+    VISUAL = "nvim";
     BROWSER = "firefox";
   };
 

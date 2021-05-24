@@ -3,8 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
@@ -25,6 +27,9 @@
         config.allowUnfree = true;
       };
       makeNixosConfiguration = { system, modules }:
+        let
+          pkgs = makePkgs system;
+        in
         nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
@@ -32,10 +37,12 @@
             {
               system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
               nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+              # TODO: https://github.com/NixOS/nixpkgs/issues/124215
+              nix.sandboxPaths = [ "/bin/sh=${pkgs.bash}/bin/sh" ];
               nix.registry.nixpkgs.flake = nixpkgs;
               # Use our custom instance of nixpkgs.
               nixpkgs = {
-                pkgs = makePkgs system;
+                inherit pkgs; 
               };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -79,6 +86,7 @@
             nativeBuildInputs = with scripts; [
               switchHome
               switchNixos
+              pkgs.sumneko-lua-language-server
             ];
           };
         };

@@ -1,129 +1,17 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   # Modifiers.
   modifier = "Mod4";
   alt = "Mod1";
 
-  font = "Iosevka 10";
+  commands = import ../lib/commands.nix { inherit pkgs; };
+  scripts = import ../lib/scripts.nix { inherit pkgs; };
 
-  # Applications.
-  terminal = "${pkgs.alacritty}/bin/alacritty";
-  browser = "${pkgs.firefox}/bin/firefox";
-  browser_alt = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
-  emacs = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
-  editor = emacs;
-  explorer = "${pkgs.xfce.thunar}/bin/thunar";
-  telegram = "${emacs} -e '(=telegram)'";
-  # TODO: spotifyd service seems wonky at times.
-  # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
-  spotify = pkgs.writeShellScript "spotify.sh" ''
-    if ! systemctl --user is-active spotifyd >/dev/null; then
-      systemctl --user start spotifyd
-    fi
-    ${terminal} --title spotify --class alacritty-spotify --command spt &
-    sleep 1
-    swaymsg scratchpad show
-  '';
-  spotify_force_restart = pkgs.writeShellScript "spotify_force_restart.sh" ''
-    systemctl --user restart spotifyd
-    ${terminal} --title spotify --class alacritty-spotify --command spt &
-    sleep 1
-    swaymsg scratchpad show
-  '';
-  spotify_ncspot = pkgs.writeShellScript "spotify_ncspot.sh" ''
-    ${terminal} --title ncspot --class alacritty-spotify --command ncspot &
-    sleep 1
-    swaymsg scratchpad show
-  '';
-
-  # Launcher command.
-  launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
-  # Simple file finder.
-  find_files_bin = pkgs.writeScriptBin "find-files.sh" ''
-    #!/bin/sh
-
-    cd ~
-    FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
-    [ -n "$FILE"] && xdg-open "$HOME/$FILE"
-  '';
-  find_files = "${find_files_bin}/find-files.sh";
-
-  # Outputs.
+  touchpad_laptop = "1267:12608:MSFT0001:01_04F3:3140_Touchpad";
   output_laptop = "eDP-1";
 
-  # Media player.
-  media_play_pause = "${pkgs.playerctl}/bin/playerctl play-pause";
-  media_next = "${pkgs.playerctl}/bin/playerctl next";
-  media_prev = "${pkgs.playerctl}/bin/playerctl previous";
-
-  scripts = import ../lib/scripts.nix { inherit pkgs; };
-  wob = scripts.wob;
-
-  # Volume.
-  wob_show_volume = "${wob} $(${pkgs.pamixer}/bin/pamixer --get-volume)";
-  volume_up = "${pkgs.pamixer}/bin/pamixer -ui 10 && ${wob_show_volume}";
-  volume_down = "${pkgs.pamixer}/bin/pamixer -ud 10 && ${wob_show_volume}";
-  volume_mute = "${pkgs.pamixer}/bin/pamixer --toggle-mute && (${pkgs.pamixer}/bin/pamixer --get-mute && ${wob} 0) || ${wob_show_volume}";
-  mic_mute = "${pkgs.pulseaudioFull}/bin/pactl set-source-mute @DEFAULT_SINK@ toggle";
-
-  # Screen brightness.
-  wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
-  brightness_up = "${pkgs.brightnessctl}/bin/brightnessctl set 10%+ && ${wob_show_brightness}";
-  brightness_down = "${pkgs.brightnessctl}/bin/brightnessctl set 10%- && ${wob_show_brightness}";
-
-  # Screenshots.
-  screenshot_copy_screen = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify copy active";
-  screenshot_copy_region = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify copy area";
-  screenshot_save_screen = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify save active ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png";
-  screenshot_save_region = "${pkgs.sway-contrib.grimshot}/bin/grimshot --notify save area ~/Pictures/Screenshots/`date +%Y-%m-%d_%H:%M:%S`.png";
-
-  # Notifications.
-  notifications_dismiss_all = "${pkgs.mako}/bin/makoctl dismiss --all";
-
-  # Status bar.
-  waybar = "${pkgs.waybar}/bin/waybar";
-  hide_waybar = "${pkgs.killall}/bin/killall -SIGUSR1 waybar";
-
   mode_system = "System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI";
-
-  # Idle/lock commands.
-  lock_cmd = "${pkgs.swaylock}/bin/swaylock -F -f -e -K -l -i ~/.background-image -c '#000000'";
-  idle_cmd = ''${pkgs.swayidle}/bin/swayidle -w \
-    timeout 300 "${lock_cmd}" \
-    timeout 600 "swaymsg 'output * dpms off'" \
-    resume "swaymsg 'output * dpms on'" \
-    before-sleep "${lock_cmd}"'';
-
-  # Configure GTK settings for Wayland.
-  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
-  gsettings="${pkgs.glib}/bin/gsettings";
-  gsettings_script = pkgs.writeShellScript "gsettings-auto.sh" ''
-    expression=""
-    for pair in "$@"; do
-      IFS=:; set -- $pair
-      expressions="$expressions -e 's:^$2=(.*)$:${gsettings} set org.gnome.desktop.interface $1 \1:e'"
-    done
-    IFS=
-    echo "" >/tmp/gsettings.log
-    echo exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
-    eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
-  '';
-  gsettings_cmd = ''${gsettings_script} \
-    gtk-theme:gtk-theme-name \
-    icon-theme:gtk-icon-theme-name \
-    font-name:gtk-font-name \
-    cursor-theme:gtk-cursor-theme-name'';
-  # Change output scales incrementally.
-  # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
-  output_scale_cmd = pkgs.writeShellScript "scale-wlr-outputs.sh" ''
-    set -xeuo pipefail
-    delta=''${1}
-    scale="$(swaymsg -t get_outputs | ${pkgs.jq}/bin/jq '.[] | select(.focused == true) | .scale')"
-    printf -v scale "%.1f" "''${scale}"
-    scale="$(echo "''${scale} ''${delta}" | ${pkgs.bc}/bin/bc)"
-    swaymsg output "-" scale "''${scale}"
-  '';
 in
 {
   wayland.windowManager.sway = {
@@ -140,17 +28,20 @@ in
       export XDG_SESSION_TYPE=wayland
       export XDG_CURRENT_DESKTOP=sway
     '';
-    extraConfig = ''
-      seat seat0 xcursor_theme "capitaine-cursors"
-    '';
     config = rec {
       inherit modifier;
-      inherit terminal;
-      fonts = [ font ];
+      terminal = commands.terminal;
+      fonts = {
+        names = [ "Iosevka" ];
+        size = 10.0;
+      };
       input = {
         "type:touchpad" = {
           tap = "enabled";
           natural_scroll = "enabled";
+        };
+        "${touchpad_laptop}" = {
+          scroll_factor = "0.4";
         };
       };
       output = {
@@ -159,6 +50,11 @@ in
         };
         "${output_laptop}" = {
           scale = "1.5";
+        };
+      };
+      seat = {
+        seat0 = with config.gtk.gtk3.extraConfig; {
+          xcursor_theme = ''"${gtk-cursor-theme-name}" ${toString gtk-cursor-theme-size}'';
         };
       };
       focus.followMouse = "always";
@@ -172,7 +68,7 @@ in
         commands = [
           {
             criteria = { app_id = "floating-term"; };
-            command = "floating enable, opacity 0.95";
+            command = "floating enable";
           }
           {
             criteria = { app_id = "alacritty-spotify"; };
@@ -203,67 +99,61 @@ in
             criteria = { title = "^zoom$|Choose ONE of the audio conference options"; };
             command = "floating enable";
           }
-          {
-            criteria = { floating = ""; app_id = "emacs"; };
-            command = "opacity 0.95";
-          }
-          {
-            criteria = { floating = ""; app_id = "Alacritty"; };
-            command = "opacity 0.95";
-          }
         ];
       };
+      defaultWorkspace = "workspace number 1";
       keybindings = {
         "${modifier}+Return" = "exec ${terminal}";
         "${modifier}+Shift+Return" = "exec ${terminal} --class floating-term";
 
         # Keybindings for commonly used apps.
-        "${modifier}+b" = "exec ${browser}";
-        "${modifier}+z" = "exec ${browser_alt}";
-        "${modifier}+c" = "exec ${editor}";
-        "${modifier}+n" = "exec ${explorer}";
-        "${modifier}+t" = "exec ${telegram}";
-        "${modifier}+m" = "exec ${spotify}";
-        "${modifier}+Shift+m" = "exec ${spotify_force_restart}";
-        "${modifier}+Ctrl+m" = "exec ${spotify_ncspot}";
+        "${modifier}+b" = "exec ${commands.browser}";
+        "${modifier}+z" = "exec ${commands.browser_alt}";
+        "${modifier}+c" = "exec ${commands.editor}";
+        "${modifier}+n" = "exec ${commands.explorer}";
+        "${modifier}+t" = "exec ${commands.telegram}";
+        "${modifier}+m" = "exec ${scripts.spotify}";
+        "${modifier}+Shift+m" = "exec ${scripts.spotify_force_restart}";
+        "${modifier}+Ctrl+m" = "exec ${scripts.spotify_ncspot}";
 
         # Wofi commands.
-        "${modifier}+d" = "exec ${launcher}";
-        "${modifier}+p" = "exec ${find_files}";
+        "${modifier}+d" = "exec ${commands.launcher}";
+        "${modifier}+p" = "exec ${scripts.find_files}";
 
         # Media controls.
-        "--locked XF86AudioPlay" = "exec ${media_play_pause}";
-        "--locked XF86AudioNext" = "exec ${media_next}";
-        "--locked XF86AudioPrev" = "exec ${media_prev}";
-        "--locked ${modifier}+backslash" = "exec ${media_play_pause}";
-        "--locked ${modifier}+bracketright" = "exec ${media_next}";
-        "--locked ${modifier}+bracketleft" = "exec ${media_prev}";
+        "--locked XF86AudioPlay" = "exec ${commands.media_play_pause}";
+        "--locked XF86AudioNext" = "exec ${commands.media_next}";
+        "--locked XF86AudioPrev" = "exec ${commands.media_prev}";
+        "--locked ${modifier}+backslash" = "exec ${commands.media_play_pause}";
+        "--locked ${modifier}+bracketright" = "exec ${commands.media_next}";
+        "--locked ${modifier}+bracketleft" = "exec ${commands.media_prev}";
 
         # Volume controls.
-        "--locked XF86AudioRaiseVolume" = "exec ${volume_up}";
-        "--locked XF86AudioLowerVolume" = "exec ${volume_down}";
-        "--locked XF86AudioMute" = "exec ${volume_mute}";
-        "--locked XF86AudioMicMute" = "exec ${mic_mute}";
+        "--locked XF86AudioRaiseVolume" = "exec ${commands.volume_up}";
+        "--locked XF86AudioLowerVolume" = "exec ${commands.volume_down}";
+        "--locked XF86AudioMute" = "exec ${commands.volume_toggle_mute}";
+        "--locked XF86AudioMicMute" = "exec ${commands.mic_mute}";
 
         # Screen brightness controls.
-        "--locked XF86MonBrightnessUp" = "exec ${brightness_up}";
-        "--locked XF86MonBrightnessDown" = "exec ${brightness_down}";
+        "--locked XF86MonBrightnessUp" = "exec ${commands.brightness_up}";
+        "--locked XF86MonBrightnessDown" = "exec ${commands.brightness_down}";
 
         # Keybinding for screenshots.
-        "--release Print" = "exec ${screenshot_copy_screen}";
-        "--release Shift+Print" = "exec ${screenshot_copy_region}";
-        "--release ${modifier}+Print" = "exec ${screenshot_save_screen}";
-        "--release ${modifier}+Shift+Print" = "exec ${screenshot_save_region}";
+        "--release Print" = "exec ${commands.screenshot_copy_screen}";
+        "--release Shift+Print" = "exec ${commands.screenshot_copy_region}";
+        "--release ${modifier}+Print" = "exec ${commands.screenshot_save_screen}";
+        "--release ${modifier}+Shift+Print" = "exec ${commands.screenshot_save_region}";
 
         # Keybinding for screen recording.
         "--release Ctrl+Print" = "exec ${scripts.screen-record}/bin/screen-record";
         "--release Ctrl+Shift+Print" = "exec ${scripts.screen-record}/bin/screen-record -s";
 
         # Hide waybar.
-        "${modifier}+grave" = "exec ${hide_waybar}";
+        "${modifier}+grave" = "exec ${commands.hide_waybar}";
+        "${modifier}+Shift+grave" = "exec ${commands.reload_waybar}";
 
         # Notifications
-        "Control+Shift+Space" = "exec ${notifications_dismiss_all}";
+        "Control+Shift+Space" = "exec ${commands.notifications_dismiss_all}";
 
         # Kill focused window.
         "${modifier}+q" = "kill";
@@ -370,11 +260,11 @@ in
         "${modifier}+Shift+r" = "restart";
 
         # Lock.
-        "${modifier}+Shift+q" = "exec ${lock_cmd}";
+        "${modifier}+Shift+q" = "exec ${commands.lock_cmd}";
 
         # Modify output scale.
-        "${modifier}+Ctrl+Alt+equal" = "exec ${output_scale_cmd} +.1";
-        "${modifier}+Ctrl+Alt+minus" = "exec ${output_scale_cmd} -.1";
+        "${modifier}+Ctrl+Alt+equal" = "exec ${scripts.output_scale} +.1";
+        "${modifier}+Ctrl+Alt+minus" = "exec ${scripts.output_scale} -.1";
 
         # Modes.
         "${modifier}+r"  = "mode resize";
@@ -397,7 +287,7 @@ in
         };
 
         "${mode_system}" = {
-          "l" = "exec ${lock_cmd}, mode default";
+          "l" = "exec ${commands.lock_cmd}, mode default";
           "e" = "exit";
           "s" = "exec systemctl suspend, mode default";
           "r" = "exec systemctl reboot, mode default";
@@ -408,13 +298,12 @@ in
           "Escape" = "mode default";
         };
       };
-      bars = [{
-        command = waybar;
-      }];
+      bars = [];
       startup = [
-        { always = true; command = "${gsettings_cmd}"; }
+        { always = true; command = "${commands.reload_waybar}"; }
         { always = true; command = "${pkgs.mako}/bin/mako"; }
-        { command = "${idle_cmd}"; }
+        { always = true; command = "${scripts.gsettings_cmd}"; }
+        { command = "${commands.idle_cmd}"; }
       ];
     };
   };

@@ -14,7 +14,8 @@
 
   # Miscellaneous/temporary packages.
   home.packages = with pkgs; [
-    musescore
+    discord
+    # musescore
     # octave
     teams
   ];

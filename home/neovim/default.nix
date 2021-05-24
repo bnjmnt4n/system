@@ -6,21 +6,16 @@
     package = pkgs.neovim-nightly;
     vimAlias = true;
     vimdiffAlias = true;
-
-    # extraConfig = ''
-    #   " modify default escape and leader mappings for convenience
-    #   inoremap jk <esc>
-    #   let mapleader = " "
-
-    #   " basic settings
-    #   filetype plugin indent on
-    #   syntax on
-    #   set encoding=utf-8
-    #   set clipboard=unnamedplus
-    # '';
+    extraConfig = ''
+      lua require('init')
+    '';
   };
 
-  # TODO: home-manager creates an init.vim as well, which leads to messages
-  # about conflicts.
-  xdg.configFile."nvim/init.lua".source = ./init.lua;
+  xdg.configFile."nvim/lua/init.lua".source = ./init.lua;
+
+  # TODO: currently broken
+  home.packages = [
+    # Rust GUI
+    pkgs.neovide
+  ];
 }

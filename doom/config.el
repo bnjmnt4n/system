@@ -248,3 +248,15 @@
 
 ;; Set zls executable location.
 (setq lsp-zig-zls-executable "~/repos/zls/zig-cache/bin/zls")
+
+;; Treemacs: hide modeline.
+;; TODO: this does not work.
+(defun bnjmnt4n/treemacs-hide-modeline-h ()
+  (setq! mode-line-format nil))
+(after! treemacs
+  (add-hook 'treemacs-mode-hook #'bnjmnt4n/treemacs-hide-modeline-h))
+
+;; Modeline: remove border
+(custom-set-faces!
+  '(mode-line :box nil)
+  '(mode-line-inactive :box nil))

@@ -10,6 +10,7 @@
     ./gpg.nix
     ./mail.nix
     ./neovim/default.nix
+    ./poweralertd.nix
     ./tmux.nix
     ./xdg.nix
   ];
@@ -67,7 +68,7 @@
   ];
 
   home.sessionVariables = {
-    EDITOR = "emacsclient -nw -c -a emacs";
+    EDITOR = "nvim";
   };
 
   # Switch environments easily.
