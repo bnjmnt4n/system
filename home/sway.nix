@@ -10,6 +10,7 @@ let
 
   touchpad_laptop = "1267:12608:MSFT0001:01_04F3:3140_Touchpad";
   output_laptop = "eDP-1";
+  output_hp_monitor = "Hewlett Packard HP L1950 CNC927PSLQ";
 
   mode_system = "System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI";
 in
@@ -305,6 +306,33 @@ in
         { always = true; command = "${scripts.gsettings_cmd}"; }
         { command = "${commands.idle_cmd}"; }
       ];
+    };
+  };
+
+  services.kanshi = {
+    enable = true;
+    profiles = {
+      laptop = {
+        outputs = [
+          {
+            criteria = "${output_laptop}";
+          }
+        ];
+      };
+      multimonitor = {
+        outputs = [
+          {
+            criteria = "${output_hp_monitor}";
+            scale = 1.0;
+            mode = "1280x1024@60.020Hz";
+            position = "0,0";
+          }
+          {
+            criteria = "${output_laptop}";
+            position = "0,1024";
+          }
+        ];
+      };
     };
   };
 }
