@@ -246,9 +246,6 @@
 ;; Notmuch config.
 (setq +notmuch-sync-backend 'mbsync)
 
-;; Set zls executable location.
-(setq lsp-zig-zls-executable "~/repos/zls/zig-cache/bin/zls")
-
 ;; Treemacs: hide modeline.
 ;; TODO: this does not work.
 (defun bnjmnt4n/treemacs-hide-modeline-h ()

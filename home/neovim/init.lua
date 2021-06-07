@@ -357,7 +357,7 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 -- Enable the following language servers
 local servers = {
-  'clangd', 'rust_analyzer', 'tsserver' --, 'zls'
+  'clangd', 'rust_analyzer', 'tsserver', 'zls'
 }
 
 for _, lsp in ipairs(servers) do
@@ -366,13 +366,6 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
-
--- TODO
-nvim_lsp.zls.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-  cmd = { "/home/bnjmnt4n/repos/zls/zig-cache/bin/zls" },
-}
 
 FormatRange = function()
   local start_pos = vim.api.nvim_buf_get_mark(0, '<')
@@ -385,9 +378,7 @@ vim.cmd([[command! -range FormatRange execute 'lua FormatRange()']])
 -- Map :Format to vim.lsp.buf.formatting()
 vim.cmd([[command! Format execute 'lua vim.lsp.buf.formatting()']])
 
--- TODO: re-enable?
--- Was encountering some timer issues which I suspect might be attributable to this
--- vim.cmd[[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+vim.cmd[[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt="menuone,noselect,noinsert"

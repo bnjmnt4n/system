@@ -9,7 +9,7 @@ let
   scripts = import ../lib/scripts.nix { inherit pkgs; };
 
   touchpad_laptop = "1267:12608:MSFT0001:01_04F3:3140_Touchpad";
-  output_laptop = "eDP-1";
+  output_laptop = "Chimei Innolux Corporation 0x14E5 0x00000000";
   output_hp_monitor = "Hewlett Packard HP L1950 CNC927PSLQ";
 
   mode_system = "System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI";

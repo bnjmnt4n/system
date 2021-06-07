@@ -6,6 +6,7 @@
     ./browsers/default.nix
     ./gtk.nix
     ./mpv.nix
+    ./rbw.nix
     ./spotify.nix
     ./vscodium.nix
     ./wayland.nix
@@ -40,7 +41,6 @@
     anki
     appimage-run
     bitwarden
-    bitwarden-cli
     dropbox
     libreoffice
     pavucontrol
