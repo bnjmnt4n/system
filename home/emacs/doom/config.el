@@ -13,29 +13,10 @@
 
 (setq doom-theme 'modus-operandi)
 
-;; Display visual line numbers in normal mode, and absolute line numbers in insert mode.
-;; Based on https://github.com/Townk/doom-emacs-private/blob/f4deeb1cff770a81ebd3e38dbab26017d5726a1a/config.org#line-numbers-1
+;; Display visual line numbers.
 (setq display-line-numbers-type 'visual)
-
-(defun bnjmnt4n/line-number-absolute-h ()
-  "If line numbers are visible, set the current line number type to `absolute'."
-  (if display-line-numbers
-      (setq display-line-numbers t)))
-
-(defun bnjmnt4n/line-number-visual-h ()
-  "If line numbers are visible, set the current line number type to `visual'."
-  (if display-line-numbers
-      (setq display-line-numbers 'visual)))
-
-;; Attach hooks to changes in Evil state.
-(after! evil
-  (add-hook! '(evil-emacs-state-entry-hook
-               evil-insert-state-entry-hook) #'bnjmnt4n/line-number-absolute-h)
-  (add-hook! '(evil-emacs-state-exit-hook
-               evil-insert-state-exit-hook) #'bnjmnt4n/line-number-visual-h)
-
-  ;; Ensure that line numbers are displayed in any coding buffer.
-  (setq-hook! 'prog-mode-hook display-line-numbers-type 'visual))
+;; Ensure that line numbers are displayed in any coding buffer.
+(setq-hook! 'prog-mode-hook display-line-numbers-type 'visual)
 
 ;; Loosen the split width threshold since my laptop screen width is smaller.
 (setq split-width-threshold 140)
@@ -214,22 +195,6 @@
   (telega)
   (+workspace/display))
 
-;; Transmission client.
-(use-package! transmission
-  :defer t)
-
-;; Spotify client.
-(use-package! smudge
-  :commands (global-smudge-remote-mode)
-  :config
-  (setq smudge-transport 'connect
-        smudge-oauth2-client-secret bnjmnt4n/spotify-app-client-secret
-        smudge-oauth2-client-id bnjmnt4n/spotify-app-client-id)
-  (set-popup-rules!
-    '(("^\\*\\(Playlists:\\|Playlist \\(Tracks\\|Search\\):\\|Album:\\|Track Search:\\|\\(Featured Playlists\\|Recently Played\\)\\*$\\)"
-        :side right :width 0.5 :select t :quit current :modeline t)
-      ("^\\*Devices\\*$" :height 0.35 :select t))))
-
 ;; Update feeds when entering elfeed.
 (after! elfeed
   (add-hook 'elfeed-search-mode-hook #'elfeed-update)
@@ -245,13 +210,6 @@
 
 ;; Notmuch config.
 (setq +notmuch-sync-backend 'mbsync)
-
-;; Treemacs: hide modeline.
-;; TODO: this does not work.
-(defun bnjmnt4n/treemacs-hide-modeline-h ()
-  (setq! mode-line-format nil))
-(after! treemacs
-  (add-hook 'treemacs-mode-hook #'bnjmnt4n/treemacs-hide-modeline-h))
 
 ;; Modeline: remove border
 (custom-set-faces!

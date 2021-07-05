@@ -7,16 +7,17 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs-wayland.url = "github:colemickens/nixpkgs-wayland";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nur.url = "github:nix-community/NUR";
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       overlays = [
-        inputs.nixpkgs-wayland.overlay
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
@@ -35,15 +36,14 @@
           modules = [
             home-manager.nixosModules.home-manager
             {
+              # Before changing this value read the documentation for this option
+              # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+              system.stateVersion = "20.03";
               system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
               nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-              # TODO: https://github.com/NixOS/nixpkgs/issues/124215
-              nix.sandboxPaths = [ "/bin/sh=${pkgs.bash}/bin/sh" ];
               nix.registry.nixpkgs.flake = nixpkgs;
               # Use our custom instance of nixpkgs.
-              nixpkgs = {
-                inherit pkgs; 
-              };
+              nixpkgs = { inherit pkgs; };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
             }
@@ -86,7 +86,10 @@
             nativeBuildInputs = with scripts; [
               switchHome
               switchNixos
+              pkgs.rnix-lsp
+              pkgs.nixpkgs-fmt
               pkgs.sumneko-lua-language-server
+              pkgs.stylua
             ];
           };
         };

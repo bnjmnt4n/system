@@ -2,7 +2,7 @@
 
 This repository contains configuration files for my system, written largely in [Nix][nixos].
 
-I'm currently running [NixOS][nixos] with [swaywm][swaywm], using [Doom Emacs][doom-emacs] as my editor.
+I'm currently running [NixOS][nixos] with [swaywm][swaywm], using [Neovim][neovim] as my editor.
 
 ## Setup
 
@@ -25,10 +25,6 @@ $ nix develop
 $ swn # Switch to the new NixOS configuration.
 $ swh # Switch to the new home configuration.
 
-# Sync Doom configuration to `$HOME/.config/doom`.
-# Only needs to be done on first install.
-ln -s doom ./.config/doom
-
 # Update dependencies.
 nix flake update
 ```
@@ -46,7 +42,7 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 
 [nixos]: https://nixos.org/
 [swaywm]: https://swaywm.org/
-[doom-emacs]: https://github.com/hlissner/doom-emacs
+[neovim]: https://neovim.io/
 [andywhite37/dual-boot]: https://github.com/andywhite37/nixos/blob/9a3c13be14d3de4104322bb09efbf74245acffbd/DUAL_BOOT_WINDOWS_GUIDE.md
 [jethrokuan]: https://github.com/jethrokuan
 [jethrokuan/nix-config]: https://github.com/jethrokuan/nix-config
@@ -54,4 +50,4 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 [mathiasbynens/dotfiles]: https://github.com/mathiasbynens/dotfiles
 [k-vernooy/dotfiles]: https://github.com/k-vernooy/dotfiles
 [bqv/nixrc]: https://github.com/bqv/nixrc
-[thefloweringash/kevin-nix]: https://github.com/thefloweringash/kevin-nix/
+[thefloweringash/kevin-nix]: https://github.com/thefloweringash/kevin-nix

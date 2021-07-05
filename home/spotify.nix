@@ -7,7 +7,7 @@ let
     then
       track=$(${pkgs.playerctl}/bin/playerctl --player=spotifyd metadata title)
       artist_album=$(${pkgs.playerctl}/bin/playerctl --player=spotifyd metadata --format "{{ artist }}
-{{ album }}")
+    {{ album }}")
 
       ${pkgs.libnotify}/bin/notify-send -u low "$track" "$artist_album"
     fi
@@ -41,7 +41,6 @@ in
   '';
 
   home.packages = with pkgs; [
-    ncspot
     spotify-tui
   ];
 }

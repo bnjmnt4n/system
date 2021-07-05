@@ -9,8 +9,9 @@ let
   scripts = import ../lib/scripts.nix { inherit pkgs; };
 
   touchpad_laptop = "1267:12608:MSFT0001:01_04F3:3140_Touchpad";
+  mouse = "0:14373:USB_OPTICAL_MOUSE";
   output_laptop = "Chimei Innolux Corporation 0x14E5 0x00000000";
-  output_hp_monitor = "Hewlett Packard HP L1950 CNC927PSLQ";
+  output_mi_monitor = "Unknown Mi Monitor 2920000042565";
 
   mode_system = "System: (l) lock, (e) logout, (s) suspend, (r) reboot, (S) shutdown, (R) UEFI";
 in
@@ -22,7 +23,7 @@ in
       base = true;
       gtk = true;
     };
-    xwayland = true;
+    xwayland = false;
     extraSessionCommands = ''
       . ${scripts.waylandSession}
 
@@ -40,6 +41,9 @@ in
         "type:touchpad" = {
           tap = "enabled";
           natural_scroll = "enabled";
+        };
+        "${mouse}" = {
+          scroll_factor = "1.5";
         };
         "${touchpad_laptop}" = {
           scroll_factor = "0.4";
@@ -115,7 +119,6 @@ in
         "${modifier}+t" = "exec ${commands.telegram}";
         "${modifier}+m" = "exec ${scripts.spotify}";
         "${modifier}+Shift+m" = "exec ${scripts.spotify_force_restart}";
-        "${modifier}+Ctrl+m" = "exec ${scripts.spotify_ncspot}";
 
         # Wofi commands.
         "${modifier}+d" = "exec ${commands.launcher}";
@@ -238,7 +241,7 @@ in
 
         # Scratchpad.
         "${modifier}+Shift+minus" = "move scratchpad";
-        "${modifier}+minus"       = "scratchpad show";
+        "${modifier}+minus" = "scratchpad show";
 
         # Shortcuts for cycling through workspaces.
         "${modifier}+Shift+Tab" = "workspace prev_on_output";
@@ -268,8 +271,8 @@ in
         "${modifier}+Ctrl+Alt+minus" = "exec ${scripts.output_scale} -.1";
 
         # Modes.
-        "${modifier}+r"  = "mode resize";
-        "${modifier}+Shift+e"  = "mode \"${mode_system}\"";
+        "${modifier}+r" = "mode resize";
+        "${modifier}+Shift+e" = ''mode "${mode_system}"'';
       };
       modes = {
         resize = {
@@ -284,7 +287,7 @@ in
 
           "Return" = "mode default";
           "Escape" = "mode default";
-          "${modifier}+r"  = "mode default";
+          "${modifier}+r" = "mode default";
         };
 
         "${mode_system}" = {
@@ -299,7 +302,7 @@ in
           "Escape" = "mode default";
         };
       };
-      bars = [];
+      bars = [ ];
       startup = [
         { always = true; command = "${commands.reload_waybar}"; }
         { always = true; command = "${pkgs.mako}/bin/mako"; }
@@ -319,17 +322,17 @@ in
           }
         ];
       };
-      multimonitor = {
+      multimonitor_mi = {
         outputs = [
           {
-            criteria = "${output_hp_monitor}";
+            criteria = "${output_mi_monitor}";
             scale = 1.0;
-            mode = "1280x1024@60.020Hz";
+            mode = "1920x1080@75.002Hz";
             position = "0,0";
           }
           {
             criteria = "${output_laptop}";
-            position = "0,1024";
+            position = "1920,0";
           }
         ];
       };

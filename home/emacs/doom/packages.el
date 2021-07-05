@@ -11,5 +11,3 @@
 (package! magit-delta)
 (package! org-gcal)
 (package! org-download)
-(package! smudge)
-(package! transmission)

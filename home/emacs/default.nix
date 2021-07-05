@@ -21,6 +21,11 @@
   # Include Doom Emacs CLI in PATH.
   home.sessionPath = [ "${config.home.homeDirectory}/.emacs.d/bin" ];
 
+  # Doom Emacs configuration files.
+  xdg.configFile."doom/init.el".source = ./doom/init.el;
+  xdg.configFile."doom/packages.el".source = ./doom/packages.el;
+  xdg.configFile."doom/config.el".source = ./doom/config.el;
+
   home.packages = with pkgs; [
     imagemagick
     ripgrep
@@ -28,6 +33,9 @@
     fd
     clang
     texlive.combined.scheme-full
+
+    sqlite
+    graphviz
 
     (makeDesktopItem {
       name = "org-protocol";

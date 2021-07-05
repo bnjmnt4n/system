@@ -13,9 +13,16 @@ window#waybar {
     transition-duration: .5s;
 }
 
+/**
+ * TODO: with multiple monitors, switching to a different monitor will cause the bar in
+ * the other output to shift to empty, which is pretty jarring.
+ */
+
+/*
 window#waybar.empty {
     background-color: transparent;
 }
+*/
 
 #workspaces button {
     padding: 0 2px;

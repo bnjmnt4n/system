@@ -14,11 +14,11 @@ in
 {
   services.greetd = {
     enable = true;
-    restart = true;
+    restart = false;
     vt = 2;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --asterisks --time --cmd ${sway_cmd}";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --window-padding 1 --asterisks --time --cmd ${sway_cmd}";
         user = "greeter";
       };
     };

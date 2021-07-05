@@ -71,63 +71,64 @@ rec {
     [[ "$new_value" ]] && echo $new_value > $wob_pipe
   '';
 
-  screen-record = let
-    notify-send = "${pkgs.libnotify}/bin/notify-send";
-    wf-recorder = "${pkgs.wf-recorder}/bin/wf-recorder";
-    slurp = "${pkgs.slurp}/bin/slurp";
-    swaymsg = "${pkgs.sway}/bin/swaymsg";
-    jq = "${pkgs.jq}/bin/jq";
-    killall = "${pkgs.killall}/bin/killall";
-  in
-  # Based on https://gist.github.com/gingkapls/33f7567900a32ceed4b27f0eae1ffcd8
-  pkgs.writeScriptBin "screen-record" ''
-    #!/bin/sh
+  screen-record =
+    let
+      notify-send = "${pkgs.libnotify}/bin/notify-send";
+      wf-recorder = "${pkgs.wf-recorder}/bin/wf-recorder";
+      slurp = "${pkgs.slurp}/bin/slurp";
+      swaymsg = "${pkgs.sway}/bin/swaymsg";
+      jq = "${pkgs.jq}/bin/jq";
+      killall = "${pkgs.killall}/bin/killall";
+    in
+    # Based on https://gist.github.com/gingkapls/33f7567900a32ceed4b27f0eae1ffcd8
+    pkgs.writeScriptBin "screen-record" ''
+      #!/bin/sh
 
-    if [ "$1" == "--check" ]; then
-      if [ -z $(pgrep wf-recorder) ]; then
-        ${notify-send} "Recording ended"
-        pkill -RTMIN+8 waybar
-        exit 1
-      else
-        ${notify-send} "Recording in progress"
-        pkill -RTMIN+8 waybar
-        exit 0
+      if [ "$1" == "--check" ]; then
+        if [ -z $(pgrep wf-recorder) ]; then
+          ${notify-send} "Recording ended"
+          pkill -RTMIN+8 waybar
+          exit 1
+        else
+          ${notify-send} "Recording in progress"
+          pkill -RTMIN+8 waybar
+          exit 0
+        fi
       fi
-    fi
 
-    if [ -z $(pgrep wf-recorder) ]; then
-      filename=$(date +%F_%T.mkv)
+      if [ -z $(pgrep wf-recorder) ]; then
+        filename=$(date +%F_%T.mkv)
 
-      # TODO: audio?
-      # active=$(pacmd list-sources | awk 'c&&!--c;/* index*/{c=1}' | awk '{gsub(/<|>/,"",$0); print $NF}')
+        # TODO: audio?
+        # active=$(pacmd list-sources | awk 'c&&!--c;/* index*/{c=1}' | awk '{gsub(/<|>/,"",$0); print $NF}')
 
-      echo "Recording to file: $filename"
-      if [ "$1" == "-s" ]; then
-        ${notify-send} "Recording starting..."
-        ${wf-recorder} -f $HOME/Videos/Recordings/$filename -g "$(${slurp} -c "#FFFFFF")" >/dev/null 2>&1 &
-        sleep 2
-        while [ ! -z $(pgrep -x slurp) ]; do true; done
-        pkill -RTMIN+8 waybar
-      else
-        if [ "$1" == "-w" ]; then
+        echo "Recording to file: $filename"
+        if [ "$1" == "-s" ]; then
           ${notify-send} "Recording starting..."
-          ${wf-recorder} -f $HOME/Videos/Recordings/$filename -g "$(${swaymsg} -t get_tree | ${jq} -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | ${slurp} -c "#FFFFFF" )" >/dev/null 2>&1 &
+          ${wf-recorder} -f $HOME/Videos/Recordings/$filename -g "$(${slurp} -c "#FFFFFF")" >/dev/null 2>&1 &
           sleep 2
           while [ ! -z $(pgrep -x slurp) ]; do true; done
           pkill -RTMIN+8 waybar
         else
-          ${notify-send} "Recording started"
-          ${wf-recorder} -f $HOME/Videos/Recordings/$filename >/dev/null 2>&1 &
-          pkill -RTMIN+8 waybar
+          if [ "$1" == "-w" ]; then
+            ${notify-send} "Recording starting..."
+            ${wf-recorder} -f $HOME/Videos/Recordings/$filename -g "$(${swaymsg} -t get_tree | ${jq} -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | ${slurp} -c "#FFFFFF" )" >/dev/null 2>&1 &
+            sleep 2
+            while [ ! -z $(pgrep -x slurp) ]; do true; done
+            pkill -RTMIN+8 waybar
+          else
+            ${notify-send} "Recording started"
+            ${wf-recorder} -f $HOME/Videos/Recordings/$filename >/dev/null 2>&1 &
+            pkill -RTMIN+8 waybar
+          fi
         fi
+      else
+        ${killall} -s SIGINT wf-recorder
+        ${notify-send} "Recording completed"
+        while [ ! -z $(pgrep -x wf-recorder) ]; do true; done
+        pkill -RTMIN+8 waybar
       fi
-    else
-      ${killall} -s SIGINT wf-recorder
-      ${notify-send} "Recording completed"
-      while [ ! -z $(pgrep -x wf-recorder) ]; do true; done
-      pkill -RTMIN+8 waybar
-    fi
-  '';
+    '';
 
   # TODO: spotifyd service seems wonky at times.
   # TODO: figure out a non-hacky solution to move alacritty to scratchpad and show it.
@@ -147,41 +148,39 @@ rec {
     swaymsg scratchpad show
   '';
 
-  spotify_ncspot = pkgs.writeShellScript "spotify_ncspot.sh" ''
-    ${commands.terminal} --title ncspot --class alacritty-spotify --command ncspot &
-    sleep 1
-    swaymsg scratchpad show
-  '';
-
   # Simple file finder.
-  find_files_bin = pkgs.writeScriptBin "find-files.sh" ''
-    #!/bin/sh
+  find_files =
+    let
+      find_files_script = pkgs.writeScriptBin "find-files.sh" ''
+        #!/bin/sh
 
-    cd ~
-    FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
-    [ ! -z "$FILE"] && xdg-open "$HOME/$FILE"
-  '';
-  find_files = "${find_files_bin}/bin/find-files.sh";
+        cd ~
+        FILE="$(fd . Desktop Documents Downloads Dropbox -E "!{*.srt,*.rar,*.txt,*.zip,*.nfo}" | wofi --dmenu)"
+        [ ! -z "$FILE"] && xdg-open "$HOME/$FILE"
+      '';
+    in
+    "${find_files_script}/bin/find-files.sh";
 
   # Configure GTK settings for Wayland.
   # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.
-  gsettings="${pkgs.glib}/bin/gsettings";
-  gsettings_script = pkgs.writeShellScript "gsettings-auto.sh" ''
-    expression=""
-    for pair in "$@"; do
-      IFS=:; set -- $pair
-      expressions="$expressions -e 's:^$2=(.*)$:${gsettings} set org.gnome.desktop.interface $1 \1:e'"
-    done
-    IFS=
-    echo "" >/tmp/gsettings.log
-    echo exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
-    eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
-  '';
-  gsettings_cmd = ''${gsettings_script} \
-    gtk-theme:gtk-theme-name \
-    icon-theme:gtk-icon-theme-name \
-    font-name:gtk-font-name \
-    cursor-theme:gtk-cursor-theme-name'';
+  gsettings_cmd =
+    let
+      gsettings = "${pkgs.glib}/bin/gsettings";
+      gsettings_script = pkgs.writeShellScript "gsettings-auto.sh" ''
+        expression=""
+        for pair in "$@"; do
+          IFS=:; set -- $pair
+          expressions="$expressions -e 's:^$2=(.*)$:${gsettings} set org.gnome.desktop.interface $1 \1:e'"
+        done
+        IFS=
+        eval exec sed -E $expressions "''${XDG_CONFIG_HOME:-$HOME/.config}"/gtk-3.0/settings.ini &>>/tmp/gsettings.log
+      '';
+    in
+    ''${gsettings_script} \
+      gtk-theme:gtk-theme-name \
+      icon-theme:gtk-icon-theme-name \
+      font-name:gtk-font-name \
+      cursor-theme:gtk-cursor-theme-name'';
 
   # Change output scales incrementally.
   # Based on https://github.com/colemickens/nixcfg/blob/437393cc4036de8a1a80e968cb776448c1414cd5/mixins/sway.nix.

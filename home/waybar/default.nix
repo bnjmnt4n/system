@@ -19,7 +19,7 @@ in
         "HDMI-A-1"
       ];
       modules-left = [ "sway/workspaces" "sway/mode" "sway/window" ];
-      modules-center = [];
+      modules-center = [ ];
       modules-right = [ "custom/wf-recorder" "idle_inhibitor" "cpu" "memory" "network" "backlight" "pulseaudio" "battery" "clock" "tray" ];
       modules = {
         "sway/workspaces" = {

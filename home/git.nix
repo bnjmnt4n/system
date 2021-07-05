@@ -55,10 +55,10 @@
       ca = "!git add -A && git commit -av";
 
       # Switch to a branch, creating it if necessary.
-      go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f";
+      go = ''!f() { git checkout -b "$1" 2> /dev/null || git checkout "$1"; }; f'';
 
       # Credit an author on the latest commit.
-      credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f";
+      credit = ''!f() { git commit --amend --author "$1 <$2>" -C HEAD; }; f'';
 
       # Interactive rebase with the given number of latest commits.
       reb = "!r() { git rebase -i HEAD~$1; }; r";

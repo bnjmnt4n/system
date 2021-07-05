@@ -4,31 +4,21 @@
   imports = [
     ./hardware-configuration.nix
 
+    ../../nixos/nix.nix
     ../../nixos/binary-caches.nix
 
     ../../nixos/console-font.nix
-    ../../nixos/bootloader/grub.nix # ../../nixos/bootloader/systemd-boot.nix
-    ../../nixos/login/greetd.nix # ../../nixos/login/lightdm.nix
-    ../../nixos/libinput.nix
+    ../../nixos/bootloader/grub.nix
+    ../../nixos/login/greetd.nix
 
     ../../nixos/fonts.nix
   ];
 
-  nix = {
-    package = pkgs.nixUnstable;
-    extraOptions = ''
-      keep-outputs = true
-      keep-derivations = true
-      experimental-features = nix-command flakes
-    '';
-    trustedUsers = [ "root" "bnjmnt4n" ];
-  };
-
   # Allow for a greater number of inotify watches.
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
 
-  # Use a recent Linux kernel (5.11).
-  boot.kernelPackages = pkgs.linuxPackages_5_11;
+  # Use a recent Linux kernel (5.12).
+  boot.kernelPackages = pkgs.linuxPackages_5_12;
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.intel.updateMicrocode = true;
 
@@ -94,7 +84,16 @@
   };
 
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
-  services.interception-tools.enable = true;
+  services.interception-tools = {
+    enable = true;
+    plugins = [ pkgs.interception-tools-plugins.caps2esc ];
+    udevmonConfig = ''
+      - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${pkgs.interception-tools-plugins.caps2esc}/bin/caps2esc | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
+        DEVICE:
+          EVENTS:
+            EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
+    '';
+  };
 
   # Power management.
   services.upower.enable = true;
@@ -108,7 +107,7 @@
   # };
 
   # Enable CUPS to print documents.
-  services.printing.enable = true;
+  # services.printing.enable = true;
 
   services.udev.packages = [ pkgs.android-udev-rules ];
 
@@ -126,10 +125,6 @@
     ];
   };
 
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "20.03";
-
   # Sway.
   programs.sway = {
     enable = true;
@@ -137,7 +132,7 @@
       base = true;
       gtk = true;
     };
-    extraPackages = [];
+    extraPackages = [ ];
   };
 
   environment.systemPackages = with pkgs; [
@@ -150,8 +145,10 @@
   programs.seahorse.enable = true;
 
   # Enable WebRTC-based screen-sharing.
-  xdg.portal.enable = true;
-  xdg.portal.gtkUsePortal = true;
-  xdg.portal.extraPortals = with pkgs;
-    [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
+  xdg.portal = {
+    enable = true;
+    gtkUsePortal = true;
+    extraPortals = with pkgs;
+      [ xdg-desktop-portal-wlr xdg-desktop-portal-gtk ];
+  };
 }

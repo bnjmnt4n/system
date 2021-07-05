@@ -1,7 +1,14 @@
 # Copied from https://github.com/eadwu/nixpkgs/blob/13bb5bdaf7c125dd92d3b1cc303fa89c54b700a8/pkgs/applications/virtualization/spim/default.nix.
-{ lib, mkDerivation, fetchsvn
-, flex, bison, qmake, wrapQtAppsHook
-, qtbase, qttools }:
+{ lib
+, mkDerivation
+, fetchsvn
+, flex
+, bison
+, qmake
+, wrapQtAppsHook
+, qtbase
+, qttools
+}:
 
 mkDerivation rec {
   pname = "QtSpim";

@@ -14,9 +14,8 @@ in
 
   # Used within sway configuration.
   home.packages = with pkgs; [
-    swaylock              # Lockscreen
+    swaylock # Lockscreen
     swayidle
-    xwayland              # For legacy Xorg-based apps
     qt5.qtwayland
 
     jq

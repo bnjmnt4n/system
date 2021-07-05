@@ -21,8 +21,9 @@
     profiles = {
       default = {
         isDefault = true;
-        userChrome = pkgs.lib.readFile ./firefox.userChrome.css;
+        userChrome = pkgs.lib.readFile ./userChrome.css;
         settings = {
+          "browser.quitShortcut.disabled" = true;
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
           "browser.urlbar.suggest.searches" = false;
@@ -46,16 +47,19 @@
   # TODO: merge into firefox.profiles?
   # If there are any updates to the search.json format, run:
   # nix-shell -p mozlz4a --command "mozlz4a -d ~/.mozilla/firefox/default/search.json.mozlz4 new.search.json"
-  home.file.".mozilla/firefox/default/search.json.mozlz4" = let
-    searchJsonMozlz4 = pkgs.runCommand "generate-search-json-mozlz4" {
-      buildInputs = with pkgs; [ jq mozlz4a ];
-    } ''
-      mkdir $out
-      jq -c . < ${./firefox.search.json} > $out/compressed.json
-      mozlz4a $out/compressed.json $out/search.json.mozlz4
-    '';
-  in {
-    source = "${searchJsonMozlz4}/search.json.mozlz4";
-    force = true;
-  };
+  home.file.".mozilla/firefox/default/search.json.mozlz4" =
+    let
+      searchJsonMozlz4 = pkgs.runCommand "generate-search-json-mozlz4"
+        {
+          buildInputs = with pkgs; [ jq mozlz4a ];
+        } ''
+        mkdir $out
+        jq -c . < ${./search.json} > $out/compressed.json
+        mozlz4a $out/compressed.json $out/search.json.mozlz4
+      '';
+    in
+    {
+      source = "${searchJsonMozlz4}/search.json.mozlz4";
+      force = true;
+    };
 }

@@ -10,7 +10,8 @@ let
   bdf2psf-data = "${bdf2psf}/share/bdf2psf";
 in
 
-runCommand "ttf-console-font" {
+runCommand "ttf-console-font"
+{
   buildInputs = [ otf2bdf bdf2psf ];
   sets = lib.concatStringsSep "+" (map (x: "${bdf2psf-data}/${x}") [
     "ascii.set"

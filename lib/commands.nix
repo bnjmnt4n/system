@@ -6,14 +6,14 @@ in
 rec {
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
-  browser_alt = "${pkgs.chromium}/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland";
+  browser_alt = "${pkgs.chromium}/bin/chromium";
   emacs = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
   editor = emacs;
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${emacs} -e '(=telegram)'";
 
   # Launcher command.
-  launcher = "${pkgs.wofi}/bin/wofi --show drun \"Applications\"";
+  launcher = "${pkgs.wofi}/bin/wofi --show drun 'Applications'";
 
   # Screen brightness.
   wob_show_brightness = "${wob} $(${pkgs.light}/bin/light -G | cut -d'.' -f1)";
@@ -50,7 +50,8 @@ rec {
   notifications_dismiss_all = "${pkgs.mako}/bin/makoctl dismiss --all";
 
   # Status bar.
-  hide_waybar = "${pkgs.killall}/bin/killall -SIGUSR1 waybar";
+  # TODO: `.waybar-wrapped`
+  hide_waybar = "${pkgs.killall}/bin/killall -SIGUSR1 .waybar-wrapped";
   reload_waybar = "systemctl restart --user waybar.service";
 
   # Idle/lock commands.

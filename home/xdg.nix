@@ -14,7 +14,7 @@
         "x-scheme-handler/mailto" = "firefox.desktop"; # TODO
         "application/pdf" = "org.pwmt.zathura-pdf-mupdf.desktop";
         "application/zip" = "xarchiver.desktop";
-        "text/" = "emacsclient.desktop";
+        "text/" = "emacsclient.desktop"; # TODO
         "image/" = "imv.desktop";
         "video/" = "mpv.desktop";
         "audio/" = "mpv.desktop";

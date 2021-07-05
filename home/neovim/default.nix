@@ -4,18 +4,18 @@
   programs.neovim = {
     enable = true;
     package = pkgs.neovim-nightly;
-    vimAlias = true;
-    vimdiffAlias = true;
     extraConfig = ''
-      lua require('init')
+      lua require('bnjmnt4n')
     '';
   };
 
-  xdg.configFile."nvim/lua/init.lua".source = ./init.lua;
+  xdg.configFile."nvim/lua".source = ./lua;
 
-  # TODO: currently broken
-  home.packages = [
-    # Rust GUI
-    pkgs.neovide
-  ];
+
+  programs.fish = {
+    shellAliases.v = "nvim";
+  };
+  programs.bash.shellAliases = {
+    v = "nvim";
+  };
 }
