@@ -1,38 +1,5 @@
 -- Treesitter
 require('nvim-treesitter.configs').setup {
-  ensure_installed = {
-    'bash',
-    'c',
-    'comment',
-    'cpp',
-    'css',
-    'fish',
-    'glimmer',
-    'go',
-    'graphql',
-    'haskell',
-    'html',
-    'javascript',
-    'jsdoc',
-    'json',
-    'jsonc',
-    'ledger',
-    'lua',
-    'nix',
-    'python',
-    'query',
-    'regex',
-    'ruby',
-    'rust',
-    'scss',
-    'svelte',
-    'toml',
-    'tsx',
-    'typescript',
-    'vue',
-    'yaml',
-    'zig',
-  },
   highlight = {
     enable = true,
     disable = { 'comment', 'jsdoc' },
@@ -52,6 +19,7 @@ require('nvim-treesitter.configs').setup {
   textobjects = {
     select = {
       enable = true,
+      lookahead = true,
       keymaps = {
         ['iF'] = {
           python = '(function_definition) @function',
@@ -74,6 +42,26 @@ require('nvim-treesitter.configs').setup {
         ['ad'] = '@comment.outer',
         ['am'] = '@call.outer',
         ['im'] = '@call.inner',
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true,
+      goto_next_start = {
+        [']m'] = '@function.outer',
+        [']]'] = '@class.outer',
+      },
+      goto_next_end = {
+        [']M'] = '@function.outer',
+        [']['] = '@class.outer',
+      },
+      goto_previous_start = {
+        ['[m'] = '@function.outer',
+        ['[['] = '@class.outer',
+      },
+      goto_previous_end = {
+        ['[M'] = '@function.outer',
+        ['[]'] = '@class.outer',
       },
     },
   },

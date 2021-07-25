@@ -2,14 +2,6 @@
 -- https://github.com/mjlbach/defaults.nvim/blob/f4611c06493f85450f82aded43b50a14619ae55a/init.lua
 -- https://github.com/mjlbach/nix-dotfiles/blob/78c9ca9363107d4e967e5b49e19d86c75e7a3e3a/nixpkgs/configs/neovim/init.lua
 
--- Disable default plugins
-vim.g.loaded_vimball = 1
-vim.g.loaded_vimballPlugin = 1
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-vim.g.loaded_netrwSettings = 1
-vim.g.loaded_netrwFileHandlers = 1
-
 -- Install packer
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
 
@@ -55,9 +47,8 @@ require('packer').startup(function(use)
   use {
     'lewis6991/gitsigns.nvim',
     requires = { 'nvim-lua/plenary.nvim' },
-    -- after = { 'plenary.nvim' },
     config = [[require 'bnjmnt4n.plugins.gitsigns']],
-    -- event = 'BufEnter',
+    event = 'BufEnter',
   }
 
   -- Split diff tool
@@ -70,20 +61,20 @@ require('packer').startup(function(use)
   use {
     'TimUntersberger/neogit',
     requires = { 'nvim-lua/plenary.nvim' },
-    after = { 'plenary.nvim', 'diffview.nvim' },
     config = [[require 'bnjmnt4n.plugins.neogit']],
     cmd = { 'Neogit' },
   }
 
   -- Fuzzy finder
-  -- TODO: lazyload?
   use {
     'nvim-telescope/telescope.nvim',
     requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
-    -- after = { 'popup.nvim', 'plenary.nvim' },
+  }
+  use {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    after = { 'telescope.nvim' },
     config = [[require 'bnjmnt4n.plugins.telescope']],
   }
-  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
 
   -- Vim ports of Modus Themes
   use 'ishan9299/modus-theme-vim'
@@ -100,23 +91,32 @@ require('packer').startup(function(use)
   -- direnv support
   use 'direnv/direnv.vim'
 
-  -- Run nvim in the browser
   use {
-    'glacambre/firenvim',
-    run = function()
-      vim.fn['firenvim#install'](0)
+    'folke/trouble.nvim',
+    requires = { 'kyazdani42/nvim-web-devicons' },
+    config = [[require 'bnjmnt4n.plugins.trouble']],
+    cmd = { 'Trouble' },
+  }
+
+  use {
+    'folke/todo-comments.nvim',
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('todo-comments').setup {}
     end,
   }
 
   -- Snippets + Autocompletion + auto-pairs
-  -- TODO: load on InsertEnter?
-  use 'windwp/nvim-autopairs'
-  use 'L3MON4D3/LuaSnip'
   use {
     'hrsh7th/nvim-compe',
-    after = { 'nvim-autopairs', 'LuaSnip' },
     config = [[require 'bnjmnt4n.plugins.compe']],
     event = 'InsertEnter *',
+  }
+  use { 'L3MON4D3/LuaSnip', after = { 'nvim-compe' } }
+  use {
+    'windwp/nvim-autopairs',
+    after = { 'nvim-compe' },
+    config = [[require 'bnjmnt4n.plugins.autopairs']],
   }
 
   -- LSP
@@ -149,11 +149,29 @@ require('packer').startup(function(use)
       -- TODO: make optional
       'nvim-treesitter/playground',
     },
-    run = ':TSUpdate',
   }
 
   -- `gS` and `gJ` to switch between single/multi-line forms of code
   use 'AndrewRadev/splitjoin.vim'
+
+  use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
+  use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
+
+  use {
+    'kristijanhusak/orgmode.nvim',
+    config = function()
+      require('orgmode').setup {
+        org_agenda_files = { '~/org/agenda' },
+      }
+    end,
+  }
+
+  -- TODO
+  use 'andymass/vim-matchup'
+  use {
+    'ggandor/lightspeed.nvim',
+    config = [[require 'bnjmnt4n.plugins.lightspeed']],
+  }
 
   -- Language pack
   use 'sheerun/vim-polyglot'
@@ -215,17 +233,8 @@ vim.g.lightline = {
   component_function = { gitbranch = 'fugitive#head' },
 }
 
--- GUI font for neovide/firenvim
+-- GUI font for neovide
 vim.o.guifont = 'Iosevka:h20'
-
--- firenvim
-vim.g.firenvim_config = {
-  localSettings = {
-    ['.*'] = {
-      takeover = 'never',
-    },
-  },
-}
 
 -- Indent guide
 vim.g.indent_blankline_char = '┊'
@@ -237,7 +246,6 @@ vim.g.indent_blankline_char_highlight = 'LineNr'
 vim.wo.colorcolumn = '99999'
 
 -- Remap space as leader key
-vim.api.nvim_set_keymap('', '<Space>', '<Nop>', { noremap = true, silent = true })
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -313,14 +321,6 @@ end
 
 vim.cmd [[command! -range FormatRange execute 'lua FormatRange()']]
 vim.cmd [[command! Format execute 'lua vim.lsp.buf.formatting()']]
-
--- Automatically `lcd` into current buffer's directory.
-vim.cmd [[
-  augroup BufferCD
-    autocmd!
-    autocmd BufEnter * silent! Glcd
-  augroup end
-]]
 
 -- Quickfix list: `q` to quit
 vim.cmd [[

@@ -12,10 +12,16 @@
     ../../nixos/login/greetd.nix
 
     ../../nixos/fonts.nix
+
+    ../../nixos/tailscale.nix
   ];
 
-  # Allow for a greater number of inotify watches.
-  boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
+  boot.kernel.sysctl = {
+    # Allow for a greater number of inotify watches.
+    "fs.inotify.max_user_watches" = 524288;
+    # Allow all sysrq functions.
+    "kernel.sysrq" = 1;
+  };
 
   # Use a recent Linux kernel (5.12).
   boot.kernelPackages = pkgs.linuxPackages_5_12;
@@ -44,6 +50,9 @@
 
   networking.firewall.enable = true;
   networking.nameservers = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "9.9.9.9" ];
+
+  # Enable SSH.
+  services.openssh.enable = true;
 
   # Internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -86,7 +95,6 @@
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools = {
     enable = true;
-    plugins = [ pkgs.interception-tools-plugins.caps2esc ];
     udevmonConfig = ''
       - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${pkgs.interception-tools-plugins.caps2esc}/bin/caps2esc | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
         DEVICE:
@@ -132,7 +140,7 @@
       base = true;
       gtk = true;
     };
-    extraPackages = [ ];
+    extraPackages = [];
   };
 
   environment.systemPackages = with pkgs; [

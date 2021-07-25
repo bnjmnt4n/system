@@ -12,6 +12,10 @@
       url = "github:nix-community/neovim-nightly-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    telescope-fzf-native = {
+      url = "github:nvim-telescope/telescope-fzf-native.nvim";
+      flake = false;
+    };
     nur.url = "github:nix-community/NUR";
   };
 
@@ -21,7 +25,7 @@
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
-        (import ./pkgs/default.nix)
+        (import ./pkgs/default.nix inputs)
       ];
       makePkgs = system: import nixpkgs {
         inherit system overlays;

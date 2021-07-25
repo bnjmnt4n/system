@@ -7,7 +7,6 @@
     extensions = with pkgs.nur.repos.rycee.firefox-addons; [
       bitwarden
       decentraleyes
-      firenvim
       h264ify
       https-everywhere
       multi-account-containers

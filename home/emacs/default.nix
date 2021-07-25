@@ -31,7 +31,6 @@
     ripgrep
     coreutils
     fd
-    clang
     texlive.combined.scheme-full
 
     sqlite

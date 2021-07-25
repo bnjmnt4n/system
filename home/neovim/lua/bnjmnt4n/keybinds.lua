@@ -18,9 +18,8 @@ require('which-key').register {
       i = { [[<cmd>lua require('telescope.builtin').buffers()<CR>]], 'Find buffer' },
       n = { '<cmd>bnext<CR>', 'Next buffer' },
       p = { '<cmd>bprevious<CR>', 'Previous buffer' },
-      d = { '<cmd>bdelete<CR>', 'Delete buffer' },
-      k = { '<cmd>bdelete<CR>', 'Delete buffer' },
-      K = { '<cmd>bdelete!<CR>', 'Force delete buffer' },
+      d = { '<cmd>Sayonara<CR>', 'Delete buffer' },
+      k = { '<cmd>Sayonara<CR>', 'Delete buffer' },
     },
 
     c = {
@@ -42,6 +41,7 @@ require('which-key').register {
       name = '+file',
       f = { [[<cmd>lua require('telescope.builtin').find_files()<CR>]], 'Find files in folder' },
       r = { [[<cmd>lua require('telescope.builtin').oldfiles()<CR>]], 'Recent files' },
+      D = { '<cmd>Delete<CR>', 'Find files in folder' },
       s = { '<cmd>w<CR>', 'Save file' },
     },
 
@@ -96,14 +96,16 @@ require('which-key').register {
 
     o = {
       name = '+open',
+      e = { '<cmd>EnMasse<CR>', 'Edit quickfix list' },
       p = { '<cmd>lua ProjectSearch()<CR>', 'Find project' },
+      q = { '<cmd>copen<CR>', 'Open quickfix list' },
       t = { '<cmd>split +term<CR>', 'Open terminal in split' },
     },
 
     q = {
-      name = '+quickfix',
-      o = { '<cmd>copen<CR>', 'Open quickfix list' },
-      q = { '<cmd>cclose<CR>', 'Close quickfix list' },
+      name = '+quit',
+      q = { '<cmd>qa<CR>', 'Quit' },
+      Q = { '<cmd>qa!<CR>', 'Force quit' },
     },
 
     s = {
@@ -136,21 +138,25 @@ require('which-key').register {
       v = { '<C-w>v', 'Create new vertical split' },
       s = { '<C-w>s', 'Create new horizontal split' },
       m = { '<C-w>_<C-w><Bar>', 'Maximize window' },
-      o = { '<C-w>o', 'Close other windows window' },
+      o = { '<C-w>o', 'Close other windows' },
       t = { '<C-w>T', 'Shift buffer to new tab' },
       n = { '<cmd>tabnew<CR>', 'Create new tab' },
     },
 
-    z = {
-      name = '+quit',
-      z = { '<cmd>qa<CR>', 'Quit' },
-      Z = { '<cmd>qa!<CR>', 'Force quit' },
+    x = {
+      name = '+trouble',
+      x = { '<cmd>Trouble<CR>', 'Trouble' },
+      w = { '<cmd>Trouble lsp_workspace_diagnostics<cr>', 'Trouble Workspace Diagnostics' },
+      d = { '<cmd>Trouble lsp_document_diagnostics<cr>', 'Trouble Document Diagnostics' },
+      l = { '<cmd>Trouble loclist<cr>', 'Trouble Loclist' },
+      q = { '<cmd>Trouble quickfix<cr>', 'Trouble Quickfix' },
+      n = { '<cmd>lua require("trouble").next({ skip_groups = true, jump = true })<cr>', 'Next' },
+      p = { '<cmd>lua require("trouble").previous({ skip_groups = true, jump = true })<cr>', 'Previous' },
     },
   },
 }
 
 -- System clipboard yank/paste
--- TODO: yank in visual mode
 require('which-key').register {
   ['<leader>'] = {
     p = { [["+p]], 'Paste from system clipboard (p)' },
@@ -159,6 +165,11 @@ require('which-key').register {
     Y = { [["+y$]], 'Yank from system clipboard (Y)' },
   },
 }
+require('which-key').register({
+  ['<leader>y'] = { [["+y]], 'Yank from system clipboard (y)' },
+}, {
+  mode = 'v',
+})
 
 -- Git shortcuts
 require('which-key').register({

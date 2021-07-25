@@ -15,7 +15,6 @@
 
     ../../home/emacs/default.nix
     ../../home/neovim/default.nix
-    ../../home/vscodium.nix
 
     ../../home/beets.nix
     ../../home/mail.nix
@@ -75,6 +74,9 @@
     EDITOR = "nvim";
     VISUAL = "nvim";
     BROWSER = "firefox";
+
+    # https://github.com/NixOS/nixpkgs/issues/6878
+    LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
   };
 
   xsession.preferStatusNotifierItems = true;

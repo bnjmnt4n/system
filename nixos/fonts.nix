@@ -9,7 +9,8 @@
       fira-code-symbols
       ia-writer-duospace
       inter
-      iosevka-bin
+      # iosevka-bin
+      (nerdfonts.override { fonts = [ "Iosevka" ]; })
       jetbrains-mono
       libre-baskerville
       overpass

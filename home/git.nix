@@ -23,7 +23,7 @@
       s = "status -s";
 
       # Show the diff between the latest commit and the current state.
-      d = "!git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat";
+      d = "!git diff-index --quiet HEAD -- || clear; git diff --patch-with-stat";
 
       # `git di $number` shows the diff between the state `$number` revisions ago and the current state.
       di = "!d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d";
@@ -42,20 +42,21 @@
       # List aliases.
       aliases = "config --get-regexp alias";
 
-      # Amend the currently staged files to the latest commit.
-      amend = "commit --amend --reuse-message=HEAD";
-
       # Commit.
       co = "commit";
-
-      # Commit with message.
       com = "commit -m";
+      coa = "!git add -A && git commit -av";
 
-      # Commit all changes.
-      ca = "!git add -A && git commit -av";
+      # Amend commit.
+      amend = "commit --amend --reuse-message=HEAD";
+      ca = "commit --amend";
+      can = "commit --amend --no-edit";
+      car = "commit --amend --reset-author";
+      carn = "commit --amend --reset-author --no-edit";
 
-      # Switch to a branch, creating it if necessary.
-      go = ''!f() { git checkout -b "$1" 2> /dev/null || git checkout "$1"; }; f'';
+      # Switch to a branch.
+      go = "checkout";
+      gonew = "checkout -b";
 
       # Credit an author on the latest commit.
       credit = ''!f() { git commit --amend --author "$1 <$2>" -C HEAD; }; f'';
@@ -85,4 +86,8 @@
   };
 
   programs.gh.enable = true;
+
+  # Shell aliases.
+  programs.fish.shellAliases.g = "git";
+  programs.bash.shellAliases.g = "git";
 }

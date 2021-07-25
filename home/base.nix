@@ -23,6 +23,7 @@
     less
     ripgrep
     rsync
+    tokei
     tree
     wget
     xdg-utils

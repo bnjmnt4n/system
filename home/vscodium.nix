@@ -64,8 +64,7 @@ let
   ]
   ++ lib.attrValues custom-packages;
 
-  # Use VS Code to test out Copilot.
-  package = pkgs.vscode;
+  package = pkgs.vscodium;
 
   finalPackage =
     (pkgs.vscode-with-extensions.override {
@@ -106,17 +105,6 @@ in
 
       # Language settings
       "[nix]"."editor.tabSize" = 2;
-
-      "github.copilot.enable" = {
-        "*" = true;
-        yaml = false;
-        plaintext = true;
-        markdown = false;
-      };
-      "editor.inlineSuggest.enabled" = true;
-      "github.copilot.inlineSuggest.enable" = true;
-      "github.copilot.autocomplete.enable" = true;
-      "github.copilot.autocomplete.count" = 5;
     };
 
     keybindings = [ ];

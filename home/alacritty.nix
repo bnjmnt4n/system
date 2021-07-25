@@ -11,7 +11,7 @@
 
       font = {
         normal.family = "Iosevka Term";
-        size = 14;
+        size = 16;
       };
 
       window.padding = {
