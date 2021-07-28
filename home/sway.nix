@@ -108,17 +108,17 @@ in
       };
       defaultWorkspace = "workspace number 1";
       keybindings = {
-        "${modifier}+Return" = "exec ${terminal}";
-        "${modifier}+Shift+Return" = "exec ${terminal} --class floating-term";
+        "${modifier}+Return" = "exec ${pkgs.spawn} ${terminal}";
+        "${modifier}+Shift+Return" = "exec ${pkgs.spawn} ${terminal} --class floating-term";
 
         # Keybindings for commonly used apps.
-        "${modifier}+b" = "exec ${commands.browser}";
-        "${modifier}+z" = "exec ${commands.browser_alt}";
-        "${modifier}+c" = "exec ${commands.editor}";
-        "${modifier}+n" = "exec ${commands.explorer}";
-        "${modifier}+t" = "exec ${commands.telegram}";
-        "${modifier}+m" = "exec ${scripts.spotify}";
-        "${modifier}+Shift+m" = "exec ${scripts.spotify_force_restart}";
+        "${modifier}+b" = "exec ${pkgs.spawn} ${commands.browser}";
+        "${modifier}+z" = "exec ${pkgs.spawn} ${commands.browser_alt}";
+        "${modifier}+c" = "exec ${pkgs.spawn} ${commands.editor}";
+        "${modifier}+n" = "exec ${pkgs.spawn} ${commands.explorer}";
+        "${modifier}+t" = "exec ${pkgs.spawn} ${commands.telegram}";
+        "${modifier}+m" = "exec ${pkgs.spawn} ${scripts.spotify}";
+        "${modifier}+Shift+m" = "exec ${pkgs.spawn} ${scripts.spotify_force_restart}";
 
         # Wofi commands.
         "${modifier}+d" = "exec ${commands.launcher}";
@@ -161,6 +161,8 @@ in
 
         # Kill focused window.
         "${modifier}+q" = "kill";
+        "${alt}+F4" = "exec ${pkgs.spawn} ${pkgs.kill-focused}";
+        "${alt}+F5" = "exec ${pkgs.spawn} ${pkgs.freeze-focused}";
 
         # Window navigation.
         "${modifier}+Left" = "focus left";

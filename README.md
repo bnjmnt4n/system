@@ -39,6 +39,7 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 - [@k-vernooy's dotfiles][k-vernooy/dotfiles]
 - [@bqv's NixOS configuration][bqv/nixrc]
 - [@thefloweringash's kevin-nix configuration][thefloweringash/kevin-nix]
+- [@grahamc's NixOS configuration][grahamc/nixos-config]
 
 [nixos]: https://nixos.org/
 [swaywm]: https://swaywm.org/
@@ -51,3 +52,4 @@ I've gotten inspiration, and in some cases drawn liberally from the following pl
 [k-vernooy/dotfiles]: https://github.com/k-vernooy/dotfiles
 [bqv/nixrc]: https://github.com/bqv/nixrc
 [thefloweringash/kevin-nix]: https://github.com/thefloweringash/kevin-nix
+[grahamc/nixos-config]: https://github.com/grahamc/nixos-config
