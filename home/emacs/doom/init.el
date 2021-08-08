@@ -40,19 +40,12 @@
        direnv
        lookup
        magit
-       pdf
 
        :lang
-       data
        emacs-lisp
-       json
        ledger
        markdown
-       (org +roam)
-       yaml
-
-       :email
-       notmuch
+       (org +roam2)
 
        :app
        (rss +org)

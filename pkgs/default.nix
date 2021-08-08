@@ -10,4 +10,9 @@ inputs: final: prev:
     src = inputs.telescope-fzf-native;
   };
   ttf-console-font = prev.callPackage ./ttf-console-font.nix { };
+
+  argonone-rpi4 = prev.callPackage ./raspberry-pi-4/argonone-rpi4.nix {
+    rpi-gpio = prev.python3Packages.callPackage ./raspberry-pi-4/rpi-gpio.nix { };
+    smbus2 = prev.python3.pkgs.callPackage ./raspberry-pi-4/smbus2.nix { };
+  };
 }

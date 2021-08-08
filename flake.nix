@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,9 +18,10 @@
       flake = false;
     };
     nur.url = "github:nix-community/NUR";
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, flake-utils, nixos-hardware, home-manager, ... }@inputs:
     let
       overlays = [
         inputs.emacs-overlay.overlay
@@ -72,30 +74,43 @@
         ];
       };
 
+      nixosConfigurations.raspy = makeNixosConfiguration {
+        system = "aarch64-linux";
+        modules = [
+          nixos-hardware.nixosModules.raspberry-pi-4
+          ./hosts/raspy/configuration.nix
+          # TODO: abstract home-manager user handling.
+          {
+            home-manager.users.bnjmnt4n = import ./hosts/raspy/bnjmnt4n.nix;
+            home-manager.users.guest = import ./hosts/raspy/guest.nix;
+          }
+        ];
+      };
+
       homeConfigurations.bnjmnt4n = makeHomeManagerConfiguration {
         system = "x86_64-linux";
         username = "bnjmnt4n";
         configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
-
-      # Convenient shortcuts to switch configurations within this repository.
-      devShell =
-        let
-          system = "x86_64-linux"; # Default solely to x86_64-linux for now.
-          pkgs = makePkgs system;
-          scripts = import ./lib/scripts.nix { inherit pkgs; };
-        in
-        {
-          "${system}" = pkgs.mkShell {
-            nativeBuildInputs = with scripts; [
-              switchHome
-              switchNixos
-              pkgs.rnix-lsp
-              pkgs.nixpkgs-fmt
-              pkgs.sumneko-lua-language-server
-              pkgs.stylua
-            ];
-          };
+    }
+    //
+    # Convenient shortcuts to switch configurations within this repository.
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = makePkgs system;
+        scripts = import ./lib/scripts.nix { inherit pkgs; };
+      in
+      {
+        devShell = pkgs.mkShell {
+          nativeBuildInputs = with scripts; [
+            switchHome
+            switchNixos
+            pkgs.rnix-lsp
+            pkgs.nixpkgs-fmt
+            pkgs.sumneko-lua-language-server
+            pkgs.stylua
+          ];
         };
-    };
+      }
+    );
 }

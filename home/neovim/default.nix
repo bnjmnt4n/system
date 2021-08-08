@@ -3,7 +3,12 @@
 {
   programs.neovim = {
     enable = true;
-    package = pkgs.neovim-nightly;
+    package =
+      if pkgs.stdenv.isAarch64 then
+        pkgs.neovim-nightly.override
+          {
+            lua = pkgs.luajit;
+          } else pkgs.neovim-nightly;
     extraConfig = ''
       " Disable default plugins
       let g:loaded_matchit = 1

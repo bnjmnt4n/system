@@ -32,9 +32,7 @@
     coreutils
     fd
     texlive.combined.scheme-full
-
-    sqlite
-    graphviz
+    clang # Used to compile sqlite
 
     (makeDesktopItem {
       name = "org-protocol";

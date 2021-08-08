@@ -7,7 +7,9 @@
     ../../nixos/nix.nix
     ../../nixos/binary-caches.nix
 
+    ../../nixos/defaults.nix
     ../../nixos/console-font.nix
+    ../../nixos/interception-tools.nix
     ../../nixos/bootloader/grub.nix
     ../../nixos/login/greetd.nix
 
@@ -54,21 +56,6 @@
   # Enable SSH.
   services.openssh.enable = true;
 
-  # Internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-  console = {
-    # Over-ridden by `console-font` module.
-    # font = "Lat2-Terminus16";
-    keyMap = "us";
-  };
-
-  location = {
-    latitude = 1.3521;
-    longitude = 103.8198;
-  };
-
-  time.timeZone = "Asia/Singapore";
-
   # Enable sound and Bluetooth.
   sound.enable = true;
   hardware.bluetooth.enable = true;
@@ -90,17 +77,6 @@
       "bluez5.msbc-support" = true;
       "bluez5.sbc-xq-support" = true;
     };
-  };
-
-  # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
-  services.interception-tools = {
-    enable = true;
-    udevmonConfig = ''
-      - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${pkgs.interception-tools-plugins.caps2esc}/bin/caps2esc | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
-        DEVICE:
-          EVENTS:
-            EV_KEY: [KEY_CAPSLOCK, KEY_ESC]
-    '';
   };
 
   # Power management.
@@ -140,7 +116,7 @@
       base = true;
       gtk = true;
     };
-    extraPackages = [];
+    extraPackages = [ ];
   };
 
   environment.systemPackages = with pkgs; [
