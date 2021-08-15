@@ -8,6 +8,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     emacs-overlay.url = "github:nix-community/emacs-overlay";
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
@@ -21,9 +25,10 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = { self, nixpkgs, flake-utils, nixos-hardware, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, flake-utils, agenix, nixos-hardware, home-manager, ... }@inputs:
     let
       overlays = [
+        inputs.agenix.overlay
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
@@ -41,6 +46,7 @@
           inherit system;
           modules = [
             home-manager.nixosModules.home-manager
+            agenix.nixosModules.age
             {
               # Before changing this value read the documentation for this option
               # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
@@ -105,10 +111,11 @@
           nativeBuildInputs = with scripts; [
             switchHome
             switchNixos
-            pkgs.rnix-lsp
+            pkgs.agenix
             pkgs.nixpkgs-fmt
-            pkgs.sumneko-lua-language-server
+            pkgs.rnix-lsp
             pkgs.stylua
+            pkgs.sumneko-lua-language-server
           ];
         };
       }

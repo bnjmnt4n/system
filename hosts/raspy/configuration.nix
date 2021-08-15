@@ -9,6 +9,8 @@
 
     ../../nixos/interception-tools.nix
     ../../nixos/tailscale.nix
+
+    ../shared/secrets.nix
   ];
 
   fileSystems = {

@@ -3,9 +3,6 @@
 (setq user-full-name "Benjamin Tan"
       user-mail-address "benjamin@dev.ofcr.se")
 
-;; Private configuration.
-(load! "secrets.el")
-
 ;; Basic display configuration.
 (setq doom-font (font-spec :family "Iosevka" :size 18)
       doom-variable-pitch-font (font-spec :family "Libre Baskerville" :height 1.0)
@@ -20,22 +17,6 @@
 
 ;; Loosen the split width threshold since my laptop screen width is smaller.
 (setq split-width-threshold 140)
-
-;; Custom frame title format, copied from https://tecosaur.github.io/emacs-config/config.html#window-title.
-(setq frame-title-format
-      '(""
-        (:eval
-         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-             (replace-regexp-in-string
-              "\.org$" ""
-              (replace-regexp-in-string
-               ".*/[0-9]*-?" "☰ "
-               (subst-char-in-string ?_ ?  buffer-file-name)))
-           "%b"))
-        (:eval
-         (let ((project-name (doom-project-name)))
-           (unless (string= "-" project-name)
-             (format (if (buffer-modified-p)  " ◉ %s" " ● %s") project-name))))))
 
 ;; Customize Doom dashboard.
 (defun bnjmnt4n/custom-banner ()
@@ -96,8 +77,8 @@
   :init
   (map! "C-x m" #'mathpix-screenshot)
   (setq mathpix-screenshot-method "grimshot save area %s"
-        mathpix-app-id bnjmnt4n/mathpix-app-id
-        mathpix-app-key bnjmnt4n/mathpix-app-key))
+        mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
+        mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string))))
 
 ;; Sync with Google Calendar.
 (use-package! org-gcal
@@ -105,8 +86,8 @@
   :init
   (map! "C-x c" #'org-gcal-sync)
   :config
-  (setq org-gcal-client-id bnjmnt4n/org-gcal-client-id
-        org-gcal-client-secret bnjmnt4n/org-gcal-client-secret
+  (setq org-gcal-client-id (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-id") (buffer-string))
+        org-gcal-client-secret (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-secret") (buffer-string))
         org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-agenda-dir "schedule.org")))))
 
 ;; Easy copy-and-paste/screenshot of images.
