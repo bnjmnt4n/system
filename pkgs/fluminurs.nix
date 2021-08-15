@@ -2,16 +2,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "fluminurs";
-  version = "62c89f0c236b79d66b6503c0a87f2397319955f6";
+  version = "657708f451e9466fc7d957174ca3514c4f219ddc";
 
   src = fetchFromGitHub {
-    owner = "fluminurs";
+    owner = "bnjmnt4n";
     repo = "fluminurs";
     rev = version;
-    sha256 = "L8jna5lLm44pOobdtwKU4eIr16DbwLt35kk0jFkgCHg=";
+    sha256 = "sha256-fIZ3ZpZdF7gebhy4y0CSOutuiVwWhO1gvkIH8/jDsgg=";
   };
 
-  cargoSha256 = "sha256-ehbKGvIdBUrsLJgfsFnv6o4cHxdlaa/Sx8hbnsyONkc=/8IBj22EmSaXxfuPtcXZk5Ts=";
+  cargoSha256 = "sha256-9a062Qrn4s6ZsCYKBpbRAddz+Q+NJbsvtsgzHqs7aAk=";
 
   cargoBuildFlags = [
     "--bin"
