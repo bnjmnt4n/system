@@ -21,6 +21,9 @@
     ../../home/gtk.nix
     # ../../home/mpv.nix
     # ../../home/spotify.nix
+
+    ../../home/i3.nix
+    ../../home/polybar.nix
   ];
 
   # TODO: remove?

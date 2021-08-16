@@ -35,17 +35,17 @@
   ];
 
   # TODO: figure out i2c stuff
-  systemd.services.argononed = {
-    description = "Argon One Fan and Button Service";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      Restart = "always";
-      RemainAfterExit = true;
-      ExecStart = "${pkgs.argonone-rpi4}/opt/argonone/argononed.py";
-    };
-  };
+  # systemd.services.argononed = {
+  #   description = "Argon One Fan and Button Service";
+  #   wantedBy = [ "multi-user.target" ];
+  #   after = [ "multi-user.target" ];
+  #   serviceConfig = {
+  #     Type = "simple";
+  #     Restart = "always";
+  #     RemainAfterExit = true;
+  #     ExecStart = "${pkgs.argonone-rpi4}/opt/argonone/argononed.py";
+  #   };
+  # };
 
   networking.hostName = "raspy";
   networking.networkmanager.enable = true; # Alternative to wpa_supplicant.
@@ -57,8 +57,11 @@
 
   services.xserver = {
     enable = true;
+    libinput.enable = true;
     displayManager.lightdm.enable = true;
+    displayManager.defaultSession = "none+i3";
     desktopManager.xfce.enable = true;
+    windowManager.i3.enable = true;
   };
   security.pam.services.lightdm.enableGnomeKeyring = true;
 
