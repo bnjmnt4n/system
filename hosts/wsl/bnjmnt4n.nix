@@ -24,9 +24,6 @@
 
   targets.genericLinux.enable = true;
   programs.bash.initExtra = ''
-    # Change default directory.
-    cd ~
-
     # Switch to fish shell.
     if [[ -t 1 && -x ~/.nix-profile/bin/fish ]]; then
         exec ~/.nix-profile/bin/fish
