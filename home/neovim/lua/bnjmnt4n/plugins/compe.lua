@@ -1,7 +1,7 @@
 -- Compe setup
 require('compe').setup {
   enabled = true,
-  autocomplete = true,
+  autocomplete = vim.g.slow_device ~= 1,
   debug = false,
   min_length = 2,
   preselect = 'enable',

@@ -135,6 +135,7 @@ require('packer').startup(function(use)
     after = { 'gitsigns.nvim' },
     config = [[require 'bnjmnt4n.plugins.lightbulb']],
     event = 'BufEnter',
+    disable = vim.g.slow_device == 1
   }
 
   -- Treesitter

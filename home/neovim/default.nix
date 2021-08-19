@@ -4,11 +4,14 @@
   programs.neovim = {
     enable = true;
     package =
-      if pkgs.stdenv.isAarch64 then
+      if pkgs.stdenv.isAarch64
+      then
         pkgs.neovim-nightly.override
           {
             lua = pkgs.luajit;
-          } else pkgs.neovim-nightly;
+          }
+      else pkgs.neovim-nightly;
+
     extraConfig = ''
       " Disable default plugins
       let g:loaded_matchit = 1
@@ -18,6 +21,8 @@
       let g:loaded_netrwFileHandlers = 1
       let g:loaded_vimball = 1
       let g:loaded_vimballPlugin = 1
+
+      let g:slow_device = ${if pkgs.stdenv.isAarch64 then "1" else "0"}
 
       lua require('bnjmnt4n')
     '';
