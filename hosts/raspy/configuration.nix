@@ -11,6 +11,8 @@
     ../../nixos/tailscale.nix
 
     ../shared/secrets.nix
+
+    ./overlay.nix
   ];
 
   fileSystems = {
@@ -28,6 +30,8 @@
     # Allow all sysrq functions.
     "kernel.sysrq" = 1;
   };
+
+  boot.kernelModules = [ "i2c-bcm2835" "i2c-dev" ];
 
   environment.systemPackages = with pkgs; [
     libraspberrypi
