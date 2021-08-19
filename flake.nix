@@ -98,6 +98,12 @@
         username = "bnjmnt4n";
         configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
+
+      homeConfigurations.wsl = makeHomeManagerConfiguration {
+        system = "x86_64-linux";
+        username = "bnjmnt4n";
+        configuration = ./hosts/wsl/bnjmnt4n.nix;
+      };
     }
     //
     # Convenient shortcuts to switch configurations within this repository.

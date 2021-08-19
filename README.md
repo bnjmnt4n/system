@@ -26,7 +26,23 @@ $ swn # Switch to the new NixOS configuration.
 $ swh # Switch to the new home configuration.
 
 # Update dependencies.
-nix flake update
+$ nix flake update
+```
+
+### WSL
+
+```sh
+# Install Nix
+$ sh <(curl -L https://nixos.org/nix/install) --no-daemon
+
+# Setup Nix flakes support
+$ nix-env -iA nixpkgs.nixUnstable
+$ mkdir -p ~/.config/nix
+$ echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+
+# Build configuration
+$ nix build .#homeConfigurations.wsl.activationPackage
+$ ./result/activate
 ```
 
 ## Inspiration
