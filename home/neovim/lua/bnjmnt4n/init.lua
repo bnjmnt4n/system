@@ -127,6 +127,8 @@ require('packer').startup(function(use)
   use 'jose-elias-alvarez/nvim-lsp-ts-utils'
   -- Better Rust tools
   use 'simrat39/rust-tools.nvim'
+  -- Java LSP
+  use 'mfussenegger/nvim-jdtls'
   -- Lightbulb for code actions
   use {
     'kosayoda/nvim-lightbulb',
@@ -157,6 +159,8 @@ require('packer').startup(function(use)
   use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
   use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
 
+  -- Org-mode
+  -- TODO: setup
   use {
     'kristijanhusak/orgmode.nvim',
     config = function()
@@ -166,12 +170,14 @@ require('packer').startup(function(use)
     end,
   }
 
-  -- TODO
-  use 'andymass/vim-matchup'
+  -- More convenient find commands
   use {
     'ggandor/lightspeed.nvim',
     config = [[require 'bnjmnt4n.plugins.lightspeed']],
   }
+
+  -- TODO
+  use 'andymass/vim-matchup'
 
   -- Language pack
   use 'sheerun/vim-polyglot'

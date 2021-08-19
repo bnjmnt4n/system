@@ -164,3 +164,19 @@ require('rust-tools').setup {
     on_attach = on_attach,
   },
 }
+
+-- Java
+SetupJdtls = function ()
+  require('jdtls').start_or_attach({
+    cmd = {'jdt-language-server'},
+    capabilities = capabilities,
+    on_attach = on_attach,
+  })
+end
+
+vim.cmd [[
+  augroup JavaLspSetup
+    au!
+    au FileType java lua SetupJdtls()
+  augroup end
+]]
