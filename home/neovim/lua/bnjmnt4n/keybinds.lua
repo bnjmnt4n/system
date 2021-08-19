@@ -97,7 +97,6 @@ require('which-key').register {
     o = {
       name = '+open',
       e = { '<cmd>EnMasse<CR>', 'Edit quickfix list' },
-      p = { '<cmd>lua ProjectSearch()<CR>', 'Find project' },
       q = { '<cmd>copen<CR>', 'Open quickfix list' },
       t = { '<cmd>split +term<CR>', 'Open terminal in split' },
     },
