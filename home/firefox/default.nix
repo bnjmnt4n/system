@@ -24,7 +24,7 @@
         settings = {
           "browser.quitShortcut.disabled" = true;
           "browser.ctrlTab.recentlyUsedOrder" = false;
-          "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
+          "browser.search.hiddenOneOffs" = "";
           "browser.urlbar.suggest.searches" = false;
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
@@ -45,7 +45,8 @@
 
   # TODO: merge into firefox.profiles?
   # If there are any updates to the search.json format, run:
-  # nix-shell -p mozlz4a --command "mozlz4a -d ~/.mozilla/firefox/default/search.json.mozlz4 new.search.json"
+  # nix-shell -p mozlz4a -p jq --command "mozlz4a -d ~/.mozilla/firefox/default/search.json.mozlz4 new.search.json.temp && jq . < new.search.json.temp > new.search.json && rm new.search.json.temp"
+  # NOTE: might need to disable this symlink to allow new search.json to be written first.
   home.file.".mozilla/firefox/default/search.json.mozlz4" =
     let
       searchJsonMozlz4 = pkgs.runCommand "generate-search-json-mozlz4"
