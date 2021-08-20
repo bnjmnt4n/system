@@ -104,15 +104,40 @@ nvim_lsp.sumneko_lua.setup {
   },
 }
 
--- Wrapper around non-LSP actions
+-- null-ls + nvim-lsp-ts-utils
 local null_ls = require 'null-ls'
-null_ls.setup {
+local ts_utils = require 'nvim-lsp-ts-utils'
+null_ls.config {
   sources = {
     null_ls.builtins.formatting.stylua,
   },
 }
+nvim_lsp['null-ls'].setup {
+  on_attach = function(client, bufnr)
+    -- Fixes code action ranges
+    ts_utils.setup_client(client)
 
--- TypeScript + ESLint integration
+    on_attach(client, bufnr)
+  end,
+  capabilities = capabilities,
+}
+
+ts_utils.setup {
+  disable_commands = false,
+  enable_import_on_completion = true,
+  import_all_timeout = 5000,
+
+  -- ESLint code actions
+  eslint_enable_code_actions = true,
+  eslint_enable_disable_comments = true,
+  eslint_bin = 'eslint_d',
+  eslint_enable_diagnostics = true,
+
+  -- Formatting: depends on ESLint + Prettier integration
+  enable_formatting = true,
+  formatter = 'eslint_d',
+}
+
 nvim_lsp.tsserver.setup {
   on_attach = function(client, bufnr)
     if client.config.flags then
@@ -120,26 +145,7 @@ nvim_lsp.tsserver.setup {
     end
     -- Prevent formatting with `tsserver` so `null-ls` can do the formatting
     client.resolved_capabilities.document_formatting = false
-
-    local ts_utils = require 'nvim-lsp-ts-utils'
-    ts_utils.setup {
-      disable_commands = false,
-      enable_import_on_completion = true,
-      import_all_timeout = 5000,
-
-      -- ESLint code actions
-      eslint_enable_code_actions = true,
-      eslint_enable_disable_comments = true,
-      eslint_bin = 'eslint_d',
-      eslint_enable_diagnostics = true,
-
-      -- Formatting: depends on ESLint + Prettier integration
-      enable_formatting = true,
-      formatter = 'eslint_d',
-    }
-
-    -- Fixes code action ranges
-    ts_utils.setup_client(client)
+    client.resolved_capabilities.document_range_formatting = false
 
     on_attach(client, bufnr)
   end,
@@ -166,12 +172,12 @@ require('rust-tools').setup {
 }
 
 -- Java
-SetupJdtls = function ()
-  require('jdtls').start_or_attach({
-    cmd = {'jdt-language-server'},
-    capabilities = capabilities,
+SetupJdtls = function()
+  require('jdtls').start_or_attach {
+    cmd = { 'jdt-language-server' },
     on_attach = on_attach,
-  })
+    capabilities = capabilities,
+  }
 end
 
 vim.cmd [[
