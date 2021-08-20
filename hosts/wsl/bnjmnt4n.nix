@@ -22,6 +22,10 @@
   home.username = "bnjmnt4n";
   home.homeDirectory = "/home/bnjmnt4n";
 
+  xdg.configFile."nix/nix.conf".text = ''
+    experimental-features = nix-command flakes
+  '';
+
   targets.genericLinux.enable = true;
   programs.bash.initExtra = ''
     # Switch to fish shell.
