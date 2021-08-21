@@ -186,3 +186,10 @@ vim.cmd [[
     au FileType java lua SetupJdtls()
   augroup end
 ]]
+
+-- Haskell
+nvim_lsp.hls.setup {
+  cmd = { 'haskell-language-server', '--lsp' },
+  on_attach = on_attach,
+  capabilities = capabilities,
+}
