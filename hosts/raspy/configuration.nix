@@ -23,6 +23,8 @@
 
   # Enable GPU acceleration
   hardware.raspberry-pi."4".fkms-3d.enable = true;
+  # Enable audio
+  hardware.raspberry-pi."4".audio.enable = true;
 
   boot.kernel.sysctl = {
     # Allow all sysrq functions.
