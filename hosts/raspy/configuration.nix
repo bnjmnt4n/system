@@ -69,13 +69,21 @@
   };
   security.pam.services.lightdm.enableGnomeKeyring = true;
 
-  # Enable sound and Bluetooth.
+  # Enable sound.
   sound.enable = true;
   hardware.pulseaudio.enable = true;
-  hardware.bluetooth.enable = true;
+
+  # Enable Bluetooth.
+  # TODO: bluetooth is disabled for now.
+  # hardware.bluetooth.enable = true;
+  # hardware.bluetooth.settings = {
+  #   "General" = {
+  #     "ControllerMode" = "le";
+  #   };
+  # };
 
   # Enable blueman applet.
-  services.blueman.enable = true;
+  # services.blueman.enable = true;
 
   services.udev.packages = [ pkgs.android-udev-rules ];
 

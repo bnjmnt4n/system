@@ -65,14 +65,15 @@
   ];
 
   home.sessionVariables = {
-    TERMINAL = "alacritty";
+    # TODO: better terminal?
+    TERMINAL = "xfce4-terminal";
     EDITOR = "nvim";
     VISUAL = "nvim";
     BROWSER = "firefox";
   };
 
   xsession.preferStatusNotifierItems = true;
-  services.blueman-applet.enable = true;
+  # services.blueman-applet.enable = true;
   services.network-manager-applet.enable = true;
   services.gnome-keyring.enable = true;
 }
