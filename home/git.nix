@@ -34,7 +34,10 @@
       # Clone a repository including all submodules.
       c = "clone --recursive";
 
-      # Show verbose output about tags, branches or remotes
+      # Fetch remote.
+      f = "fetch --prune";
+
+      # Show verbose output about tags, branches or remotes.
       tags = "tag -l";
       branches = "branch --all";
       remotes = "remote --verbose";
