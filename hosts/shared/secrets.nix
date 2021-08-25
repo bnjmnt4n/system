@@ -1,6 +1,9 @@
 { ... }:
 
 {
+  age.secrets.wireguard-private-key = {
+    file = ../../secrets/wireguard-private-key.age;
+  };
   age.secrets.mathpix-app-id = {
     file = ../../secrets/mathpix-app-id.age;
     owner = "bnjmnt4n";

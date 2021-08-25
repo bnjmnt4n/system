@@ -8,4 +8,5 @@ in
   "mathpix-app-key.age".publicKeys = keys;
   "org-gcal-client-id.age".publicKeys = keys;
   "org-gcal-client-secret.age".publicKeys = keys;
+  "wireguard-private-key.age".publicKeys = keys;
 }
