@@ -37,6 +37,10 @@
   # Disable Ubuntu login message.
   home.file.".hushlogin".text = "";
 
+  home.packages = with pkgs; [
+    socprint
+  ];
+
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
