@@ -4,7 +4,12 @@ inputs: final: prev:
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
   kill-focused = prev.callPackage ./kill-focused.nix { };
 
-  fluminurs = prev.callPackage ./fluminurs.nix { };
+  fluminurs = prev.callPackage ./fluminurs.nix {
+    src = inputs.fluminurs;
+  };
+  socprint = prev.callPackage ./socprint.nix {
+    src = inputs.socprint;
+  };
   otf2bdf = prev.callPackage ./otf2bdf { };
   telescope-fzf-native = prev.callPackage ./telescope-fzf-native.nix {
     src = inputs.telescope-fzf-native;

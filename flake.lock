@@ -81,6 +81,22 @@
         "type": "github"
       }
     },
+    "fluminurs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1629020341,
+        "narHash": "sha256-fIZ3ZpZdF7gebhy4y0CSOutuiVwWhO1gvkIH8/jDsgg=",
+        "owner": "bnjmnt4n",
+        "repo": "fluminurs",
+        "rev": "657708f451e9466fc7d957174ca3514c4f219ddc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bnjmnt4n",
+        "repo": "fluminurs",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -197,12 +213,30 @@
         "agenix": "agenix",
         "emacs-overlay": "emacs-overlay",
         "flake-utils": "flake-utils",
+        "fluminurs": "fluminurs",
         "home-manager": "home-manager",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nur": "nur",
+        "socprint": "socprint",
         "telescope-fzf-native": "telescope-fzf-native"
+      }
+    },
+    "socprint": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1629810276,
+        "narHash": "sha256-EiSrdv980Y0LNxXqlT4E0kGcDqb8M2x7tvvcL7YOCJ0=",
+        "owner": "dlqs",
+        "repo": "SOCprint",
+        "rev": "071f49a722d4c775a666c431b7ca7691a43a5bca",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dlqs",
+        "repo": "SOCprint",
+        "type": "github"
       }
     },
     "telescope-fzf-native": {

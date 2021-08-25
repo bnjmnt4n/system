@@ -57,6 +57,7 @@
     # dropbox
     libreoffice
     fluminurs
+    socprint
     # musescore
     # octave
     # pandoc

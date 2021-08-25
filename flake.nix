@@ -21,6 +21,14 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
+    fluminurs = {
+      url = "github:bnjmnt4n/fluminurs";
+      flake = false;
+    };
+    socprint = {
+      url = "github:dlqs/SOCprint";
+      flake = false;
+    };
     nur.url = "github:nix-community/NUR";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
