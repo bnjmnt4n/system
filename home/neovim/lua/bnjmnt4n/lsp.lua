@@ -66,8 +66,16 @@ end
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
+-- null-ls setup
+local null_ls = require 'null-ls'
+null_ls.config {
+  sources = {
+    null_ls.builtins.formatting.stylua,
+  },
+}
+
 -- Enable the following language servers
-local servers = { 'clangd', 'rnix', 'zls' }
+local servers = { 'clangd', 'null-ls', 'rnix', 'zls' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
@@ -104,40 +112,7 @@ nvim_lsp.sumneko_lua.setup {
   },
 }
 
--- null-ls + nvim-lsp-ts-utils
-local null_ls = require 'null-ls'
-local ts_utils = require 'nvim-lsp-ts-utils'
-null_ls.config {
-  sources = {
-    null_ls.builtins.formatting.stylua,
-  },
-}
-nvim_lsp['null-ls'].setup {
-  on_attach = function(client, bufnr)
-    -- Fixes code action ranges
-    ts_utils.setup_client(client)
-
-    on_attach(client, bufnr)
-  end,
-  capabilities = capabilities,
-}
-
-ts_utils.setup {
-  disable_commands = false,
-  enable_import_on_completion = true,
-  import_all_timeout = 5000,
-
-  -- ESLint code actions
-  eslint_enable_code_actions = true,
-  eslint_enable_disable_comments = true,
-  eslint_bin = 'eslint_d',
-  eslint_enable_diagnostics = true,
-
-  -- Formatting: depends on ESLint + Prettier integration
-  enable_formatting = true,
-  formatter = 'eslint_d',
-}
-
+-- TypeScript
 nvim_lsp.tsserver.setup {
   on_attach = function(client, bufnr)
     if client.config.flags then
@@ -146,6 +121,26 @@ nvim_lsp.tsserver.setup {
     -- Prevent formatting with `tsserver` so `null-ls` can do the formatting
     client.resolved_capabilities.document_formatting = false
     client.resolved_capabilities.document_range_formatting = false
+
+    local ts_utils = require 'nvim-lsp-ts-utils'
+    ts_utils.setup {
+      disable_commands = false,
+      enable_import_on_completion = true,
+      import_all_timeout = 5000,
+
+      -- ESLint code actions
+      eslint_enable_code_actions = true,
+      eslint_enable_disable_comments = true,
+      eslint_bin = 'eslint_d',
+      eslint_enable_diagnostics = true,
+
+      -- Formatting: depends on ESLint + Prettier integration
+      enable_formatting = true,
+      formatter = 'eslint_d',
+    }
+
+    -- Fixes code action ranges
+    ts_utils.setup_client(client)
 
     on_attach(client, bufnr)
   end,
