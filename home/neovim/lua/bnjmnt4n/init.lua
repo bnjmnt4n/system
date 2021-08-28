@@ -6,7 +6,8 @@
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
 
 if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  vim.api.nvim_command('!git clone https://github.com/wbthomason/packer.nvim ' .. install_path)
+  vim.fn.system { 'git', 'clone', 'https://github.com/wbthomason/packer.nvim', install_path }
+  vim.cmd 'packadd packer.nvim'
 end
 
 -- TODO: more lazy loading
@@ -15,7 +16,10 @@ require('packer').startup(function(use)
   use 'wbthomason/packer.nvim'
 
   -- Helpful keybindings
-  use 'folke/which-key.nvim'
+  use {
+    'folke/which-key.nvim',
+    config = [[require 'bnjmnt4n.keybinds']],
+  }
 
   -- TODO: fugitive vs neogit
   -- Git commands
@@ -39,43 +43,6 @@ require('packer').startup(function(use)
   -- Allow repeating of plugin keymaps
   use 'tpope/vim-repeat'
 
-  -- Common Lua utilities shared by various plugins
-  use 'nvim-lua/popup.nvim'
-  use 'nvim-lua/plenary.nvim'
-
-  -- Add git related info in the signs columns and popups
-  use {
-    'lewis6991/gitsigns.nvim',
-    requires = { 'nvim-lua/plenary.nvim' },
-    config = [[require 'bnjmnt4n.plugins.gitsigns']],
-    event = 'BufEnter',
-  }
-
-  -- Split diff tool
-  use {
-    'sindrets/diffview.nvim',
-    config = [[require 'bnjmnt4n.plugins.diffview']],
-  }
-
-  -- Magit in Neovim!
-  use {
-    'TimUntersberger/neogit',
-    requires = { 'nvim-lua/plenary.nvim' },
-    config = [[require 'bnjmnt4n.plugins.neogit']],
-    cmd = { 'Neogit' },
-  }
-
-  -- Fuzzy finder
-  use {
-    'nvim-telescope/telescope.nvim',
-    requires = { 'nvim-lua/popup.nvim', 'nvim-lua/plenary.nvim' },
-  }
-  use {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    after = { 'telescope.nvim' },
-    config = [[require 'bnjmnt4n.plugins.telescope']],
-  }
-
   -- Vim ports of Modus Themes
   use 'ishan9299/modus-theme-vim'
 
@@ -88,18 +55,63 @@ require('packer').startup(function(use)
   -- Directory viewer
   use 'justinmk/vim-dirvish'
 
-  -- direnv support
-  use 'direnv/direnv.vim'
+  -- Common Lua utility shared by various plugins
+  use 'nvim-lua/plenary.nvim'
 
+  -- Add git related info in the signs columns and popups
   use {
-    'folke/trouble.nvim',
-    requires = { 'kyazdani42/nvim-web-devicons' },
-    config = [[require 'bnjmnt4n.plugins.trouble']],
-    cmd = { 'Trouble' },
+    'lewis6991/gitsigns.nvim',
+    event = 'BufReadPre',
+    wants = { 'plenary.nvim' },
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = [[require 'bnjmnt4n.plugins.gitsigns']],
+  }
+
+  -- Split diff tool
+  use {
+    'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
+    config = [[require 'bnjmnt4n.plugins.diffview']],
+  }
+
+  -- Magit in Neovim!
+  use {
+    'TimUntersberger/neogit',
+    cmd = { 'Neogit' },
+    wants = { 'plenary.nvim', 'diffview.nvim' },
+    requires = { 'nvim-lua/plenary.nvim', 'diffview.nvim' },
+    config = [[require 'bnjmnt4n.plugins.neogit']],
   }
 
   use {
+    'folke/trouble.nvim',
+    event = 'BufReadPre',
+    cmd = { 'Trouble', 'TroubleToggle' },
+    module = 'trouble',
+    requires = { 'kyazdani42/nvim-web-devicons' },
+    config = [[require 'bnjmnt4n.plugins.trouble']],
+  }
+
+  -- Fuzzy finder
+  use {
+    'nvim-telescope/telescope.nvim',
+    cmd = { 'Telescope' },
+    module = 'telescope',
+    wants = { 'plenary.nvim', 'trouble.nvim' },
+    requires = { 'nvim-lua/plenary.nvim', 'folke/trouble.nvim' },
+  }
+  use {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    after = { 'telescope.nvim' },
+    config = [[require 'bnjmnt4n.plugins.telescope']],
+  }
+
+  -- TODO comments
+  use {
     'folke/todo-comments.nvim',
+    event = 'BufReadPost',
+    cmd = { 'TodoTrouble', 'TodoTelescope' },
+    wants = { 'plenary.nvim' },
     requires = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('todo-comments').setup {}
@@ -108,21 +120,49 @@ require('packer').startup(function(use)
 
   -- Snippets + Autocompletion + auto-pairs
   use {
-    'hrsh7th/nvim-compe',
-    config = [[require 'bnjmnt4n.plugins.compe']],
+    'hrsh7th/nvim-cmp',
     event = 'InsertEnter *',
+    requires = {
+      'hrsh7th/cmp-nvim-lsp',
+      -- TODO: simplify?
+      {
+        'hrsh7th/cmp-nvim-lua',
+        event = 'InsertEnter *',
+        wants = { 'nvim-cmp' },
+      },
+      {
+        'hrsh7th/cmp-buffer',
+        event = 'InsertEnter *',
+        wants = { 'nvim-cmp' },
+      },
+      {
+        'hrsh7th/cmp-path',
+        event = 'InsertEnter *',
+        wants = { 'nvim-cmp' },
+      },
+      {
+        'saadparwaiz1/cmp_luasnip',
+        event = 'InsertEnter *',
+        wants = { 'nvim-cmp' },
+      },
+    },
+    config = [[require 'bnjmnt4n.plugins.cmp']],
   }
-  use { 'L3MON4D3/LuaSnip', after = { 'nvim-compe' } }
+  use { 'L3MON4D3/LuaSnip', after = { 'nvim-cmp' } }
   use {
     'windwp/nvim-autopairs',
-    after = { 'nvim-compe' },
+    after = { 'nvim-cmp' },
     config = [[require 'bnjmnt4n.plugins.autopairs']],
   }
 
   -- LSP
   use 'neovim/nvim-lspconfig'
   -- Nvim-based language server
-  use 'jose-elias-alvarez/null-ls.nvim'
+  use {
+    'jose-elias-alvarez/null-ls.nvim',
+    wants = { 'plenary.nvim', 'nvim-lspconfig' },
+    requires = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+  }
   -- Better `tsserver` integration
   use 'jose-elias-alvarez/nvim-lsp-ts-utils'
   -- Better Rust tools
@@ -132,10 +172,9 @@ require('packer').startup(function(use)
   -- Lightbulb for code actions
   use {
     'kosayoda/nvim-lightbulb',
-    after = { 'gitsigns.nvim' },
-    config = [[require 'bnjmnt4n.plugins.lightbulb']],
     event = 'BufEnter',
     disable = vim.g.slow_device == 1,
+    config = [[require 'bnjmnt4n.plugins.lightbulb']],
   }
 
   -- Treesitter
@@ -149,14 +188,18 @@ require('packer').startup(function(use)
       -- Text object mappings
       'nvim-treesitter/nvim-treesitter-textobjects',
       -- Playground
-      -- TODO: make optional
-      'nvim-treesitter/playground',
+      {
+        'nvim-treesitter/playground',
+        cmd = { 'TSPlaygroundToggle' },
+      },
     },
+    config = [[require 'bnjmnt4n.treesitter']],
   }
 
   -- `gS` and `gJ` to switch between single/multi-line forms of code
   use 'AndrewRadev/splitjoin.vim'
 
+  -- TODO
   use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
   use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
 
@@ -174,11 +217,15 @@ require('packer').startup(function(use)
   -- More convenient find commands
   use {
     'ggandor/lightspeed.nvim',
+    event = 'BufReadPost',
     config = [[require 'bnjmnt4n.plugins.lightspeed']],
   }
 
   -- TODO
-  use 'andymass/vim-matchup'
+  use {
+    'andymass/vim-matchup',
+    event = 'CursorMoved',
+  }
 
   -- Language pack
   use 'sheerun/vim-polyglot'
@@ -221,7 +268,7 @@ vim.o.updatetime = 250
 vim.wo.signcolumn = 'yes'
 
 -- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.o.completeopt = 'menu,menuone,noselect'
 
 -- Change split window location
 vim.o.splitbelow = true
@@ -337,6 +384,4 @@ vim.cmd [[
   augroup end
 ]]
 
-require 'bnjmnt4n.keybinds'
 require 'bnjmnt4n.lsp'
-require 'bnjmnt4n.treesitter'

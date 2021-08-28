@@ -1,7 +1,10 @@
-require('which-key').setup {}
+-- Setup keybindings
+local wk = require('which-key')
+
+wk.setup {}
 
 -- Leader keybindings
-require('which-key').register {
+wk.register {
   ['<leader>'] = {
     ['<space>'] = { [[<cmd>lua require('telescope.builtin').find_files()<CR>]], 'Find files in folder' },
     ['.'] = {
@@ -156,7 +159,7 @@ require('which-key').register {
 }
 
 -- System clipboard yank/paste
-require('which-key').register {
+wk.register {
   ['<leader>'] = {
     p = { [["+p]], 'Paste from system clipboard (p)' },
     P = { [["+P]], 'Paste from system clipboard (P)' },
@@ -164,14 +167,14 @@ require('which-key').register {
     Y = { [["+y$]], 'Yank from system clipboard (Y)' },
   },
 }
-require('which-key').register({
+wk.register({
   ['<leader>y'] = { [["+y]], 'Yank from system clipboard (y)' },
 }, {
   mode = 'v',
 })
 
 -- Git shortcuts
-require('which-key').register({
+wk.register({
   ['<leader>g'] = {
     l = { ':silent! Glog<CR>:bot copen<CR>', 'git log' },
     m = { ':Gmove<Space>', 'git move' },
@@ -182,7 +185,7 @@ require('which-key').register({
 })
 
 -- Random shortcut
-require('which-key').register({
+wk.register({
   ['<leader>;'] = { ':', 'Command' },
 }, {
   silent = false,
