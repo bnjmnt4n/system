@@ -201,7 +201,12 @@ require('packer').startup(function(use)
 
   -- TODO
   use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
+
+  -- Mass editing of the quickfix list
   use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
+
+  -- Convenient access to nvim terminal
+  use { 'akinsho/toggleterm.nvim', cmd = { 'ToggleTerm' } }
 
   -- Org-mode
   -- TODO: setup

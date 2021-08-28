@@ -101,7 +101,7 @@ wk.register {
       name = '+open',
       e = { '<cmd>EnMasse<CR>', 'Edit quickfix list' },
       q = { '<cmd>copen<CR>', 'Open quickfix list' },
-      t = { '<cmd>split +term<CR>', 'Open terminal in split' },
+      t = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
     },
 
     q = {
@@ -156,6 +156,7 @@ wk.register {
       p = { '<cmd>lua require("trouble").previous({ skip_groups = true, jump = true })<cr>', 'Previous' },
     },
   },
+  ["<M-`>"] = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
 }
 
 -- System clipboard yank/paste
