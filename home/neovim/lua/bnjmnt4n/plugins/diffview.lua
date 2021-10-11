@@ -1,6 +1,4 @@
 -- Diffview
 require('diffview').setup {
-  file_panel = {
-    use_icons = true,
-  },
+  use_icons = true,
 }
