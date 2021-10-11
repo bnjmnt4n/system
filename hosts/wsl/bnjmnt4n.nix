@@ -13,6 +13,8 @@
     ../../home/delta.nix
     ../../home/tmux.nix
 
+    ../../home/firefox/default.nix
+
     ../../home/emacs/default.nix
     ../../home/neovim/default.nix
 
@@ -45,5 +47,7 @@
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
+    GDK_DPI_SCALE = 1.5;
+    MOZ_ENABLE_WAYLAND = 1;
   };
 }
