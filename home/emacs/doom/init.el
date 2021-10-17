@@ -4,7 +4,7 @@
 
 (doom! :completion
        company
-       (ivy +prescient)
+       (vertico +icons)
 
        :ui
        doom-dashboard

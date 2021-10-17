@@ -4,9 +4,14 @@
       user-mail-address "benjamin@dev.ofcr.se")
 
 ;; Basic display configuration.
-(setq doom-font (font-spec :family "Iosevka" :size 18)
-      doom-variable-pitch-font (font-spec :family "Libre Baskerville" :height 1.0)
-      doom-serif-font (font-spec :family "Libre Baskerville" :height 1.0))
+(setq bnjmnt4n/is-wsl (file-exists-p "/run/WSL")
+      bnjmnt4n/monospace-font "Iosevka"
+      bnjmnt4n/monospace-font-size (if bnjmnt4n/is-wsl 26 18)
+      bnjmnt4n/serif-font (if bnjmnt4n/is-wsl "DejaVu Serif" "Libre Baskerville"))
+
+(setq doom-font (font-spec :family bnjmnt4n/monospace-font :size bnjmnt4n/monospace-font-size)
+      doom-variable-pitch-font (font-spec :family bnjmnt4n/serif-font :height 1.0)
+      doom-serif-font (font-spec :family bnjmnt4n/serif-font :height 1.0))
 
 (setq doom-theme 'modus-operandi)
 
@@ -76,9 +81,11 @@
   :commands (mathpix-screenshot)
   :init
   (map! "C-x m" #'mathpix-screenshot)
-  (setq mathpix-screenshot-method "grimshot save area %s"
-        mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
-        mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string))))
+  ;; TODO: look into `:config`?
+  (if (file-exists-p "/run/secrets/mathpix-app-id")
+    (setq mathpix-screenshot-method "grimshot save area %s"
+          mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
+          mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string)))))
 
 ;; Sync with Google Calendar.
 (use-package! org-gcal
