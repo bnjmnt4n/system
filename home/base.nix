@@ -27,7 +27,7 @@
     tree
     wget
     xdg-utils
-    # tree-grepper
+    tree-grepper
 
     # Archiving
     unzip
