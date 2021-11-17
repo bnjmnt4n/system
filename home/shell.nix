@@ -7,7 +7,7 @@
     shellInit = ''
       set fish_greeting
     '';
-    promptInit =
+    interactiveShellInit =
       # TODO: any-nix-shell doesn't work well on WSL.
       if config.targets.genericLinux.enable
       then ""
@@ -28,10 +28,7 @@
     enableBashIntegration = true;
     enableFishIntegration = true;
 
-    nix-direnv = {
-      enable = true;
-      enableFlakes = true;
-    };
+    nix-direnv.enable = true;
     stdlib = pkgs.lib.readFile ./.direnvrc;
   };
 
