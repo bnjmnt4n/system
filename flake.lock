@@ -81,6 +81,21 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "locked": {
+        "lastModified": 1634851050,
+        "narHash": "sha256-N83GlSGPJJdcqhUxSCS/WwW5pksYf3VP1M13cDRTSVA=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "c91f3de5adaf1de973b797ef7485e441a65b8935",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "fluminurs": {
       "flake": false,
       "locked": {
@@ -114,6 +129,27 @@
       "original": {
         "owner": "nix-community",
         "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "naersk": {
+      "inputs": {
+        "nixpkgs": [
+          "tree-grepper",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1632266297,
+        "narHash": "sha256-J1yeJk6Gud9ef2pEf6aKQemrfg1pVngYDSh+SAY94xk=",
+        "owner": "nmattia",
+        "repo": "naersk",
+        "rev": "ee7edec50b49ab6d69b06d62f1de554efccb1ccd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nmattia",
+        "repo": "naersk",
         "type": "github"
       }
     },
@@ -220,7 +256,8 @@
         "nixpkgs": "nixpkgs",
         "nur": "nur",
         "socprint": "socprint",
-        "telescope-fzf-native": "telescope-fzf-native"
+        "telescope-fzf-native": "telescope-fzf-native",
+        "tree-grepper": "tree-grepper"
       }
     },
     "socprint": {
@@ -252,6 +289,28 @@
       "original": {
         "owner": "nvim-telescope",
         "repo": "telescope-fzf-native.nvim",
+        "type": "github"
+      }
+    },
+    "tree-grepper": {
+      "inputs": {
+        "flake-utils": "flake-utils_3",
+        "naersk": "naersk",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1636973611,
+        "narHash": "sha256-cmYacYN7ragTELo4UMMtEVdSwxoAmCFXFVR5gPzk66k=",
+        "owner": "BrianHicks",
+        "repo": "tree-grepper",
+        "rev": "8a2cf06a8426c1a8140d75dcc72b7534fec42a67",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BrianHicks",
+        "repo": "tree-grepper",
         "type": "github"
       }
     }

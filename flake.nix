@@ -29,21 +29,27 @@
       url = "github:dlqs/SOCprint";
       flake = false;
     };
+    tree-grepper = {
+      url = "github:BrianHicks/tree-grepper";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nur.url = "github:nix-community/NUR";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
   outputs = { self, nixpkgs, flake-utils, agenix, nixos-hardware, home-manager, ... }@inputs:
     let
-      overlays = [
+      makeOverlays = system: [
         inputs.agenix.overlay
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
+        inputs.tree-grepper.overlay."${system}"
         (import ./pkgs/default.nix inputs)
       ];
       makePkgs = system: import nixpkgs {
-        inherit system overlays;
+        inherit system;
+        overlays = makeOverlays system;
         config.allowUnfree = true;
       };
       makeNixosConfiguration = { system, modules }:
