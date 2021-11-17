@@ -13,8 +13,6 @@
     ../../home/delta.nix
     ../../home/tmux.nix
 
-    ../../home/firefox/default.nix
-
     ../../home/emacs/default.nix
     ../../home/neovim/default.nix
 
