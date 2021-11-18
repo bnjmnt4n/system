@@ -13,6 +13,8 @@
     # System
     aspell
     aspellDicts.en
+    comby
+    dos2unix
     exa
     fd
     file
@@ -34,5 +36,8 @@
     unrar
     xz
     zip
+
+    # NUS
+    socprint
   ];
 }

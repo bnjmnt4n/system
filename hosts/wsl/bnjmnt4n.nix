@@ -40,8 +40,6 @@
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
-    dos2unix
-    socprint
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
