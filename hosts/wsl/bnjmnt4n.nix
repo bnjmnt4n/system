@@ -28,6 +28,9 @@
 
   targets.genericLinux.enable = true;
   programs.bash.initExtra = ''
+    # TODO: some form of WSL services?
+    eval $(gpg-agent --daemon &>/dev/null)
+
     # Switch to fish shell.
     if [[ -t 1 && -x ~/.nix-profile/bin/fish ]]; then
         exec ~/.nix-profile/bin/fish
