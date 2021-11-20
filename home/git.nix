@@ -82,12 +82,6 @@
     };
 
     extraConfig = {
-      # TODO: better indicator of WSL usage.
-      credential.helper =
-        if config.targets.genericLinux.enable
-        # Use Windows credential helper on WSL.
-        then "/mnt/c/Program\\ Files/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
-        else "${pkgs.gitFull}/bin/git-credential-libsecret";
       init.defaultBranch = "main";
       pull.rebase = true;
     };
