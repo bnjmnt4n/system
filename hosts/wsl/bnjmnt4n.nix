@@ -44,6 +44,7 @@
 
   home.packages = with pkgs; [
     inter
+    fluminurs
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
 
