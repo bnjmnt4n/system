@@ -115,6 +115,8 @@ nvim_lsp.sumneko_lua.setup {
 
 -- TypeScript
 nvim_lsp.tsserver.setup {
+  -- Needed for inlay hints.
+  init_options = require('nvim-lsp-ts-utils').init_options,
   on_attach = function(client, bufnr)
     if client.config.flags then
       client.config.flags.allow_incremental_sync = true
@@ -138,6 +140,9 @@ nvim_lsp.tsserver.setup {
       -- Formatting: depends on ESLint + Prettier integration
       enable_formatting = true,
       formatter = 'eslint_d',
+
+      -- Disable inlay hints by default.
+      auto_inlay_hints = false,
     }
 
     -- Fixes code action ranges
