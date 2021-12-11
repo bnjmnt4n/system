@@ -76,7 +76,7 @@ null_ls.config {
 }
 
 -- Enable the following language servers
-local servers = { 'clangd', 'null-ls', 'rnix', 'zls' }
+local servers = { 'clangd', 'cssls', 'html', 'null-ls', 'rnix', 'tailwindcss', 'zls' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
