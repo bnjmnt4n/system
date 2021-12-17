@@ -47,15 +47,15 @@ local on_attach = function(_, bufnr)
       cr = { '<cmd>lua vim.lsp.buf.rename()<CR>', 'Rename variable' },
       -- TODO: keybindings
       D = { '<cmd>lua vim.lsp.buf.type_definition()<CR>', 'Go to type definition' },
-      e = { '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', 'Show line diagnostics' },
-      cl = { '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', 'Set location list' },
+      e = { '<cmd>lua vim.diagnostic.open_float()<CR>', 'Show line diagnostics' },
+      cl = { '<cmd>lua vim.diagnostic.set_loclist()<CR>', 'Set location list' },
     },
     ['[d'] = {
-      '<cmd>lua vim.lsp.diagnostic.goto_prev({ popup_opts = { border = "single" } })<CR>',
+      '<cmd>lua vim.diagnostic.goto_prev({ popup_opts = { border = "single" } })<CR>',
       'Previous diagnostic',
     },
     [']d'] = {
-      '<cmd>lua vim.lsp.diagnostic.goto_next({ popup_opts = { border = "single" } })<CR>',
+      '<cmd>lua vim.diagnostic.goto_next({ popup_opts = { border = "single" } })<CR>',
       'Next diagnostic',
     },
   }, {
@@ -69,14 +69,18 @@ capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
 -- null-ls setup
 local null_ls = require 'null-ls'
-null_ls.config {
+null_ls.setup {
+  on_attach = on_attach,
   sources = {
     null_ls.builtins.formatting.stylua,
+    null_ls.builtins.diagnostics.eslint_d,
+    null_ls.builtins.code_actions.eslint_d,
+    null_ls.builtins.formatting.eslint_d,
   },
 }
 
 -- Enable the following language servers
-local servers = { 'clangd', 'cssls', 'html', 'null-ls', 'rnix', 'tailwindcss', 'zls' }
+local servers = { 'clangd', 'cssls', 'html', 'rnix', 'tailwindcss', 'zls' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
@@ -130,16 +134,6 @@ nvim_lsp.tsserver.setup {
       disable_commands = false,
       enable_import_on_completion = true,
       import_all_timeout = 5000,
-
-      -- ESLint code actions
-      eslint_enable_code_actions = true,
-      eslint_enable_disable_comments = true,
-      eslint_bin = 'eslint_d',
-      eslint_enable_diagnostics = true,
-
-      -- Formatting: depends on ESLint + Prettier integration
-      enable_formatting = true,
-      formatter = 'eslint_d',
 
       -- Disable inlay hints by default.
       auto_inlay_hints = false,

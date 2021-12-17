@@ -33,7 +33,7 @@
 
     # Switch to fish shell.
     if [[ -t 1 && -x ~/.nix-profile/bin/fish ]]; then
-        exec ~/.nix-profile/bin/fish
+        exec ~/.nix-profile/bin/fish -l
     fi
   '';
 

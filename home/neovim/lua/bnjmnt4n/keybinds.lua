@@ -1,5 +1,5 @@
 -- Setup keybindings
-local wk = require('which-key')
+local wk = require 'which-key'
 
 wk.setup {}
 
@@ -156,7 +156,7 @@ wk.register {
       p = { '<cmd>lua require("trouble").previous({ skip_groups = true, jump = true })<cr>', 'Previous' },
     },
   },
-  ["<M-`>"] = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
+  ['<M-`>'] = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
 }
 
 -- System clipboard yank/paste
