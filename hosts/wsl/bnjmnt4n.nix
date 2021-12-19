@@ -27,7 +27,8 @@
   '';
 
   targets.genericLinux.enable = true;
-  programs.bash.initExtra = ''
+  # Login shell
+  programs.bash.profileExtra = ''
     # TODO: some form of WSL services?
     eval $(gpg-agent --daemon &>/dev/null)
 

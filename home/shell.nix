@@ -6,14 +6,17 @@
     enable = true;
     shellInit = ''
       set fish_greeting
+
+      # WSL doesn't set the SHELL
+      ${if config.targets.genericLinux.enable 
+        then ''
+          set -x SHELL ${pkgs.fish}/bin/fish
+        ''
+        else ""}
     '';
-    interactiveShellInit =
-      # TODO: any-nix-shell doesn't work well on WSL.
-      if config.targets.genericLinux.enable
-      then ""
-      else ''
-        ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-      '';
+    interactiveShellInit = ''
+      ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
+    '';
   };
 
   # Bash shell.
