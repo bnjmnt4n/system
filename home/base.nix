@@ -11,9 +11,9 @@
 
   home.packages = with pkgs; [
     # System
+    age
     aspell
     aspellDicts.en
-    comby
     dos2unix
     exa
     fd
@@ -25,11 +25,18 @@
     less
     ripgrep
     rsync
-    tokei
     tree
     wget
     xdg-utils
+
+    # Code tools
+    comby
+    tokei
     tree-grepper
+
+    # Nix tools
+    nixpkgs-fmt
+    rnix-lsp
 
     # Archiving
     unzip

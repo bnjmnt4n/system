@@ -132,8 +132,6 @@
             switchHome
             switchNixos
             pkgs.agenix
-            pkgs.nixpkgs-fmt
-            pkgs.rnix-lsp
             pkgs.stylua
             pkgs.sumneko-lua-language-server
           ];
