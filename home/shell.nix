@@ -40,6 +40,17 @@
     enable = true;
     enableBashIntegration = true;
     enableFishIntegration = true;
+    settings = {
+      format = "$all$linebreak$character";
+      # Add indicator for bash shell.
+      shell = {
+        disabled = false;
+        bash_indicator = "bsh ";
+        fish_indicator = "";
+        style = "bold";
+        format = "[$indicator]($style)";
+      };
+    };
   };
 
   # Directory switcher.
