@@ -80,7 +80,7 @@ null_ls.setup {
 }
 
 -- Enable the following language servers
-local servers = { 'clangd', 'cssls', 'html', 'rnix', 'tailwindcss', 'zls' }
+local servers = { 'clangd', 'cssls', 'html', 'rnix', 'zls' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
@@ -145,6 +145,21 @@ nvim_lsp.tsserver.setup {
     on_attach(client, bufnr)
   end,
   capabilities = capabilities,
+}
+
+-- Tailwind
+nvim_lsp.tailwindcss.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  settings = {
+    tailwindCSS = {
+      experimental = {
+        classRegex = {
+          { 'classNames\\(([^)]*)\\)', '"([^"]*)"' },
+        },
+      },
+    },
+  },
 }
 
 -- Rust
