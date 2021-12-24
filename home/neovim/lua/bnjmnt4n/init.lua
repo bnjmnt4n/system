@@ -101,8 +101,12 @@ require('packer').startup(function(use)
     requires = { 'nvim-lua/plenary.nvim', 'folke/trouble.nvim' },
   }
   use {
-    'nvim-telescope/telescope-fzf-native.nvim',
+    'nvim-telescope/telescope-file-browser.nvim',
     after = { 'telescope.nvim' },
+  }
+  use {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    after = { 'telescope.nvim', 'telescope-file-browser.nvim' },
     config = [[require 'bnjmnt4n.plugins.telescope']],
   }
 

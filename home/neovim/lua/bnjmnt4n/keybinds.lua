@@ -8,12 +8,13 @@ wk.register {
   ['<leader>'] = {
     ['<space>'] = { [[<cmd>lua require('telescope.builtin').find_files()<CR>]], 'Find files in folder' },
     ['.'] = {
-      [[<cmd>lua require('telescope.builtin').file_browser({ cwd = vim.fn.expand('%:p:h'), hidden = true })<CR>]],
+      [[<cmd>lua require('telescope').extensions.file_browser.file_browser({ cwd = vim.fn.expand('%:p:h'), hidden = true })<CR>]],
       'Find in current directory',
     },
     [','] = { [[<cmd>lua require('telescope.builtin').buffers({ sort_lastused = true })<CR>]], 'Find buffer' },
     ['?'] = { [[<cmd>lua require('telescope.builtin').oldfiles()<CR>]], 'Recent files' },
     ['/'] = { [[<cmd>lua require('telescope.builtin').live_grep()<CR>]], 'Search in project' },
+    ["'"] = { [[<cmd>lua require('telescope.builtin').resume()<CR>]], 'Resume previous search' },
 
     b = {
       name = '+buffer',
