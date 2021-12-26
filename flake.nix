@@ -8,11 +8,17 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nur.url = "github:nix-community/NUR";
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     emacs-overlay.url = "github:nix-community/emacs-overlay";
+    doom-emacs = {
+      url = "github:hlissner/doom-emacs";
+      flake = false;
+    };
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -33,8 +39,6 @@
       url = "github:BrianHicks/tree-grepper";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nur.url = "github:nix-community/NUR";
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
   outputs = { self, nixpkgs, flake-utils, agenix, nixos-hardware, home-manager, ... }@inputs:
@@ -80,6 +84,7 @@
           inherit system username configuration;
           pkgs = makePkgs system;
           homeDirectory = "/home/${username}";
+          extraSpecialArgs = { inherit inputs; };
         };
     in
     {

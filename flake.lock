@@ -20,6 +20,22 @@
         "type": "github"
       }
     },
+    "doom-emacs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1639786417,
+        "narHash": "sha256-UgrbF/cNv2qJxK2jwrAsPdgeVTRrjCyU40xeMbyi1sI=",
+        "owner": "hlissner",
+        "repo": "doom-emacs",
+        "rev": "af7c1d79bd63d78410aafc410d52ee5c1109ec26",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hlissner",
+        "repo": "doom-emacs",
+        "type": "github"
+      }
+    },
     "emacs-overlay": {
       "locked": {
         "lastModified": 1640055816,
@@ -246,6 +262,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "doom-emacs": "doom-emacs",
         "emacs-overlay": "emacs-overlay",
         "flake-utils": "flake-utils",
         "fluminurs": "fluminurs",

@@ -1,9 +1,32 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
+let
+  customEmacs = pkgs.emacsPgtkGcc;
+  emacsSetupScript = pkgs.writeScript "emacs-setup" ''
+    #!/bin/sh
+    set -eux
+    export PATH="${lib.makeBinPath [ customEmacs pkgs.bash pkgs.coreutils pkgs.git pkgs.sqlite pkgs.unzip ]}"
+
+    if [ ! -d $HOME/.emacs.d/.git ]; then
+      mkdir -p $HOME/.emacs.d
+      git -C $HOME/.emacs.d init
+    fi
+
+    if [ $(git -C $HOME/.emacs.d rev-parse HEAD) != "${inputs.doom-emacs.rev}" ]; then
+      git -C $HOME/.emacs.d fetch https://github.com/hlissner/doom-emacs.git
+      git -C $HOME/.emacs.d checkout ${inputs.doom-emacs.rev}
+      $HOME/.emacs.d/bin/doom sync
+    fi
+  '';
+in
 {
+  home.activation.emacsSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
+    ${emacsSetupScript}
+  '';
+
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsPgtkGcc;
+    package = customEmacs;
     extraPackages = epkgs: [
       epkgs.vterm
       epkgs.telega
@@ -22,9 +45,12 @@
   home.sessionPath = [ "${config.home.homeDirectory}/.emacs.d/bin" ];
 
   # Doom Emacs configuration files.
-  xdg.configFile."doom/init.el".source = ./doom/init.el;
-  xdg.configFile."doom/packages.el".source = ./doom/packages.el;
-  xdg.configFile."doom/config.el".source = ./doom/config.el;
+  xdg.configFile."doom" = {
+    source = ./doom;
+    onChange = ''
+      $HOME/.emacs.d/bin/doom sync
+    '';
+  };
 
   home.packages = with pkgs; [
     imagemagick
