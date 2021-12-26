@@ -259,6 +259,22 @@
         "type": "github"
       }
     },
+    "packer-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1638473584,
+        "narHash": "sha256-ufD1Sl6MjwYoaYbVHMMF6pTv++CBAi8DdRK513Xzv7Q=",
+        "owner": "wbthomason",
+        "repo": "packer.nvim",
+        "rev": "851c62c5ecd3b5adc91665feda8f977e104162a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "wbthomason",
+        "repo": "packer.nvim",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -271,6 +287,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nur": "nur",
+        "packer-nvim": "packer-nvim",
         "socprint": "socprint",
         "telescope-fzf-native": "telescope-fzf-native",
         "tree-grepper": "tree-grepper"

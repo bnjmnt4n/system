@@ -23,6 +23,10 @@
       url = "github:nix-community/neovim-nightly-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    packer-nvim = {
+      url = "github:wbthomason/packer.nvim";
+      flake = false;
+    };
     telescope-fzf-native = {
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;

@@ -1,16 +1,40 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
+let
+  customNeovim =
+    if pkgs.stdenv.isAarch64
+    then
+      pkgs.neovim-nightly.override
+        {
+          lua = pkgs.luajit;
+        }
+    else pkgs.neovim-nightly;
+  packerNvimSetupScript = pkgs.writeScript "packer-nvim-setup" ''
+    #!/bin/sh
+    set -eux
+    export PATH="${lib.makeBinPath [ customNeovim pkgs.bash pkgs.coreutils pkgs.git ]}"
+
+    export PACKER_DIR=$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim
+    if [ ! -d $PACKER_DIR/.git ]; then
+      mkdir -p $PACKER_DIR
+      git -C $PACKER_DIR init
+    fi
+
+    if [ $(git -C $PACKER_DIR rev-parse HEAD) != "${inputs.packer-nvim.rev}" ]; then
+      git -C $PACKER_DIR fetch https://github.com/wbthomason/packer.nvim.git
+      git -C $PACKER_DIR checkout ${inputs.packer-nvim.rev}
+      nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+    fi
+  '';
+in
 {
+  home.activation.packerNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
+    ${packerNvimSetupScript}
+  '';
+
   programs.neovim = {
     enable = true;
-    package =
-      if pkgs.stdenv.isAarch64
-      then
-        pkgs.neovim-nightly.override
-          {
-            lua = pkgs.luajit;
-          }
-      else pkgs.neovim-nightly;
+    package = customNeovim;
 
     extraConfig = ''
       " Disable default plugins
@@ -28,7 +52,12 @@
     '';
   };
 
-  xdg.configFile."nvim/lua".source = ./lua;
+  xdg.configFile."nvim/lua" = {
+    source = ./lua;
+    onChange = ''
+      ${customNeovim}/bin/nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+    '';
+  };
 
   xdg.dataFile."nvim/site/pack/packer/opt/telescope-fzf-native.nvim/build/libfzf.so".source = "${pkgs.telescope-fzf-native}/build/libfzf.so";
 

@@ -2,14 +2,6 @@
 -- https://github.com/mjlbach/defaults.nvim/blob/f4611c06493f85450f82aded43b50a14619ae55a/init.lua
 -- https://github.com/mjlbach/nix-dotfiles/blob/78c9ca9363107d4e967e5b49e19d86c75e7a3e3a/nixpkgs/configs/neovim/init.lua
 
--- Install packer
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  vim.fn.system { 'git', 'clone', 'https://github.com/wbthomason/packer.nvim', install_path }
-  vim.cmd 'packadd packer.nvim'
-end
-
 -- TODO: more lazy loading
 require('packer').startup(function(use)
   -- Package manager
