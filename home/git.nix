@@ -64,8 +64,9 @@
       # Credit an author on the latest commit.
       credit = ''!f() { git commit --amend --author "$1 <$2>" -C HEAD; }; f'';
 
+      reb = "rebase -i origin/HEAD --autosquash";
       # Interactive rebase with the given number of latest commits.
-      reb = "!r() { git rebase -i HEAD~$1; }; r";
+      rebn = "!r() { git rebase -i HEAD~$1 --autosquash; }; r";
 
       # Remove the old tag with this name and tag the latest commit with it.
       retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r";
@@ -87,7 +88,8 @@
     };
   };
 
-  programs.gh.enable = true;
+  # programs.gh.enable = true;
+  home.packages = [ pkgs.gh ];
 
   # Shell aliases.
   programs.fish.shellAliases.g = "git";

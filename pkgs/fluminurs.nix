@@ -2,7 +2,7 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "fluminurs";
-  version = "657708f451e9466fc7d957174ca3514c4f219ddc";
+  version = src.rev;
   inherit src;
 
   cargoSha256 = "sha256-9a062Qrn4s6ZsCYKBpbRAddz+Q+NJbsvtsgzHqs7aAk=";

@@ -15,7 +15,6 @@
 
     ../../home/emacs/default.nix
     ../../home/neovim/default.nix
-
   ];
 
   # TODO: remove?
