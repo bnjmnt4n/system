@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, inputs ? {} }:
 
 let
   commands = import ./commands.nix { inherit pkgs; };
@@ -24,6 +24,15 @@ rec {
     out="$(nix build --json ".#homeConfigurations.$usr.activationPackage" | jq -r .[].outputs.out)"
     1>&2 echo "Activating configuration..."
     "$out"/activate
+  '';
+
+  nixFlakeInit = pkgs.writeShellScriptBin "nix-flake-init" ''
+    nix flake init -t "${inputs.self}#''${1:-default}"
+  '';
+
+  nixFlakeSync = pkgs.writeShellScriptBin "nix-flake-sync" ''
+    ${pkgs.gnused}/bin/sed -i 's/nixpkgs.url *= *[^;]\+;/nixpkgs.url = "github:NixOS\/nixpkgs?rev=${inputs.nixpkgs.rev}";/g' flake.nix
+    ${pkgs.gnused}/bin/sed -i 's/flake-utils.url *= *[^;]\+;/flake-utils.url = "github:numtide\/flake-utils?rev=${inputs.flake-utils.rev}";/g' flake.nix
   '';
 
   waylandSession = pkgs.writeShellScript "wayland-session" ''

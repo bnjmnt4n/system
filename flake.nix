@@ -127,19 +127,28 @@
         username = "bnjmnt4n";
         configuration = ./hosts/wsl/bnjmnt4n.nix;
       };
+
+      defaultTemplate = { path = ./templates/default; description = "Default"; };
+      templates = {
+        default = { path = ./templates/default; description = "Default"; };
+        postgres = { path = ./templates/postgres; description = "PostgreSQL"; };
+        rust = { path = ./templates/rust; description = "Rust"; };
+        web = { path = ./templates/web; description = "Web"; };
+        zig = { path = ./templates/zig; description = "Zig"; };
+      };
     }
     //
     # Convenient shortcuts to switch configurations within this repository.
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = makePkgs system;
-        scripts = import ./lib/scripts.nix { inherit pkgs; };
+        scripts = import ./lib/scripts.nix { inherit pkgs inputs; };
       in
       {
         devShell = pkgs.mkShell {
-          nativeBuildInputs = with scripts; [
-            switchHome
-            switchNixos
+          buildInputs = [
+            scripts.switchHome
+            scripts.switchNixos
             pkgs.agenix
             pkgs.stylua
             pkgs.sumneko-lua-language-server

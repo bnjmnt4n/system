@@ -1,5 +1,8 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
+let
+  scripts = import ../lib/scripts.nix { inherit pkgs inputs; };
+in
 {
   # TODO: shift to flake.nix?
   programs.home-manager.enable = true;
@@ -38,6 +41,8 @@
     # Nix tools
     nixpkgs-fmt
     rnix-lsp
+    scripts.nixFlakeInit
+    scripts.nixFlakeSync
 
     # Archiving
     unzip

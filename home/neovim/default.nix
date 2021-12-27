@@ -14,7 +14,7 @@ let
     set -eux
     export PATH="${lib.makeBinPath [ customNeovim pkgs.bash pkgs.coreutils pkgs.git ]}"
 
-    export PACKER_DIR=$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim
+    PACKER_DIR=$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim
     if [ ! -d $PACKER_DIR/.git ]; then
       mkdir -p $PACKER_DIR
       git -C $PACKER_DIR init
