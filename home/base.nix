@@ -4,6 +4,10 @@ let
   scripts = import ../lib/scripts.nix { inherit pkgs inputs; };
 in
 {
+  imports = [
+    ./dig.nix
+  ];
+
   # TODO: shift to flake.nix?
   programs.home-manager.enable = true;
   home.stateVersion = "20.09";
