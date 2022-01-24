@@ -29,7 +29,6 @@
   programs.direnv = {
     enable = true;
     enableBashIntegration = true;
-    enableFishIntegration = true;
 
     nix-direnv.enable = true;
     stdlib = pkgs.lib.readFile ./.direnvrc;
