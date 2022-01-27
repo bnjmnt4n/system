@@ -43,8 +43,10 @@
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
-    inter
     fluminurs
+    hledger
+    restic
+    inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
 
