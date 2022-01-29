@@ -21,6 +21,7 @@ in
     age
     aspell
     aspellDicts.en
+    curl
     dos2unix
     exa
     fd

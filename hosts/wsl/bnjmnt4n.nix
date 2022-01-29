@@ -48,6 +48,7 @@
     restic
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
+    tarsnap
   ];
 
   home.sessionVariables = {
