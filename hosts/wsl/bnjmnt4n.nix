@@ -3,6 +3,7 @@
 {
   imports = [
     ../../home/base.nix
+    ../../home/tarsnap.nix
 
     ../../home/shell.nix
     ../../home/xdg.nix
@@ -48,7 +49,6 @@
     restic
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
-    tarsnap
   ];
 
   home.sessionVariables = {
