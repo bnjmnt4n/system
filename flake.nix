@@ -131,6 +131,7 @@
       defaultTemplate = { path = ./templates/default; description = "Default"; };
       templates = {
         default = { path = ./templates/default; description = "Default"; };
+        go = { path = ./templates/go; description = "Go"; };
         postgres = { path = ./templates/postgres; description = "PostgreSQL"; };
         rust = { path = ./templates/rust; description = "Rust"; };
         web = { path = ./templates/web; description = "Web"; };
