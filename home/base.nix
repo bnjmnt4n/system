@@ -6,6 +6,7 @@ in
 {
   imports = [
     ./dig.nix
+    ./ssh.nix
   ];
 
   # TODO: shift to flake.nix?
