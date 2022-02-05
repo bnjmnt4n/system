@@ -35,6 +35,11 @@ rec {
     ${pkgs.gnused}/bin/sed -i 's/flake-utils.url *= *[^;]\+;/flake-utils.url = "github:numtide\/flake-utils?rev=${inputs.flake-utils.rev}";/g' flake.nix
   '';
 
+  backupDirectory = tarsnap: pkgs.writeShellScriptBin "backup-directory" ''
+    set -euox pipefail
+    ${tarsnap}/bin/tarsnap -c -f "$(basename "$1")-$(uname -n)-$(date +%Y-%m-%d_%H-%M-%S)" $1
+  '';
+
   waylandSession = pkgs.writeShellScript "wayland-session" ''
     export SDL_VIDEODRIVER=wayland
     # Requires `qt5.qtwayland`
