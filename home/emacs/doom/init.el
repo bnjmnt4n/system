@@ -21,6 +21,8 @@
        :editor
        (evil +everywhere)
        fold
+       format
+       snippets
 
        :emacs
        dired
@@ -43,9 +45,12 @@
 
        :lang
        emacs-lisp
+       (go +lsp)
+       (javascript +lsp)
        ledger
        markdown
        (org +roam2)
+       nix
 
        :app
        (rss +org)

@@ -1,9 +1,5 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; See https://github.com/hlissner/doom-emacs/issues/5785.
-(general-auto-unbind-keys :off)
-(remove-hook 'doom-after-init-modules-hook #'general-auto-unbind-keys)
-
 (setq user-full-name "Benjamin Tan"
       user-mail-address "benjamin@dev.ofcr.se")
 
@@ -47,7 +43,7 @@
 (assoc-delete-all "Open private configuration" +doom-dashboard-menu-sections)
 
 ;; Shift open project to first item.
-(let ((item (alist-get "Open project" +doom-dashboard-menu-sections nil nil 'equal)))
+(let* ((item (alist-get "Open project" +doom-dashboard-menu-sections nil nil 'equal)))
   (push "Open project" item)
   (assoc-delete-all "Open project" +doom-dashboard-menu-sections)
   (add-to-list '+doom-dashboard-menu-sections item))
@@ -61,24 +57,120 @@
 
 ;; org-mode configuration.
 (setq org-directory "~/org/"
-      org-agenda-dir (concat org-directory "agenda/")
-      org-agenda-files (directory-files-recursively org-agenda-dir "\\.org$")
-      org-roam-directory (concat org-directory "kb/")
+      org-roam-directory org-directory
+      org-agenda-files nil
       +org-roam-open-buffer-on-find-file nil)
 
+;; org-roam: add TODOs in org-roam files to org-agenda.
+;; Based on:
+;; - https://magnus.therning.org/2021-07-23-keeping-todo-items-in-org-roam-v2.html
+;; - https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5.html
+
+(defun roam-extra:get-filetags ()
+  "Return the list of filetags for the current buffer."
+  (split-string (or (org-roam-get-keyword "filetags") "")))
+
+(defun roam-extra:add-filetag (tag)
+  "Add the given TAG to the list of filetags for the current buffer."
+  (let* ((new-tags (cons tag (roam-extra:get-filetags)))
+         (new-tags-str (combine-and-quote-strings new-tags)))
+    (org-roam-set-keyword "filetags" new-tags-str)))
+
+(defun roam-extra:del-filetag (tag)
+  "Remove the given TAG from the list of filetags for the current buffer."
+  (let* ((new-tags (seq-difference (roam-extra:get-filetags) `(,tag)))
+         (new-tags-str (combine-and-quote-strings new-tags)))
+    (org-roam-set-keyword "filetags" new-tags-str)))
+
+(defun roam-extra:todo-p ()
+  "Return non-nil if current buffer has any TODO entry.
+
+TODO entries marked as done are ignored, meaning that this
+function returns nil if current buffer contains only completed
+tasks."
+  (org-element-map
+      (org-element-parse-buffer 'headline)
+      'headline
+    (lambda (h)
+      (eq (org-element-property :todo-type h)
+          'todo))
+    nil 'first-match))
+
+(defun roam-extra:update-todo-tag ()
+  "Update TODO tag in the current buffer."
+  (when (and (not (active-minibuffer-window))
+             (org-roam-file-p))
+    (org-with-point-at 1
+      (let* ((tags (roam-extra:get-filetags))
+             (is-todo (roam-extra:todo-p)))
+        (cond ((and is-todo (not (seq-contains-p tags "todo")))
+               (roam-extra:add-filetag "todo"))
+              ((and (not is-todo) (seq-contains-p tags "todo"))
+               (roam-extra:del-filetag "todo")))))))
+
+(defun roam-extra:todo-files ()
+  "Return a list of note files containing the 'todo' filetag." ;
+  (seq-uniq
+   (seq-map
+    #'car
+    (org-roam-db-query
+     [:select [nodes:file]
+      :from tags
+      :left-join nodes
+      :on (= tags:node-id nodes:id)
+      :where (like tag (quote "%\"todo\"%"))]))))
+
+(defun roam-extra:update-todo-files (&rest _)
+  "Update the value of `org-agenda-files'."
+  (setq org-agenda-files (roam-extra:todo-files)))
+
+;; Add CREATED and UPDATED tags when nodes and files are edited.
+
+(defun org-roam--insert-timestamp ()
+  "Insert timestamp for new org-roam file."
+  (org-with-point-at 1
+    (when (not (org-entry-get nil "CREATED"))
+      (org-entry-put nil "CREATED" (format-time-string "[%Y-%m-%d %a %H:%M]"))
+      (org-entry-put nil "UPDATED" (format-time-string "[%Y-%m-%d %a %H:%M]")))))
+
+(defun roam-extra:update-timestamp ()
+  "Update UPDATED timestamps for node at current point and file in the current buffer."
+  (when (and (not (active-minibuffer-window))
+             (org-roam-file-p)
+             (buffer-modified-p))
+    (let* ((timestamp (format-time-string "[%Y-%m-%d %a %H:%M]")))
+      (when (org-roam-db-node-p)
+        (org-with-point-at (point)
+          (org-entry-put nil "UPDATED" timestamp)))
+      (org-with-point-at 1
+        (org-entry-put nil "UPDATED" timestamp)))))
+
+(defun roam-extra:add-timestamps-on-org-id-creation (&optional force)
+  "Add timestamps when org-id is created."
+  (when (and (not (active-minibuffer-window))
+             (org-roam-file-p)
+             (not (org-entry-get nil "ID")))
+    (let* ((timestamp (format-time-string "[%Y-%m-%d %a %H:%M]")))
+      (org-with-point-at (point)
+        (when (not (org-entry-get nil "CREATED"))
+          (org-entry-put nil "CREATED" timestamp))
+        (org-entry-put nil "UPDATED" timestamp))
+      (org-with-point-at 1
+        (org-entry-put nil "UPDATED" timestamp)))))
+
+(add-hook 'find-file-hook #'roam-extra:update-todo-tag)
+(add-hook 'before-save-hook #'roam-extra:update-todo-tag)
+(add-hook 'before-save-hook #'roam-extra:update-timestamp)
+(add-hook 'org-roam-capture-new-node-hook #'org-roam--insert-timestamp)
+(advice-add 'org-agenda :before #'roam-extra:update-todo-files)
+(advice-add 'org-id-get-create :before #'roam-extra:add-timestamps-on-org-id-creation)
+
 (after! org
-  (setq org-capture-templates
-        `(("i" "inbox" entry (file ,(concat org-agenda-dir "inbox.org"))
-               "* TODO %?")
-          ("e" "event" entry (file ,(concat org-agenda-dir "events.org"))
-               "* %?\n%T"
-               :time-prompt t)
-          ("c" "org-protocol-capture" entry (file ,(concat org-agenda-dir "inbox.org"))
-               "* TODO [[%:link][%:description]]\n\n %i"
-               :immediate-finish t)))
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)"))))
+        '((sequence "TODO(t!)" "NEXT(n!)" "|" "DONE(d!)")
+          (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+  (setq org-log-into-drawer t)
+  (add-to-list 'org-modules 'org-habit))
 
 ;; Convert screenshots to LaTeX formulas.
 (use-package! mathpix.el
@@ -87,9 +179,9 @@
   (map! "C-x m" #'mathpix-screenshot)
   ;; TODO: look into `:config`?
   (if (file-exists-p "/run/secrets/mathpix-app-id")
-    (setq mathpix-screenshot-method "grimshot save area %s"
-          mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
-          mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string)))))
+      (setq mathpix-screenshot-method "grimshot save area %s"
+            mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
+            mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string)))))
 
 ;; Sync with Google Calendar.
 (use-package! org-gcal
@@ -99,7 +191,7 @@
   :config
   (setq org-gcal-client-id (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-id") (buffer-string))
         org-gcal-client-secret (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-secret") (buffer-string))
-        org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-agenda-dir "schedule.org")))))
+        org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-directory "schedule.org")))))
 
 ;; Easy copy-and-paste/screenshot of images.
 ;; Based on https://github.com/jethrokuan/dots/blob/ecac45367275e7b020f2bba591224ba23949286e/.doom.d/config.el#L513-L549.
@@ -115,9 +207,9 @@
         :map org-mode-map
         :localleader
         (:prefix "a"
-          "c" #'org-download-screenshot
-          "p" #'org-download-clipboard
-          "P" #'org-download-yank))
+         "c" #'org-download-screenshot
+         "p" #'org-download-clipboard
+         "P" #'org-download-yank))
   (pushnew! dnd-protocol-alist
             '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . +org-download-dnd)
             '("^data:" . org-download-dnd-base64))
@@ -154,38 +246,15 @@
     (format "{{c%d::%s}}" bnjmnt4n/anki-editor-cloze-counter contents))
   ;; Override anki-editor's HTML backend.
   (setq anki-editor--ox-anki-html-backend
-      (org-export-create-backend
-       :parent 'html
-       :transcoders '((latex-fragment . anki-editor--ox-latex-for-mathjax)
-                      (latex-environment . anki-editor--ox-latex-for-mathjax)
-                      (bold . bnjmnt4n/anki-editor-bold-italic-transcoder)
-                      (italic . bnjmnt4n/anki-editor-bold-italic-transcoder))))
+        (org-export-create-backend
+         :parent 'html
+         :transcoders '((latex-fragment . anki-editor--ox-latex-for-mathjax)
+                        (latex-environment . anki-editor--ox-latex-for-mathjax)
+                        (bold . bnjmnt4n/anki-editor-bold-italic-transcoder)
+                        (italic . bnjmnt4n/anki-editor-bold-italic-transcoder))))
   (advice-add 'anki-editor--build-fields :before #'bnjmnt4n/reset-anki-editor-cloze-counter)
   (advice-add 'anki-editor-export-subtree-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter)
   (advice-add 'anki-editor-convert-region-to-html :before #'bnjmnt4n/reset-anki-editor-cloze-counter))
-
-;; Telegram client.
-(use-package! telega
-  :commands (telega)
-  :init
-  ;; Display chats on a split buffer to the right.
-  (set-popup-rules!
-    '(("^\\*Telega Root\\*$" :ignore t)
-      ("^\\*Telegram Message Info\\*$" :height 0.35 :select t :modeline nil)
-      ("^\\*Telegram Chat Info\\*$" :height 0.4 :select t :modeline nil)
-      ("^◀" :side right :width 120 :quit current :select t :modeline t)))
-  ;; Display system notifications.
-  (add-hook 'telega-load-hook #'telega-notifications-mode)
-  :config
-  (map! :map telega-msg-button-map "k" nil))
-
-(defun =telegram ()
-  "Activate (or switch to) `telega' in its workspace."
-  (interactive)
-  (+workspace-switch "telegram" t)
-  (doom/switch-to-scratch-buffer)
-  (telega)
-  (+workspace/display))
 
 ;; Update feeds when entering elfeed.
 (after! elfeed
@@ -199,9 +268,6 @@
   :commands (magit-delta-mode))
 (after! magit
   (add-hook 'magit-mode-hook #'magit-delta-mode))
-
-;; Notmuch config.
-(setq +notmuch-sync-backend 'mbsync)
 
 ;; Modeline: remove border
 (custom-set-faces!

@@ -11,3 +11,7 @@
 (package! magit-delta :pin "5fc7dbddcfacfe46d3fd876172ad02a9ab6ac616")
 (package! org-gcal :pin "6e26ae75aea521ea5dae67e34265da534bdad2d1")
 (package! org-download :pin "947ca223643d28e189480e607df68449c15786cb")
+
+(package! org-roam
+  :recipe (:host github :repo "org-roam/org-roam"
+           :files (:defaults "extensions/*")))

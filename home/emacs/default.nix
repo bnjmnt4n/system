@@ -29,7 +29,6 @@ in
     package = customEmacs;
     extraPackages = epkgs: [
       epkgs.vterm
-      epkgs.telega
     ];
   };
 
