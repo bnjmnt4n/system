@@ -32,7 +32,7 @@
       flake = false;
     };
     fluminurs = {
-      url = "github:bnjmnt4n/fluminurs";
+      url = "github:fluminurs/fluminurs";
       flake = false;
     };
     socprint = {

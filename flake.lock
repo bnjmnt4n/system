@@ -115,15 +115,15 @@
     "fluminurs": {
       "flake": false,
       "locked": {
-        "lastModified": 1629020341,
-        "narHash": "sha256-fIZ3ZpZdF7gebhy4y0CSOutuiVwWhO1gvkIH8/jDsgg=",
-        "owner": "bnjmnt4n",
+        "lastModified": 1641740841,
+        "narHash": "sha256-PTYJAo89F9vrN0hG/8sCyqg1ZVmom1aPAatB20ubxSk=",
+        "owner": "fluminurs",
         "repo": "fluminurs",
-        "rev": "657708f451e9466fc7d957174ca3514c4f219ddc",
+        "rev": "63a1b0745ed1f973bf0bbe1c4158a97c7d142112",
         "type": "github"
       },
       "original": {
-        "owner": "bnjmnt4n",
+        "owner": "fluminurs",
         "repo": "fluminurs",
         "type": "github"
       }
