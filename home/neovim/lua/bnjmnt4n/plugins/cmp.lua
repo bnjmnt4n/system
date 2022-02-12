@@ -1,5 +1,6 @@
 -- nvim-cmp
 local cmp = require 'cmp'
+
 cmp.setup {
   snippet = {
     expand = function(args)
@@ -25,7 +26,7 @@ cmp.setup {
     ['<Tab>'] = function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
-      elseif require('luasnip').expand_or_jumpable() then
+      elseif require('luasnip').expand_or_locally_jumpable() then
         require('luasnip').expand_or_jump()
       else
         fallback()

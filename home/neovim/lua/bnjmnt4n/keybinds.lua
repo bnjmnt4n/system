@@ -5,6 +5,7 @@ wk.setup {}
 
 -- Leader keybindings
 wk.register {
+  ['<M-`>'] = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
   ['<leader>'] = {
     ['<space>'] = { [[<cmd>lua require('telescope.builtin').find_files()<CR>]], 'Find files in folder' },
     ['.'] = {
@@ -15,6 +16,8 @@ wk.register {
     ['?'] = { [[<cmd>lua require('telescope.builtin').oldfiles()<CR>]], 'Recent files' },
     ['/'] = { [[<cmd>lua require('telescope.builtin').live_grep()<CR>]], 'Search in project' },
     ["'"] = { [[<cmd>lua require('telescope.builtin').resume()<CR>]], 'Resume previous search' },
+    ['<Tab>'] = { '<cmd>tabnext<CR>', 'Next tab' },
+    ['<S-Tab>'] = { '<cmd>tabprev<CR>', 'Previous tab' },
 
     b = {
       name = '+buffer',
@@ -149,15 +152,14 @@ wk.register {
     x = {
       name = '+trouble',
       x = { '<cmd>Trouble<CR>', 'Trouble' },
-      w = { '<cmd>Trouble lsp_workspace_diagnostics<cr>', 'Trouble Workspace Diagnostics' },
-      d = { '<cmd>Trouble lsp_document_diagnostics<cr>', 'Trouble Document Diagnostics' },
+      w = { '<cmd>Trouble workspace_diagnostics<cr>', 'Trouble Workspace Diagnostics' },
+      d = { '<cmd>Trouble document_diagnostics<cr>', 'Trouble Document Diagnostics' },
       l = { '<cmd>Trouble loclist<cr>', 'Trouble Loclist' },
       q = { '<cmd>Trouble quickfix<cr>', 'Trouble Quickfix' },
       n = { '<cmd>lua require("trouble").next({ skip_groups = true, jump = true })<cr>', 'Next' },
       p = { '<cmd>lua require("trouble").previous({ skip_groups = true, jump = true })<cr>', 'Previous' },
     },
   },
-  ['<M-`>'] = { '<cmd>ToggleTerm<CR>', 'Toggle terminal' },
 }
 
 -- System clipboard yank/paste

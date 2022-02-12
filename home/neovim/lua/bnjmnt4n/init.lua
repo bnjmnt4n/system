@@ -18,7 +18,28 @@ require('packer').startup(function(use)
   use 'tpope/vim-fugitive'
 
   -- 'gc' to comment visual regions/lines
-  use 'tpope/vim-commentary'
+  use {
+    'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup {
+        pre_hook = function(ctx)
+          local U = require 'Comment.utils'
+
+          local location = nil
+          if ctx.ctype == U.ctype.block then
+            location = require('ts_context_commentstring.utils').get_cursor_location()
+          elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
+            location = require('ts_context_commentstring.utils').get_visual_start_location()
+          end
+
+          return require('ts_context_commentstring.internal').calculate_commentstring {
+            key = ctx.ctype == U.ctype.line and '__default' or '__multiline',
+            location = location,
+          }
+        end,
+      }
+    end,
+  }
 
   -- Async building & commands
   use { 'tpope/vim-dispatch', cmd = { 'Dispatch', 'Make', 'Focus', 'Start' } }
@@ -119,6 +140,7 @@ require('packer').startup(function(use)
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter *',
     requires = {
+      -- 'L3MON4D3/LuaSnip',
       'hrsh7th/cmp-nvim-lsp',
       -- TODO: simplify?
       {
@@ -144,7 +166,11 @@ require('packer').startup(function(use)
     },
     config = [[require 'bnjmnt4n.plugins.cmp']],
   }
-  use { 'L3MON4D3/LuaSnip', after = { 'nvim-cmp' } }
+  use {
+    'L3MON4D3/LuaSnip',
+    after = { 'nvim-cmp' },
+    config = [[require 'bnjmnt4n.plugins.luasnip']],
+  }
   use {
     'windwp/nvim-autopairs',
     after = { 'nvim-cmp' },
@@ -209,9 +235,7 @@ require('packer').startup(function(use)
   use {
     'kristijanhusak/orgmode.nvim',
     config = function()
-      require('orgmode').setup {
-        org_agenda_files = { '~/org/agenda' },
-      }
+      require('orgmode').setup {}
     end,
   }
 

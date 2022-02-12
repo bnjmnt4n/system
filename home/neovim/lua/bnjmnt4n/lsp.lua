@@ -8,7 +8,7 @@
 
 local nvim_lsp = require 'lspconfig'
 
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -22,7 +22,7 @@ local on_attach = function(_, bufnr)
     local buf = overridden_hover(...)
     -- TODO: is this correct?
     if buf then
-      vim.api.nvim_buf_set_keymap(buf, 'n', 'K', '<cmd>wincmd p<CR>', { noremap = true, silent = true })
+      vim.keymap.set('n', 'K', '<cmd>wincmd p<CR>', { buffer = buf, noremap = true, silent = true })
     end
   end
   local overridden_signature_help = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
@@ -30,8 +30,18 @@ local on_attach = function(_, bufnr)
     local buf = overridden_signature_help(...)
     -- TODO: is this correct?
     if buf then
-      vim.api.nvim_buf_set_keymap(buf, 'n', 'K', '<cmd>wincmd p<CR>', { noremap = true, silent = true })
+      vim.keymap.set('n', 'K', '<cmd>wincmd p<CR>', { buffer = buf, noremap = true, silent = true })
     end
+  end
+
+  -- Format on save: https://github.com/jose-elias-alvarez/null-ls.nvim#how-do-i-format-files-on-save
+  if client.resolved_capabilities.document_formatting then
+    vim.cmd [[
+      augroup LspFormatting
+        autocmd! * <buffer>
+        autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+      augroup END
+    ]]
   end
 
   require('which-key').register({

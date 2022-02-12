@@ -21,12 +21,6 @@ require('nvim-treesitter.configs').setup {
       enable = true,
       lookahead = true,
       keymaps = {
-        ['iF'] = {
-          python = '(function_definition) @function',
-          cpp = '(function_definition) @function',
-          c = '(function_definition) @function',
-          java = '(method_declaration) @function',
-        },
         ['af'] = '@function.outer',
         ['if'] = '@function.inner',
         ['aC'] = '@class.outer',
@@ -67,6 +61,7 @@ require('nvim-treesitter.configs').setup {
   },
   context_commentstring = {
     enable = true,
+    enable_autocmd = false,
   },
   autotag = {
     enable = true,
