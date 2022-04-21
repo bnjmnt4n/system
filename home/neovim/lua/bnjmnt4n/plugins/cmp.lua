@@ -11,19 +11,16 @@ cmp.setup {
     autocomplete = vim.g.slow_device ~= 1 and { require('cmp.types').cmp.TriggerEvent.TextChanged },
     keyword_length = 2,
   },
-  mapping = {
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-n>'] = cmp.mapping.select_next_item(),
+  mapping = cmp.mapping.preset.insert {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.close(),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
     -- TODO: supertab-like functionality?
-    ['<Tab>'] = function(fallback)
+    ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif require('luasnip').expand_or_locally_jumpable() then
@@ -31,8 +28,8 @@ cmp.setup {
       else
         fallback()
       end
-    end,
-    ['<S-Tab>'] = function(fallback)
+    end, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
       elseif require('luasnip').jumpable(-1) then
@@ -40,7 +37,7 @@ cmp.setup {
       else
         fallback()
       end
-    end,
+    end, { 'i', 's' }),
   },
   sources = {
     { name = 'nvim_lsp' },

@@ -1,4 +1,4 @@
-vim.api.nvim_set_keymap('n', ';', '<Plug>Lightspeed_;_ft', { silent = true })
-vim.api.nvim_set_keymap('x', ';', '<Plug>Lightspeed_;_ft', { silent = true })
-vim.api.nvim_set_keymap('n', ',', '<Plug>Lightspeed_,_ft', { silent = true })
-vim.api.nvim_set_keymap('x', ',', '<Plug>Lightspeed_,_ft', { silent = true })
+vim.keymap.set('n', ';', '<Plug>Lightspeed_;_ft', { silent = true })
+vim.keymap.set('x', ';', '<Plug>Lightspeed_;_ft', { silent = true })
+vim.keymap.set('n', ',', '<Plug>Lightspeed_,_ft', { silent = true })
+vim.keymap.set('x', ',', '<Plug>Lightspeed_,_ft', { silent = true })

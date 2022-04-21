@@ -308,7 +308,10 @@ vim.cmd [[colorscheme modus-operandi]]
 
 -- Set statusbar
 vim.g.lightline = {
-  active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } },
+  active = { left = {
+    { 'mode', 'paste' },
+    { 'gitbranch', 'readonly', 'filename', 'modified' },
+  } },
   component_function = { gitbranch = 'fugitive#head' },
 }
 
@@ -316,9 +319,10 @@ vim.g.lightline = {
 vim.o.guifont = 'Iosevka:h20'
 
 -- Indent guide
-vim.g.indent_blankline_char = '┊'
-vim.g.indent_blankline_filetype_exclude = { 'help', 'packer' }
-vim.g.indent_blankline_buftype_exclude = { 'terminal', 'nofile' }
+require('indent_blankline').setup {
+  char = '┊',
+  show_trailing_blankline_indent = false,
+}
 vim.g.indent_blankline_char_highlight = 'LineNr'
 -- Fixes bug where empty lines hold on to their highlighting
 -- https://github.com/lukas-reineke/indent-blankline.nvim/issues/59
@@ -329,63 +333,65 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Remap for dealing with word wrap
-vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap = true, expr = true, silent = true })
-vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", { noremap = true, expr = true, silent = true })
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Add move line shortcuts
-vim.api.nvim_set_keymap('n', '<A-j>', ':m .+1<CR>==', { noremap = true })
-vim.api.nvim_set_keymap('n', '<A-k>', ':m .-2<CR>==', { noremap = true })
-vim.api.nvim_set_keymap('i', '<A-j>', '<Esc>:m .+1<CR>==gi', { noremap = true })
-vim.api.nvim_set_keymap('i', '<A-k>', '<Esc>:m .-2<CR>==gi', { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-j>', ":m '>+1<CR>gv=gv", { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-k>', ":m '<-2<CR>gv=gv", { noremap = true })
+vim.keymap.set('n', '<A-j>', ':m .+1<CR>==')
+vim.keymap.set('n', '<A-k>', ':m .-2<CR>==')
+vim.keymap.set('i', '<A-j>', '<Esc>:m .+1<CR>==gi')
+vim.keymap.set('i', '<A-k>', '<Esc>:m .-2<CR>==gi')
+vim.keymap.set('v', '<A-j>', ":m '>+1<CR>gv=gv")
+vim.keymap.set('v', '<A-k>', ":m '<-2<CR>gv=gv")
 
 -- Disable line numbers in terminal mode
-vim.cmd [[
-  augroup Terminal
-    autocmd!
-    autocmd TermOpen * set nonu nornu
-  augroup end
-]]
+local terminal_group = vim.api.nvim_create_augroup('Terminal', { clear = true })
+vim.api.nvim_create_autocmd('TermOpen', {
+  command = 'set nonu nornu',
+  group = terminal_group,
+  pattern = '*',
+})
 
 -- Remap escape to leave terminal mode
-vim.api.nvim_set_keymap('t', '<Esc>', [[<c-\><c-n>]], { noremap = true })
+vim.keymap.set('t', '<Esc>', [[<c-\><c-n>]])
 
 -- Persist selection after indentation in visual/select modes
-vim.api.nvim_set_keymap('x', '<', '<gv', { noremap = true })
-vim.api.nvim_set_keymap('x', '>', '>gv', { noremap = true })
+vim.keymap.set('x', '<', '<gv')
+vim.keymap.set('x', '>', '>gv')
 
 -- Highlight on yank
-vim.cmd [[
-  augroup YankHighlight
-    autocmd!
-    autocmd TextYankPost * silent! lua vim.highlight.on_yank()
-  augroup end
-]]
+local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
+vim.api.nvim_create_autocmd('TextYankPost', {
+  callback = function()
+    vim.highlight.on_yank()
+  end,
+  group = highlight_group,
+  pattern = '*',
+})
 
 -- Y yank until the end of line
-vim.api.nvim_set_keymap('n', 'Y', 'y$', { noremap = true })
+vim.keymap.set('n', 'Y', 'y$')
 
 -- Remap number increment to alt
-vim.api.nvim_set_keymap('n', '<A-a>', '<C-a>', { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-a>', '<C-a>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<A-x>', '<C-x>', { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-x>', '<C-x>', { noremap = true })
+vim.keymap.set('n', '<A-a>', '<C-a>')
+vim.keymap.set('v', '<A-a>', '<C-a>')
+vim.keymap.set('n', '<A-x>', '<C-x>')
+vim.keymap.set('v', '<A-x>', '<C-x>')
 
 -- `n` always goes forward
-vim.api.nvim_set_keymap('n', 'n', "'Nn'[v:searchforward]", { noremap = true, expr = true })
-vim.api.nvim_set_keymap('x', 'n', "'Nn'[v:searchforward]", { noremap = true, expr = true })
-vim.api.nvim_set_keymap('o', 'n', "'Nn'[v:searchforward]", { noremap = true, expr = true })
-vim.api.nvim_set_keymap('n', 'N', "'nN'[v:searchforward]", { noremap = true, expr = true })
-vim.api.nvim_set_keymap('x', 'N', "'nN'[v:searchforward]", { noremap = true, expr = true })
-vim.api.nvim_set_keymap('o', 'N', "'nN'[v:searchforward]", { noremap = true, expr = true })
+vim.keymap.set('n', 'n', "'Nn'[v:searchforward]", { expr = true })
+vim.keymap.set('x', 'n', "'Nn'[v:searchforward]", { expr = true })
+vim.keymap.set('o', 'n', "'Nn'[v:searchforward]", { expr = true })
+vim.keymap.set('n', 'N', "'nN'[v:searchforward]", { expr = true })
+vim.keymap.set('x', 'N', "'nN'[v:searchforward]", { expr = true })
+vim.keymap.set('o', 'N', "'nN'[v:searchforward]", { expr = true })
 
 -- Clear white space on empty lines and end of line
-vim.api.nvim_set_keymap(
+vim.keymap.set(
   'n',
   '<F6>',
   [[:let _s=@/ <Bar> :%s/\s\+$//e <Bar> :let @/=_s <Bar> :nohl <Bar> :unlet _s <CR>]],
-  { noremap = true, silent = true }
+  { silent = true }
 )
 
 -- Enter paste mode
@@ -398,15 +404,16 @@ FormatRange = function()
   vim.lsp.buf.range_formatting({}, start_pos, end_pos)
 end
 
+-- TODO: switch to new API as well
 vim.cmd [[command! -range FormatRange execute 'lua FormatRange()']]
-vim.cmd [[command! Format execute 'lua vim.lsp.buf.formatting()']]
+vim.api.nvim_create_user_command('Format', vim.lsp.buf.formatting, {})
 
 -- Quickfix list: `q` to quit
-vim.cmd [[
-  augroup QuickfixList
-    autocmd!
-    autocmd FileType qf nnoremap <buffer> q <cmd>cclose<CR>
-  augroup end
-]]
+local quickfixlist_group = vim.api.nvim_create_augroup('QuickfixList', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  command = 'nnoremap <buffer> q :lclose <bar> cclose <CR>',
+  group = quickfixlist_group,
+  pattern = 'qf',
+})
 
 require 'bnjmnt4n.lsp'
