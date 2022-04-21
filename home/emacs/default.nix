@@ -65,7 +65,7 @@ in
       comment = "Org Protocol";
       desktopName = "org-protocol";
       type = "Application";
-      mimeType = "x-scheme-handler/org-protocol";
+      mimeTypes = [ "x-scheme-handler/org-protocol" ];
     })
   ];
 }
