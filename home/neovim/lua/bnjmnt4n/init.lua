@@ -3,258 +3,266 @@
 -- https://github.com/mjlbach/nix-dotfiles/blob/78c9ca9363107d4e967e5b49e19d86c75e7a3e3a/nixpkgs/configs/neovim/init.lua
 
 -- TODO: more lazy loading
-require('packer').startup(function(use)
-  -- Package manager
-  use 'wbthomason/packer.nvim'
+require('packer').startup {
+  function(use)
+    -- Package manager
+    use 'wbthomason/packer.nvim'
 
-  -- Helpful keybindings
-  use {
-    'folke/which-key.nvim',
-    config = [[require 'bnjmnt4n.keybinds']],
-  }
+    -- Helpful keybindings
+    use {
+      'folke/which-key.nvim',
+      config = [[require 'bnjmnt4n.keybinds']],
+    }
 
-  -- TODO: fugitive vs neogit
-  -- Git commands
-  use 'tpope/vim-fugitive'
+    -- TODO: fugitive vs neogit
+    -- Git commands
+    use 'tpope/vim-fugitive'
 
-  -- 'gc' to comment visual regions/lines
-  use {
-    'numToStr/Comment.nvim',
-    config = function()
-      require('Comment').setup {
-        pre_hook = function(ctx)
-          local U = require 'Comment.utils'
+    -- 'gc' to comment visual regions/lines
+    use {
+      'numToStr/Comment.nvim',
+      config = function()
+        require('Comment').setup {
+          pre_hook = function(ctx)
+            local U = require 'Comment.utils'
 
-          local location = nil
-          if ctx.ctype == U.ctype.block then
-            location = require('ts_context_commentstring.utils').get_cursor_location()
-          elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
-            location = require('ts_context_commentstring.utils').get_visual_start_location()
-          end
+            local location = nil
+            if ctx.ctype == U.ctype.block then
+              location = require('ts_context_commentstring.utils').get_cursor_location()
+            elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
+              location = require('ts_context_commentstring.utils').get_visual_start_location()
+            end
 
-          return require('ts_context_commentstring.internal').calculate_commentstring {
-            key = ctx.ctype == U.ctype.line and '__default' or '__multiline',
-            location = location,
-          }
-        end,
-      }
-    end,
-  }
+            return require('ts_context_commentstring.internal').calculate_commentstring {
+              key = ctx.ctype == U.ctype.line and '__default' or '__multiline',
+              location = location,
+            }
+          end,
+        }
+      end,
+    }
 
-  -- Async building & commands
-  use { 'tpope/vim-dispatch', cmd = { 'Dispatch', 'Make', 'Focus', 'Start' } }
+    -- Async building & commands
+    use { 'tpope/vim-dispatch', cmd = { 'Dispatch', 'Make', 'Focus', 'Start' } }
 
-  -- `[` and `]` keybindings
-  use 'tpope/vim-unimpaired'
+    -- `[` and `]` keybindings
+    use 'tpope/vim-unimpaired'
 
-  -- Deal with surroundings tags/quotes/brackets
-  use 'tpope/vim-surround'
+    -- Deal with surroundings tags/quotes/brackets
+    use 'tpope/vim-surround'
 
-  -- Common UNIX functions
-  use 'tpope/vim-eunuch'
+    -- Common UNIX functions
+    use 'tpope/vim-eunuch'
 
-  -- Allow repeating of plugin keymaps
-  use 'tpope/vim-repeat'
+    -- Allow repeating of plugin keymaps
+    use 'tpope/vim-repeat'
 
-  -- Vim ports of Modus Themes
-  use 'ishan9299/modus-theme-vim'
+    -- Vim ports of Modus Themes
+    use 'ishan9299/modus-theme-vim'
 
-  -- Fancier statusline
-  use 'itchyny/lightline.vim'
+    -- Fancier statusline
+    use 'itchyny/lightline.vim'
 
-  -- Add indentation guides
-  use 'lukas-reineke/indent-blankline.nvim'
+    -- Add indentation guides
+    use 'lukas-reineke/indent-blankline.nvim'
 
-  -- Directory viewer
-  use 'justinmk/vim-dirvish'
+    -- Directory viewer
+    use 'justinmk/vim-dirvish'
 
-  -- Common Lua utility shared by various plugins
-  use 'nvim-lua/plenary.nvim'
+    -- Common Lua utility shared by various plugins
+    use 'nvim-lua/plenary.nvim'
 
-  -- Add git related info in the signs columns and popups
-  use {
-    'lewis6991/gitsigns.nvim',
-    event = 'BufReadPre',
-    wants = { 'plenary.nvim' },
-    requires = { 'nvim-lua/plenary.nvim' },
-    config = [[require 'bnjmnt4n.plugins.gitsigns']],
-  }
+    -- Add git related info in the signs columns and popups
+    use {
+      'lewis6991/gitsigns.nvim',
+      event = 'BufReadPre',
+      wants = { 'plenary.nvim' },
+      requires = { 'nvim-lua/plenary.nvim' },
+      config = [[require 'bnjmnt4n.plugins.gitsigns']],
+    }
 
-  -- Split diff tool
-  use {
-    'sindrets/diffview.nvim',
-    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
-    config = [[require 'bnjmnt4n.plugins.diffview']],
-  }
+    -- Split diff tool
+    use {
+      'sindrets/diffview.nvim',
+      cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
+      config = [[require 'bnjmnt4n.plugins.diffview']],
+    }
 
-  -- Magit in Neovim!
-  use {
-    'TimUntersberger/neogit',
-    cmd = { 'Neogit' },
-    wants = { 'plenary.nvim', 'diffview.nvim' },
-    requires = { 'nvim-lua/plenary.nvim', 'diffview.nvim' },
-    config = [[require 'bnjmnt4n.plugins.neogit']],
-  }
+    -- Magit in Neovim!
+    use {
+      'TimUntersberger/neogit',
+      cmd = { 'Neogit' },
+      wants = { 'plenary.nvim', 'diffview.nvim' },
+      requires = { 'nvim-lua/plenary.nvim', 'diffview.nvim' },
+      config = [[require 'bnjmnt4n.plugins.neogit']],
+    }
 
-  use {
-    'folke/trouble.nvim',
-    event = 'BufReadPre',
-    cmd = { 'Trouble', 'TroubleToggle' },
-    module = 'trouble',
-    requires = { 'kyazdani42/nvim-web-devicons' },
-    config = [[require 'bnjmnt4n.plugins.trouble']],
-  }
+    use {
+      'folke/trouble.nvim',
+      event = 'BufReadPre',
+      cmd = { 'Trouble', 'TroubleToggle' },
+      module = 'trouble',
+      requires = { 'kyazdani42/nvim-web-devicons' },
+      config = [[require 'bnjmnt4n.plugins.trouble']],
+    }
 
-  -- Fuzzy finder
-  use {
-    'nvim-telescope/telescope.nvim',
-    cmd = { 'Telescope' },
-    module = 'telescope',
-    wants = { 'plenary.nvim', 'trouble.nvim' },
-    requires = { 'nvim-lua/plenary.nvim', 'folke/trouble.nvim' },
-  }
-  use {
-    'nvim-telescope/telescope-file-browser.nvim',
-    after = { 'telescope.nvim' },
-  }
-  use {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    after = { 'telescope.nvim', 'telescope-file-browser.nvim' },
-    config = [[require 'bnjmnt4n.plugins.telescope']],
-  }
+    -- Fuzzy finder
+    use {
+      'nvim-telescope/telescope.nvim',
+      cmd = { 'Telescope' },
+      module = 'telescope',
+      wants = { 'plenary.nvim', 'trouble.nvim' },
+      requires = { 'nvim-lua/plenary.nvim', 'folke/trouble.nvim' },
+    }
+    use {
+      'nvim-telescope/telescope-file-browser.nvim',
+      after = { 'telescope.nvim' },
+    }
+    use {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      after = { 'telescope.nvim', 'telescope-file-browser.nvim' },
+      config = [[require 'bnjmnt4n.plugins.telescope']],
+    }
 
-  -- TODO comments
-  use {
-    'folke/todo-comments.nvim',
-    event = 'BufReadPost',
-    cmd = { 'TodoTrouble', 'TodoTelescope' },
-    wants = { 'plenary.nvim' },
-    requires = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      require('todo-comments').setup {}
-    end,
-  }
+    -- TODO comments
+    use {
+      'folke/todo-comments.nvim',
+      event = 'BufReadPost',
+      cmd = { 'TodoTrouble', 'TodoTelescope' },
+      wants = { 'plenary.nvim' },
+      requires = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        require('todo-comments').setup {}
+      end,
+    }
 
-  -- Snippets + Autocompletion + auto-pairs
-  use {
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter *',
-    requires = {
-      -- 'L3MON4D3/LuaSnip',
-      'hrsh7th/cmp-nvim-lsp',
-      -- TODO: simplify?
-      {
-        'hrsh7th/cmp-nvim-lua',
-        event = 'InsertEnter *',
-        wants = { 'nvim-cmp' },
+    -- Snippets + Autocompletion + auto-pairs
+    use {
+      'hrsh7th/nvim-cmp',
+      event = 'InsertEnter *',
+      requires = {
+        -- 'L3MON4D3/LuaSnip',
+        'hrsh7th/cmp-nvim-lsp',
+        -- TODO: simplify?
+        {
+          'hrsh7th/cmp-nvim-lua',
+          event = 'InsertEnter *',
+          wants = { 'nvim-cmp' },
+        },
+        {
+          'hrsh7th/cmp-buffer',
+          event = 'InsertEnter *',
+          wants = { 'nvim-cmp' },
+        },
+        {
+          'hrsh7th/cmp-path',
+          event = 'InsertEnter *',
+          wants = { 'nvim-cmp' },
+        },
+        {
+          'saadparwaiz1/cmp_luasnip',
+          event = 'InsertEnter *',
+          wants = { 'nvim-cmp' },
+        },
       },
-      {
-        'hrsh7th/cmp-buffer',
-        event = 'InsertEnter *',
-        wants = { 'nvim-cmp' },
+      config = [[require 'bnjmnt4n.plugins.cmp']],
+    }
+    use {
+      'L3MON4D3/LuaSnip',
+      after = { 'nvim-cmp' },
+      config = [[require 'bnjmnt4n.plugins.luasnip']],
+    }
+    use {
+      'windwp/nvim-autopairs',
+      after = { 'nvim-cmp' },
+      config = [[require 'bnjmnt4n.plugins.autopairs']],
+    }
+
+    -- LSP
+    use 'neovim/nvim-lspconfig'
+    -- Nvim-based language server
+    use {
+      'jose-elias-alvarez/null-ls.nvim',
+      wants = { 'plenary.nvim', 'nvim-lspconfig' },
+      requires = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    }
+    -- Better `tsserver` integration
+    use 'jose-elias-alvarez/nvim-lsp-ts-utils'
+    -- Better Rust tools
+    use 'simrat39/rust-tools.nvim'
+    -- Java LSP
+    use 'mfussenegger/nvim-jdtls'
+    -- Lightbulb for code actions
+    use {
+      'kosayoda/nvim-lightbulb',
+      event = 'BufEnter',
+      disable = vim.g.slow_device == 1,
+      config = [[require 'bnjmnt4n.plugins.lightbulb']],
+    }
+
+    -- Treesitter
+    use {
+      'nvim-treesitter/nvim-treesitter',
+      requires = {
+        -- Better comment type detection
+        'JoosepAlviste/nvim-ts-context-commentstring',
+        -- Better auto-completion of HTML tags
+        'windwp/nvim-ts-autotag',
+        -- Text object mappings
+        'nvim-treesitter/nvim-treesitter-textobjects',
+        -- Playground
+        {
+          'nvim-treesitter/playground',
+          cmd = { 'TSPlaygroundToggle' },
+        },
       },
-      {
-        'hrsh7th/cmp-path',
-        event = 'InsertEnter *',
-        wants = { 'nvim-cmp' },
-      },
-      {
-        'saadparwaiz1/cmp_luasnip',
-        event = 'InsertEnter *',
-        wants = { 'nvim-cmp' },
-      },
-    },
-    config = [[require 'bnjmnt4n.plugins.cmp']],
-  }
-  use {
-    'L3MON4D3/LuaSnip',
-    after = { 'nvim-cmp' },
-    config = [[require 'bnjmnt4n.plugins.luasnip']],
-  }
-  use {
-    'windwp/nvim-autopairs',
-    after = { 'nvim-cmp' },
-    config = [[require 'bnjmnt4n.plugins.autopairs']],
-  }
+      config = [[require 'bnjmnt4n.treesitter']],
+    }
 
-  -- LSP
-  use 'neovim/nvim-lspconfig'
-  -- Nvim-based language server
-  use {
-    'jose-elias-alvarez/null-ls.nvim',
-    wants = { 'plenary.nvim', 'nvim-lspconfig' },
-    requires = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-  }
-  -- Better `tsserver` integration
-  use 'jose-elias-alvarez/nvim-lsp-ts-utils'
-  -- Better Rust tools
-  use 'simrat39/rust-tools.nvim'
-  -- Java LSP
-  use 'mfussenegger/nvim-jdtls'
-  -- Lightbulb for code actions
-  use {
-    'kosayoda/nvim-lightbulb',
-    event = 'BufEnter',
-    disable = vim.g.slow_device == 1,
-    config = [[require 'bnjmnt4n.plugins.lightbulb']],
-  }
+    -- `gS` and `gJ` to switch between single/multi-line forms of code
+    use 'AndrewRadev/splitjoin.vim'
 
-  -- Treesitter
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    requires = {
-      -- Better comment type detection
-      'JoosepAlviste/nvim-ts-context-commentstring',
-      -- Better auto-completion of HTML tags
-      'windwp/nvim-ts-autotag',
-      -- Text object mappings
-      'nvim-treesitter/nvim-treesitter-textobjects',
-      -- Playground
-      {
-        'nvim-treesitter/playground',
-        cmd = { 'TSPlaygroundToggle' },
-      },
-    },
-    config = [[require 'bnjmnt4n.treesitter']],
-  }
+    -- TODO
+    use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
 
-  -- `gS` and `gJ` to switch between single/multi-line forms of code
-  use 'AndrewRadev/splitjoin.vim'
+    -- Mass editing of the quickfix list
+    use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
 
-  -- TODO
-  use { 'mhinz/vim-sayonara', cmd = { 'Sayonara' } }
+    -- Convenient access to nvim terminal
+    use { 'akinsho/toggleterm.nvim', cmd = { 'ToggleTerm' } }
 
-  -- Mass editing of the quickfix list
-  use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
+    -- -- Org-mode
+    -- -- TODO: setup
+    -- use {
+    --   'kristijanhusak/orgmode.nvim',
+    --   config = function()
+    --     -- require('orgmode').setup {
+    --     --   org_agenda_files = { '~/org/agenda' },
+    --     -- }
+    --   end,
+    -- }
 
-  -- Convenient access to nvim terminal
-  use { 'akinsho/toggleterm.nvim', cmd = { 'ToggleTerm' } }
+    -- More convenient find commands
+    use {
+      'ggandor/lightspeed.nvim',
+      event = 'BufReadPost',
+      config = [[require 'bnjmnt4n.plugins.lightspeed']],
+    }
 
-  -- Org-mode
-  -- TODO: setup
-  use {
-    'kristijanhusak/orgmode.nvim',
-    config = function()
-      require('orgmode').setup {}
-    end,
-  }
+    -- TODO
+    use {
+      'andymass/vim-matchup',
+      event = 'CursorMoved',
+    }
 
-  -- More convenient find commands
-  use {
-    'ggandor/lightspeed.nvim',
-    event = 'BufReadPost',
-    config = [[require 'bnjmnt4n.plugins.lightspeed']],
-  }
+    -- Language pack
+    use 'sheerun/vim-polyglot'
+  end,
 
-  -- TODO
-  use {
-    'andymass/vim-matchup',
-    event = 'CursorMoved',
-  }
-
-  -- Language pack
-  use 'sheerun/vim-polyglot'
-end)
+  config = {
+    snapshot_path = require('packer.util').join_paths(vim.fn.stdpath 'config', 'plugin', 'packer_snapshots'),
+  },
+}
 
 -- Expand tabs to spaces
 vim.o.expandtab = true

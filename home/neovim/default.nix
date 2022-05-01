@@ -23,8 +23,10 @@ let
     if [ $(git -C $PACKER_DIR rev-parse HEAD) != "${inputs.packer-nvim.rev}" ]; then
       git -C $PACKER_DIR fetch https://github.com/wbthomason/packer.nvim.git
       git -C $PACKER_DIR checkout ${inputs.packer-nvim.rev}
-      nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
     fi
+
+    # TODO
+    # nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSnapshotRollback default'
   '';
 in
 {
@@ -55,11 +57,14 @@ in
   xdg.configFile."nvim/lua" = {
     source = ./lua;
     onChange = ''
+      # TODO
+      # ${customNeovim}/bin/nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSnapshotRollback default'
       ${customNeovim}/bin/nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
     '';
   };
 
   xdg.dataFile."nvim/site/pack/packer/opt/telescope-fzf-native.nvim/build/libfzf.so".source = "${pkgs.telescope-fzf-native}/build/libfzf.so";
+  xdg.configFile."nvim/plugin/packer_snapshots/default".source = ./packer-snapshot.json;
 
   xdg.configFile."nvim/parser/bash.so".source = "${pkgs.tree-sitter.builtGrammars.tree-sitter-bash}/parser";
   xdg.configFile."nvim/parser/c.so".source = "${pkgs.tree-sitter.builtGrammars.tree-sitter-c}/parser";
