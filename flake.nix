@@ -85,9 +85,16 @@
         };
       makeHomeManagerConfiguration = { system, username, configuration }:
         home-manager.lib.homeManagerConfiguration {
-          inherit system username configuration;
           pkgs = makePkgs system;
-          homeDirectory = "/home/${username}";
+          modules = [
+{
+          home = {
+            inherit username;
+            homeDirectory = "/home/${username}";
+          };
+}
+            configuration
+          ];
           extraSpecialArgs = { inherit inputs; };
         };
     in
@@ -158,3 +165,5 @@
       }
     );
 }
+
+

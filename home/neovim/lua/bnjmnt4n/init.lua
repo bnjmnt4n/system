@@ -231,7 +231,7 @@ require('packer').startup {
     -- Convenient access to nvim terminal
     use {
       'akinsho/toggleterm.nvim',
-      tag = 'v1.*',
+      tag = 'v2.*',
       config = function()
         require('toggleterm').setup()
       end,

@@ -6,6 +6,8 @@
 -- - https://github.com/lukas-reineke/dotfiles/tree/master/vim/lua/lsp
 -- - https://github.com/lucax88x/configs/tree/master/dotfiles/.config/nvim/lua/lt/lsp
 
+local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+
 local nvim_lsp = require 'lspconfig'
 
 local on_attach = function(client, bufnr)
@@ -34,14 +36,21 @@ local on_attach = function(client, bufnr)
     end
   end
 
-  -- Format on save: https://github.com/jose-elias-alvarez/null-ls.nvim#how-do-i-format-files-on-save
-  if client.resolved_capabilities.document_formatting then
-    vim.cmd [[
-      augroup LspFormatting
-        autocmd! * <buffer>
-        autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
-      augroup END
-    ]]
+  -- Format on save: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Formatting-on-save
+  if client.supports_method 'textDocument/formatting' then
+    vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+    vim.api.nvim_create_autocmd('BufWritePre', {
+      group = augroup,
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.buf.format {
+          bufnr = bufnr,
+          filter = function(client)
+            return client.name == 'null-ls'
+          end,
+        }
+      end,
+    })
   end
 
   require('which-key').register({
@@ -119,6 +128,9 @@ nvim_lsp.sumneko_lua.setup {
       },
       workspace = {
         library = vim.api.nvim_get_runtime_file('', true),
+      },
+      format = {
+        enable = true,
       },
       telemetry = {
         enable = false,

@@ -1,7 +1,7 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
-  customEmacs = pkgs.emacsPgtkGcc;
+  customEmacs = pkgs.emacsPgtkNativeComp;
   emacsSetupScript = pkgs.writeScript "emacs-setup" ''
     #!/bin/sh
     set -eux
