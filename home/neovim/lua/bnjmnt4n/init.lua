@@ -229,7 +229,13 @@ require('packer').startup {
     use { 'Olical/vim-enmasse', cmd = { 'EnMasse' } }
 
     -- Convenient access to nvim terminal
-    use { 'akinsho/toggleterm.nvim', cmd = { 'ToggleTerm' } }
+    use {
+      'akinsho/toggleterm.nvim',
+      tag = 'v1.*',
+      config = function()
+        require('toggleterm').setup()
+      end,
+    }
 
     -- -- Org-mode
     -- -- TODO: setup
@@ -320,7 +326,7 @@ vim.g.lightline = {
     { 'mode', 'paste' },
     { 'gitbranch', 'readonly', 'filename', 'modified' },
   } },
-  component_function = { gitbranch = 'fugitive#head' },
+  component_function = { gitbranch = 'FugitiveHead' },
 }
 
 -- GUI font for neovide
