@@ -148,8 +148,7 @@ nvim_lsp.tsserver.setup {
       client.config.flags.allow_incremental_sync = true
     end
     -- Prevent formatting with `tsserver` so `null-ls` can do the formatting
-    client.resolved_capabilities.document_formatting = false
-    client.resolved_capabilities.document_range_formatting = false
+    client.server_capabilities.documentFormattingProvider = false
 
     local ts_utils = require 'nvim-lsp-ts-utils'
     ts_utils.setup {
