@@ -119,8 +119,12 @@ require('packer').startup {
       after = { 'telescope.nvim' },
     }
     use {
+      'nvim-telescope/telescope-ui-select.nvim',
+      after = { 'telescope.nvim' },
+    }
+    use {
       'nvim-telescope/telescope-fzf-native.nvim',
-      after = { 'telescope.nvim', 'telescope-file-browser.nvim' },
+      after = { 'telescope.nvim', 'telescope-ui-select.nvim', 'telescope-file-browser.nvim' },
       config = [[require 'bnjmnt4n.plugins.telescope']],
     }
 

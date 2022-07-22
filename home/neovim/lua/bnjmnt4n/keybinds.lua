@@ -31,7 +31,7 @@ wk.register {
 
     c = {
       name = '+code',
-      a = { [[<cmd>lua require('telescope.builtin').lsp_code_actions()<CR>]], 'Code actions' },
+      a = { [[<cmd>lua vim.lsp.buf.code_action()<CR>]], 'Code actions' },
       b = {
         [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]],
         'Document symbols',
