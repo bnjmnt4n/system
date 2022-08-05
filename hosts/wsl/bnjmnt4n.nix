@@ -11,7 +11,7 @@
     ../../home/gpg.nix
 
     ../../home/bat.nix
-    ../../home/delta.nix
+    ../../home/difftastic.nix # ../../home/delta.nix
     ../../home/tmux.nix
 
     ../../home/emacs/default.nix
