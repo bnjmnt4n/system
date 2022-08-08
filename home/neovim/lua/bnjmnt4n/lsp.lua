@@ -99,7 +99,7 @@ null_ls.setup {
 }
 
 -- Enable the following language servers
-local servers = { 'clangd', 'cssls', 'gopls', 'html', 'pyright', 'rnix', 'zls' }
+local servers = { 'clangd', 'cssls', 'gopls', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
 
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
