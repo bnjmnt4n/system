@@ -1,6 +1,6 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-; See https://github.com/hlissner/doom-emacs/blob/develop/init.example.el.
+; See https://github.com/doomemacs/doomemacs/blob/master/templates/init.example.el
 
 (doom! :completion
        company

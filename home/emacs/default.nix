@@ -13,7 +13,7 @@ let
     fi
 
     if [ $(git -C $HOME/.emacs.d rev-parse HEAD) != "${inputs.doom-emacs.rev}" ]; then
-      git -C $HOME/.emacs.d fetch https://github.com/hlissner/doom-emacs.git
+      git -C $HOME/.emacs.d fetch https://github.com/doomemacs/doomemacs.git
       git -C $HOME/.emacs.d checkout ${inputs.doom-emacs.rev}
       $HOME/.emacs.d/bin/doom sync
     fi
