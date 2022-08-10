@@ -86,6 +86,13 @@
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
       pull.rebase = true;
+
+      "url \"git@github.com:\"" = {
+        insteadOf = "gh:";
+      };
+      "url \"git@gist.github.com:\"" = {
+        insteadOf = "gist:";
+      };
     };
   };
 
