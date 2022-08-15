@@ -214,6 +214,8 @@ require('packer').startup {
         'windwp/nvim-ts-autotag',
         -- Text object mappings
         'nvim-treesitter/nvim-treesitter-textobjects',
+        -- Display code context
+        'nvim-treesitter/nvim-treesitter-context',
         -- Playground
         {
           'nvim-treesitter/playground',

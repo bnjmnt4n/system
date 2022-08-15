@@ -187,7 +187,6 @@ nvim_lsp.tailwindcss.setup {
 require('rust-tools').setup {
   tools = {
     autoSetHints = true,
-    hover_with_actions = true,
     runnables = {
       use_telescope = true,
     },
@@ -198,7 +197,10 @@ require('rust-tools').setup {
     },
   },
   server = {
-    on_attach = on_attach,
+    on_attach = function(client, bufnr)
+      on_attach(client, bufnr)
+      vim.keymap.set('n', 'K', '<cmd>RustHoverActions<CR>', { buffer = bufnr, noremap = true, silent = true })
+    end,
   },
 }
 
