@@ -44,6 +44,7 @@
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
+    anki
     fluminurs
     hledger
     restic
