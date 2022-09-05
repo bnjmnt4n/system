@@ -183,16 +183,6 @@ tasks."
             mathpix-app-id (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-id") (buffer-string))
             mathpix-app-key (with-temp-buffer (insert-file-contents "/run/secrets/mathpix-app-key") (buffer-string)))))
 
-;; Sync with Google Calendar.
-(use-package! org-gcal
-  :commands (org-gcal-sync)
-  :init
-  (map! "C-x c" #'org-gcal-sync)
-  :config
-  (setq org-gcal-client-id (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-id") (buffer-string))
-        org-gcal-client-secret (with-temp-buffer (insert-file-contents "/run/secrets/org-gcal-client-secret") (buffer-string))
-        org-gcal-fetch-file-alist `(("demoneaux@gmail.com" .  ,(concat org-directory "schedule.org")))))
-
 ;; Easy copy-and-paste/screenshot of images.
 ;; Based on https://github.com/jethrokuan/dots/blob/ecac45367275e7b020f2bba591224ba23949286e/.doom.d/config.el#L513-L549.
 (use-package! org-download
