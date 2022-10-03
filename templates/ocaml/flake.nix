@@ -19,6 +19,7 @@
             batteries
             num
             menhir
+            menhirLib
             ocaml-lsp
             ocamlformat-rpc-lib
             findlib
