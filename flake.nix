@@ -14,7 +14,7 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    emacs-overlay.url = "github:nix-community/emacs-overlay?rev=30a3d95bb4d9812e26822260b6ac45efde0d7700";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
     doom-emacs = {
       url = "github:doomemacs/doomemacs";
       flake = false;

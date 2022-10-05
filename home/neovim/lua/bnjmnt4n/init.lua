@@ -6,7 +6,8 @@
 require('packer').startup {
   function(use)
     -- Package manager
-    use 'wbthomason/packer.nvim'
+    -- Note: handled by Nix instead.
+    -- [[ use 'wbthomason/packer.nvim' ]]
 
     -- Helpful keybindings
     use {
@@ -426,7 +427,7 @@ end
 
 -- TODO: switch to new API as well
 vim.cmd [[command! -range FormatRange execute 'lua FormatRange()']]
-vim.api.nvim_create_user_command('Format', vim.lsp.buf.formatting, {})
+vim.api.nvim_create_user_command('Format', vim.lsp.buf.format, {})
 
 -- Quickfix list: `q` to quit
 local quickfixlist_group = vim.api.nvim_create_augroup('QuickfixList', { clear = true })
