@@ -17,6 +17,11 @@
         user = "tanb";
         proxyJump = "sunfire";
       };
+      "xgp??" = {
+        hostname = "%h";
+        user = "tanb";
+        proxyJump = "sunfire";
+      };
       "soctf*" = {
         hostname = "%h";
         user = "tanb";
