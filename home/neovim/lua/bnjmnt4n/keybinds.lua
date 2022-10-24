@@ -37,7 +37,7 @@ wk.register {
         'Document symbols',
       },
       d = { [[:cd %:p:h<CR>:pwd<CR>]], 'Change directory' },
-      f = { '<cmd>Format<CR>', 'Format' },
+      f = { '<cmd>lua vim.lsp.buf.format()<CR>', 'Format' },
       x = {
         [[<cmd>lua require('telescope.builtin').lsp_workspace_diagnostics()<CR>]],
         'Workspace diagnostics',
@@ -173,6 +173,10 @@ wk.register {
 }
 wk.register({
   ['<leader>y'] = { [["+y]], 'Yank from system clipboard (y)' },
+  ['<leader>c'] = {
+    name = '+code',
+    f = { 'gq', 'Format range' },
+  },
 }, {
   mode = 'v',
 })

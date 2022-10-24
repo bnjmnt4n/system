@@ -418,17 +418,6 @@ vim.keymap.set(
 -- Enter paste mode
 vim.o.pastetoggle = '<F3>'
 
--- Use LSP for formatting
-FormatRange = function()
-  local start_pos = vim.api.nvim_buf_get_mark(0, '<')
-  local end_pos = vim.api.nvim_buf_get_mark(0, '>')
-  vim.lsp.buf.range_formatting({}, start_pos, end_pos)
-end
-
--- TODO: switch to new API as well
-vim.cmd [[command! -range FormatRange execute 'lua FormatRange()']]
-vim.api.nvim_create_user_command('Format', vim.lsp.buf.format, {})
-
 -- Quickfix list: `q` to quit
 local quickfixlist_group = vim.api.nvim_create_augroup('QuickfixList', { clear = true })
 vim.api.nvim_create_autocmd('FileType', {

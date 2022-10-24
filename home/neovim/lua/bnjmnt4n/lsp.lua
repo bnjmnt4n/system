@@ -6,7 +6,7 @@
 -- - https://github.com/lukas-reineke/dotfiles/tree/master/vim/lua/lsp
 -- - https://github.com/lucax88x/configs/tree/master/dotfiles/.config/nvim/lua/lt/lsp
 
-local augroup = vim.api.nvim_create_augroup('LspFormatting', {})
+local lsp_formatting_augroup = vim.api.nvim_create_augroup('LspFormatting', {})
 
 local nvim_lsp = require 'lspconfig'
 
@@ -38,15 +38,15 @@ local on_attach = function(client, bufnr)
 
   -- Format on save: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Formatting-on-save
   if client.supports_method 'textDocument/formatting' then
-    vim.api.nvim_clear_autocmds { group = augroup, buffer = bufnr }
+    vim.api.nvim_clear_autocmds { group = lsp_formatting_augroup, buffer = bufnr }
     vim.api.nvim_create_autocmd('BufWritePre', {
-      group = augroup,
+      group = lsp_formatting_augroup,
       buffer = bufnr,
       callback = function()
         vim.lsp.buf.format {
           bufnr = bufnr,
-          filter = function(client)
-            return client.name == 'null-ls'
+          filter = function(cl)
+            return cl.name == 'null-ls'
           end,
         }
       end,
@@ -213,12 +213,12 @@ SetupJdtls = function()
   }
 end
 
-vim.cmd [[
-  augroup JavaLspSetup
-    au!
-    au FileType java lua SetupJdtls()
-  augroup end
-]]
+local java_lsp_augroup = vim.api.nvim_create_augroup('JavaLspSetup', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = java_lsp_augroup,
+  pattern = 'java',
+  callback = SetupJdtls,
+})
 
 -- Haskell
 nvim_lsp.hls.setup {
