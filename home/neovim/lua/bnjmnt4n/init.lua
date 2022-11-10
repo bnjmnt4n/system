@@ -6,8 +6,7 @@
 require('packer').startup {
   function(use)
     -- Package manager
-    -- Note: handled by Nix instead.
-    -- [[ use 'wbthomason/packer.nvim' ]]
+    use 'wbthomason/packer.nvim'
 
     -- Helpful keybindings
     use {
