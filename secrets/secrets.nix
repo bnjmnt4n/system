@@ -7,9 +7,8 @@ in
 {
   "mathpix-app-id.age".publicKeys = keys;
   "mathpix-app-key.age".publicKeys = keys;
-  "org-gcal-client-id.age".publicKeys = keys;
-  "org-gcal-client-secret.age".publicKeys = keys;
   "wireguard-private-key.age".publicKeys = keys;
+  "b2-repo.age".publicKeys = keys;
   "b2-account-id.age".publicKeys = keys;
   "b2-account-key.age".publicKeys = keys;
 }
