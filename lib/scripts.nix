@@ -37,6 +37,15 @@ rec {
     [ -f .envrc ] && direnv allow .
   '';
 
+  # TODO: setup encrypted environment variables on WSL.
+  setupResticEnv = pkgs.writeScriptBin "restic-env" ''
+    #!/usr/bin/env fish
+
+    set -x RESTIC_REPOSITORY (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-repo.age})
+    set -x B2_ACCOUNT_ID (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-account-id.age})
+    set -x B2_ACCOUNT_KEY (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-account-key.age})
+  '';
+
   backupDirectory = tarsnap: pkgs.writeShellScriptBin "backup-directory" ''
     set -euox pipefail
     ${tarsnap}/bin/tarsnap -c -f "$(basename "$1")-$(uname -n)-$(date +%Y-%m-%d_%H-%M-%S)" $1

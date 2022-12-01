@@ -1,5 +1,8 @@
 { config, lib, pkgs, ... }:
 
+let
+  scripts = import ../../lib/scripts.nix { inherit pkgs; };
+in
 {
   imports = [
     ../../home/base.nix
@@ -48,6 +51,7 @@
     fluminurs
     hledger
     restic
+    scripts.setupResticEnv
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
