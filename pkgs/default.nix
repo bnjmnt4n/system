@@ -7,6 +7,18 @@ inputs: final: prev:
   # Temporary fix for https://github.com/NixOS/nixpkgs/issues/206958.
   clisp = prev.clisp.override { readline = prev.readline6; };
 
+  # Fetch from Git until a new version is released.
+  youtube-dl = prev.youtube-dl.overrideAttrs (old: {
+    src = prev.fetchFromGitHub {
+      owner = "ytdl-org";
+      repo = "youtube-dl";
+      rev = "195f22f679330549882a8234e7234942893a4902";
+      sha256 = "bXxgY8/4LUwhyyC29AbVPnfkDFOzht/th9mboaDx55c=";
+    };
+    patches = [];
+    postInstall = "";
+  });
+
   fluminurs = prev.callPackage ./fluminurs.nix {
     src = inputs.fluminurs;
   };

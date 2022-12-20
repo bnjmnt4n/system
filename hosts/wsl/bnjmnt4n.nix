@@ -52,6 +52,7 @@ in
     hledger
     restic
     scripts.setupResticEnv
+    youtube-dl
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
