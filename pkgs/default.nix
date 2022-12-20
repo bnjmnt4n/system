@@ -4,6 +4,9 @@ inputs: final: prev:
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
   kill-focused = prev.callPackage ./kill-focused.nix { };
 
+  # Temporary fix for https://github.com/NixOS/nixpkgs/issues/206958.
+  clisp = prev.clisp.override { readline = prev.readline6; };
+
   fluminurs = prev.callPackage ./fluminurs.nix {
     src = inputs.fluminurs;
   };

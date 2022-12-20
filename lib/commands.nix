@@ -7,7 +7,7 @@ rec {
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
   browser_alt = "${pkgs.chromium}/bin/chromium";
-  emacs = "${pkgs.emacsPgtkGcc}/bin/emacsclient -c -a emacs";
+  emacs = "${pkgs.emacsPgtk}/bin/emacsclient -c -a emacs";
   editor = emacs;
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
   telegram = "${emacs} -e '(=telegram)'";
