@@ -1,4 +1,4 @@
-inputs: final: prev:
+inputs: system: final: prev:
 {
   spawn = prev.callPackage ./spawn.nix { };
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
@@ -19,6 +19,7 @@ inputs: final: prev:
     postInstall = "";
   });
 
+  imgurs = inputs.imgurs.packages."${system}".imgurs;
   fluminurs = prev.callPackage ./fluminurs.nix {
     src = inputs.fluminurs;
   };

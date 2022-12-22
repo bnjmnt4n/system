@@ -31,6 +31,10 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
+    imgurs = {
+      url = "github:bnjmnt4n/imgurs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     fluminurs = {
       url = "github:fluminurs/fluminurs";
       flake = false;
@@ -53,7 +57,7 @@
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
         inputs.tree-grepper.overlay."${system}"
-        (import ./pkgs/default.nix inputs)
+        (import ./pkgs/default.nix inputs system)
       ];
       makePkgs = system: import nixpkgs {
         inherit system;

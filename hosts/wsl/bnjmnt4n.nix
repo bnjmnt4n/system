@@ -48,6 +48,7 @@ in
 
   home.packages = with pkgs; [
     anki
+    imgurs
     fluminurs
     hledger
     restic
