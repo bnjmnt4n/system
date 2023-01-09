@@ -48,6 +48,7 @@ in
 
   home.packages = with pkgs; [
     anki
+    canvas-downloader
     imgurs
     fluminurs
     hledger

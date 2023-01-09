@@ -20,6 +20,9 @@ inputs: system: final: prev:
   });
 
   imgurs = inputs.imgurs.packages."${system}".imgurs;
+  canvas-downloader = prev.callPackage ./canvas-downloader.nix {
+    src = inputs.canvas-downloader;
+  };
   fluminurs = prev.callPackage ./fluminurs.nix {
     src = inputs.fluminurs;
   };

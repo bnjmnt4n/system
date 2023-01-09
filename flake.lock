@@ -20,6 +20,22 @@
         "type": "github"
       }
     },
+    "canvas-downloader": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1673260030,
+        "narHash": "sha256-AJVS4docTWa4XNAAFi9yj8fVaoXjBPs2etHZN2hwhMM=",
+        "owner": "bnjmnt4n",
+        "repo": "canvas-downloader",
+        "rev": "93093eb2226f8d998c312989a342c53966fd4e6d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bnjmnt4n",
+        "repo": "canvas-downloader",
+        "type": "github"
+      }
+    },
     "doom-emacs": {
       "flake": false,
       "locked": {
@@ -401,6 +417,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "canvas-downloader": "canvas-downloader",
         "doom-emacs": "doom-emacs",
         "emacs-overlay": "emacs-overlay",
         "flake-utils": "flake-utils_2",

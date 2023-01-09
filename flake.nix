@@ -35,6 +35,10 @@
       url = "github:bnjmnt4n/imgurs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    canvas-downloader = {
+      url = "github:bnjmnt4n/canvas-downloader";
+      flake = false;
+    };
     fluminurs = {
       url = "github:fluminurs/fluminurs";
       flake = false;
