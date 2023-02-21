@@ -12,9 +12,9 @@ let
       git -C $HOME/.emacs.d init
     fi
 
-    if [ $(git -C $HOME/.emacs.d rev-parse HEAD) != "${inputs.doom-emacs.rev}" ]; then
+    if [ $(git -C $HOME/.emacs.d rev-parse HEAD) != "${inputs.doomemacs.rev}" ]; then
       git -C $HOME/.emacs.d fetch https://github.com/doomemacs/doomemacs.git
-      git -C $HOME/.emacs.d checkout ${inputs.doom-emacs.rev}
+      git -C $HOME/.emacs.d checkout ${inputs.doomemacs.rev}
       $HOME/.emacs.d/bin/doom sync
     fi
   '';

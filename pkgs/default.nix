@@ -4,9 +4,6 @@ inputs: system: final: prev:
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
   kill-focused = prev.callPackage ./kill-focused.nix { };
 
-  # Temporary fix for https://github.com/NixOS/nixpkgs/issues/206958.
-  clisp = prev.clisp.override { readline = prev.readline6; };
-
   # Fetch from Git until a new version is released.
   youtube-dl = prev.youtube-dl.overrideAttrs (old: {
     src = prev.fetchFromGitHub {
@@ -15,16 +12,13 @@ inputs: system: final: prev:
       rev = "195f22f679330549882a8234e7234942893a4902";
       sha256 = "bXxgY8/4LUwhyyC29AbVPnfkDFOzht/th9mboaDx55c=";
     };
-    patches = [];
+    patches = [ ];
     postInstall = "";
   });
 
-  imgurs = inputs.imgurs.packages."${system}".imgurs;
+  imgurs = inputs.imgurs.packages."${system}".default;
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;
-  };
-  fluminurs = prev.callPackage ./fluminurs.nix {
-    src = inputs.fluminurs;
   };
   socprint = prev.callPackage ./socprint.nix {
     src = inputs.socprint;

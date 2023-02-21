@@ -56,7 +56,6 @@
     # anki
     # dropbox
     libreoffice
-    fluminurs
     # musescore
     # octave
     # pandoc

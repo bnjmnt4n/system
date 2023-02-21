@@ -2,6 +2,10 @@
 
 ; See https://github.com/doomemacs/doomemacs/blob/master/templates/init.example.el
 
+(setq native-comp-deferred-compilation nil)
+(after! (doom-packages straight)
+  (setq straight--native-comp-available t))
+
 (doom! :completion
        company
        (vertico +icons)

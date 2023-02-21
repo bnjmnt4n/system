@@ -9,24 +9,21 @@ let
           lua = pkgs.luajit;
         }
     else pkgs.neovim-nightly;
-  packerNvimSetupScript = pkgs.writeScript "packer-nvim-setup" ''
+  lazyNvimSetupScript = pkgs.writeScript "lazy-nvim-setup" ''
     #!/bin/sh
     set -eux
     export PATH="${lib.makeBinPath [ customNeovim pkgs.bash pkgs.coreutils pkgs.git ]}"
 
-    PACKER_DIR=$HOME/.local/share/nvim/site/pack/packer/start/packer.nvim
-    if [ ! -d $PACKER_DIR/.git ]; then
-      mkdir -p $PACKER_DIR
-      git -C $PACKER_DIR init
+    LAZY_DIR=$HOME/.local/share/nvim/lazy/lazy.nvim
+    if [ ! -d $LAZY_DIR/.git ]; then
+      mkdir -p $LAZY_DIR
+      git -C $LAZY_DIR init
     fi
 
-    if [ $(git -C $PACKER_DIR rev-parse HEAD) != "${inputs.packer-nvim.rev}" ]; then
-      git -C $PACKER_DIR fetch https://github.com/wbthomason/packer.nvim.git
-      git -C $PACKER_DIR checkout ${inputs.packer-nvim.rev}
+    if [ $(git -C $LAZY_DIR rev-parse HEAD) != "${inputs.lazy-nvim.rev}" ]; then
+      git -C $LAZY_DIR fetch --filter=blob:none https://github.com/folke/lazy.nvim.git
+      git -C $LAZY_DIR checkout ${inputs.lazy-nvim.rev}
     fi
-
-    # TODO
-    # nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSnapshotRollback default'
   '';
   treeSitterLanguages = [
     "bash"
@@ -66,13 +63,18 @@ let
   ];
 in
 {
-  home.activation.packerNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
-    ${packerNvimSetupScript}
+  home.activation.lazyNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" ] ''
+    ${lazyNvimSetupScript}
   '';
 
   programs.neovim = {
     enable = true;
     package = customNeovim;
+    plugins = [
+      (pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs: (map (language: pkgs."${language}") treeSitterLanguages)))
+    ];
+    withPython3 = false;
+    withRuby = false;
 
     extraConfig = ''
       " Disable default plugins
@@ -90,26 +92,8 @@ in
     '';
   };
 
-  xdg.dataFile."nvim/site/pack/packer/opt/telescope-fzf-native.nvim/build/libfzf.so".source = "${pkgs.telescope-fzf-native}/build/libfzf.so";
-
-  xdg.configFile = {
-    "nvim/lua" = {
-      source = ./lua;
-      onChange = ''
-        # TODO
-        # ${customNeovim}/bin/nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSnapshotRollback default'
-        ${customNeovim}/bin/nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-      '';
-    };
-    "nvim/plugin/packer_snapshots/default".source = ./packer-snapshot.json;
-  } // (
-    builtins.listToAttrs (map (language: {
-      name = "nvim/parser/${language}.so";
-      value = {
-        source = "${pkgs.tree-sitter.builtGrammars."tree-sitter-${language}"}/parser";
-      };
-    }) treeSitterLanguages)
-  );
+  home.file.".local/share/nvim/lazy/telescope-fzf-native.nvim/build/libfzf.so".source = "${pkgs.telescope-fzf-native}/build/libfzf.so";
+  xdg.configFile."nvim/lua".source = ./lua;
 
   # Shell aliases.
   programs.fish.shellAliases.v = "nvim";

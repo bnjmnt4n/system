@@ -15,32 +15,27 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     emacs-overlay.url = "github:nix-community/emacs-overlay";
-    doom-emacs = {
+    doomemacs = {
       url = "github:doomemacs/doomemacs";
       flake = false;
     };
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # See https://github.com/nix-community/neovim-nightly-overlay/issues/164#issuecomment-1377562202.
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs?rev=fad51abd42ca17a60fc1d4cb9382e2d79ae31836";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
-    packer-nvim = {
-      url = "github:wbthomason/packer.nvim";
+    lazy-nvim = {
+      url = "github:folke/lazy.nvim/stable";
       flake = false;
     };
     telescope-fzf-native = {
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
-    imgurs = {
-      url = "github:bnjmnt4n/imgurs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    imgurs.url = "github:bnjmnt4n/imgurs";
     canvas-downloader = {
-      url = "github:bnjmnt4n/canvas-downloader";
-      flake = false;
-    };
-    fluminurs = {
-      url = "github:fluminurs/fluminurs";
+      url = "github:k-walter/canvas-downloader";
       flake = false;
     };
     socprint = {
@@ -56,7 +51,7 @@
   outputs = { self, nixpkgs, flake-utils, agenix, nixos-hardware, home-manager, ... }@inputs:
     let
       makeOverlays = system: [
-        inputs.agenix.overlay
+        inputs.agenix.overlays.default
         inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
@@ -95,12 +90,12 @@
         home-manager.lib.homeManagerConfiguration {
           pkgs = makePkgs system;
           modules = [
-{
-          home = {
-            inherit username;
-            homeDirectory = "/home/${username}";
-          };
-}
+            {
+              home = {
+                inherit username;
+                homeDirectory = "/home/${username}";
+              };
+            }
             configuration
           ];
           extraSpecialArgs = { inherit inputs; };
@@ -174,5 +169,3 @@
       }
     );
 }
-
-

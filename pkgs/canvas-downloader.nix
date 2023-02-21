@@ -5,7 +5,7 @@ rustPlatform.buildRustPackage rec {
   version = src.rev;
   inherit src;
 
-  cargoSha256 = "sha256-OOTAfBuhjzh+UHgq34DyVucNvFZa7TV9HsXg5zYOYVU=";
+  cargoSha256 = "sha256-LQrM5gtUGVlAhR6n0gQ8epw69JUpBePqyiIQyPXT5bY=";
 
   cargoBuildFlags = [];
 

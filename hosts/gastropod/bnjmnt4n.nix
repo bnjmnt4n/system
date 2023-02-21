@@ -60,7 +60,6 @@
     dropbox
     # gimp
     libreoffice
-    fluminurs
     # musescore
     # octave
     pandoc

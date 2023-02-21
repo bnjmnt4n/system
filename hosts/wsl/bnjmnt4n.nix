@@ -50,11 +50,10 @@ in
     anki
     canvas-downloader
     imgurs
-    fluminurs
     hledger
     restic
     scripts.setupResticEnv
-    youtube-dl
+    yt-dlp
     inter
     (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];

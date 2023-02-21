@@ -5,7 +5,7 @@
 
 ;; Basic display configuration.
 (setq bnjmnt4n/is-wsl (file-exists-p "/run/WSL")
-      bnjmnt4n/monospace-font "Iosevka"
+      bnjmnt4n/monospace-font "Iosevka Nerd Font"
       bnjmnt4n/monospace-font-size (if bnjmnt4n/is-wsl 26 18)
       bnjmnt4n/serif-font (if bnjmnt4n/is-wsl "DejaVu Serif" "Libre Baskerville"))
 
