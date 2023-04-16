@@ -21,9 +21,7 @@
     };
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
-      # See https://github.com/nix-community/neovim-nightly-overlay/issues/164#issuecomment-1377562202.
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs?rev=fad51abd42ca17a60fc1d4cb9382e2d79ae31836";
-      # inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     lazy-nvim = {
       url = "github:folke/lazy.nvim/stable";
