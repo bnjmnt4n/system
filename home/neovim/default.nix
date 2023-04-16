@@ -26,6 +26,7 @@ let
     fi
   '';
   treeSitterLanguages = [
+    "astro"
     "bash"
     "c"
     "comment"
@@ -94,6 +95,7 @@ in
 
   home.file.".local/share/nvim/lazy/telescope-fzf-native.nvim/build/libfzf.so".source = "${pkgs.telescope-fzf-native}/build/libfzf.so";
   xdg.configFile."nvim/lua".source = ./lua;
+  xdg.configFile."nvim/ftdetect".source = ./ftdetect;
 
   # Shell aliases.
   programs.fish.shellAliases.v = "nvim";
