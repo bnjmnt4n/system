@@ -39,7 +39,7 @@ in
     xdg-utils
 
     # Code tools
-    comby
+    # comby
     tokei
     # TODO: there are no aarch64 binaries for tree-grepper
     # (lib.mkIf (!pkgs.stdenv.isAarch64) tree-grepper)

@@ -47,7 +47,6 @@ in
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
-    anki
     canvas-downloader
     imgurs
     hledger
@@ -62,6 +61,5 @@ in
     EDITOR = "nvim";
     VISUAL = "nvim";
     GDK_DPI_SCALE = 1.5;
-    MOZ_ENABLE_WAYLAND = 1;
   };
 }
