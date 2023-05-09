@@ -87,7 +87,8 @@ in
       let g:loaded_vimball = 1
       let g:loaded_vimballPlugin = 1
 
-      let g:slow_device = ${if pkgs.stdenv.isAarch64 then "1" else "0"}
+      " Oh god all my devices are slow tbh
+      let g:slow_device = 1
 
       lua require('bnjmnt4n')
     '';
