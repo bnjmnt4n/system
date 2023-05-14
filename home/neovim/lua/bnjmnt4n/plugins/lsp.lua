@@ -215,6 +215,7 @@ return {
   -- Inlay hints
   {
     'lvimuser/lsp-inlayhints.nvim',
+    branch = 'anticonceal',
     event = { 'BufReadPre', 'BufNewFile' },
     config = true,
   },
