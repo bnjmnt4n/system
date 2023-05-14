@@ -18,6 +18,7 @@ local on_attach = function(client, bufnr)
   })
 
   local overridden_hover = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
+  ---@diagnostic disable-next-line: duplicate-set-field
   vim.lsp.handlers['textDocument/hover'] = function(...)
     local buf = overridden_hover(...)
     -- TODO: is this correct?
@@ -26,6 +27,7 @@ local on_attach = function(client, bufnr)
     end
   end
   local overridden_signature_help = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
+  ---@diagnostic disable-next-line: duplicate-set-field
   vim.lsp.handlers['textDocument/signatureHelp'] = function(...)
     local buf = overridden_signature_help(...)
     -- TODO: is this correct?
