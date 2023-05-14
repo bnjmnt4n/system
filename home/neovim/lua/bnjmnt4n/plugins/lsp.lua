@@ -141,6 +141,20 @@ return {
         },
       }
 
+      -- ESLint
+      nvim_lsp.eslint.setup {
+        on_attach = function(client, bufnr)
+          vim.api.nvim_clear_autocmds { group = lsp_formatting_augroup, buffer = bufnr }
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            group = lsp_formatting_augroup,
+            buffer = bufnr,
+            command = 'EslintFixAll',
+          })
+          on_attach(client, bufnr)
+        end,
+        capabilities = capabilities,
+      }
+
       -- Tailwind
       nvim_lsp.tailwindcss.setup {
         on_attach = on_attach,
@@ -175,9 +189,6 @@ return {
         on_attach = on_attach,
         sources = {
           null_ls.builtins.formatting.stylua,
-          null_ls.builtins.diagnostics.eslint_d,
-          null_ls.builtins.code_actions.eslint_d,
-          null_ls.builtins.formatting.eslint_d,
           require 'typescript.extensions.null-ls.code-actions',
         },
       }
