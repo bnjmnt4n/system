@@ -13,6 +13,7 @@
   "indent-blankline.nvim": { "branch": "master", "commit": "018bd04d80c9a73d399c1061fa0c3b14a7614399" },
   "lazy.nvim": { "branch": "main", "commit": "aba872ec78ffe7f7367764ab0fff6f0170421fde" },
   "leap.nvim": { "branch": "main", "commit": "6f2912755c9c4ae790abd829f0cf1b07c037b2a4" },
+  "lsp-inlayhints.nvim": { "branch": "main", "commit": "62c7b8dd8ac9933b071912fe3c789ef2cb704672" },
   "lualine.nvim": { "branch": "master", "commit": "05d78e9fd0cdfb4545974a5aa14b1be95a86e9c9" },
   "mini.ai": { "branch": "main", "commit": "44d7df1340b16b16b27b67fba07028cb57f45408" },
   "mini.bufremove": { "branch": "main", "commit": "14805473144fffbd019d07e51bed2d176e065ee9" },

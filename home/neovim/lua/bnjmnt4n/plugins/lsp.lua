@@ -101,7 +101,7 @@ return {
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
       -- Enable the following language servers
-      local servers = { 'clangd', 'cssls', 'gopls', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
+      local servers = { 'clangd', 'cssls', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
 
       for _, lsp in ipairs(servers) do
         nvim_lsp[lsp].setup {
@@ -109,6 +109,21 @@ return {
           capabilities = capabilities,
         }
       end
+
+      -- Inlay hints
+      local inlayhints_augroup = vim.api.nvim_create_augroup('LspAttachInlayHints', {})
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = inlayhints_augroup,
+        callback = function(args)
+          if not (args.data and args.data.client_id) then
+            return
+          end
+
+          local bufnr = args.buf
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          require('lsp-inlayhints').on_attach(client, bufnr)
+        end,
+      })
 
       -- Lua
       local runtime_path = vim.split(package.path, ';')
@@ -170,6 +185,22 @@ return {
         },
       }
 
+      -- Go
+      nvim_lsp.gopls.setup {
+        on_attach = on_attach,
+        capabilities = capabilities,
+        settings = {
+          hints = {
+            assignVariableTypes = true,
+            compositeLiteralFields = true,
+            constantValues = true,
+            functionTypeParameters = true,
+            parameterNames = true,
+            rangeVariableTypes = true,
+          },
+        },
+      }
+
       -- Haskell
       nvim_lsp.hls.setup {
         cmd = { 'haskell-language-server', '--lsp' },
@@ -177,6 +208,13 @@ return {
         capabilities = capabilities,
       }
     end,
+  },
+
+  -- Inlay hints
+  {
+    'lvimuser/lsp-inlayhints.nvim',
+    event = { 'BufReadPre', 'BufNewFile' },
+    config = true,
   },
 
   -- Nvim-based language server + diagnostics
@@ -217,6 +255,32 @@ return {
             on_attach(client, bufnr)
           end,
           capabilities = require('cmp_nvim_lsp').default_capabilities(),
+          settings = {
+            typescript = {
+              inlayHints = {
+                includeInlayParameterNameHints = 'all',
+                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                includeInlayFunctionParameterTypeHints = true,
+                includeInlayVariableTypeHints = true,
+                includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+                includeInlayPropertyDeclarationTypeHints = true,
+                includeInlayFunctionLikeReturnTypeHints = true,
+                includeInlayEnumMemberValueHints = true,
+              },
+            },
+            javascript = {
+              inlayHints = {
+                includeInlayParameterNameHints = 'all',
+                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                includeInlayFunctionParameterTypeHints = true,
+                includeInlayVariableTypeHints = true,
+                includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+                includeInlayPropertyDeclarationTypeHints = true,
+                includeInlayFunctionLikeReturnTypeHints = true,
+                includeInlayEnumMemberValueHints = true,
+              },
+            },
+          },
         },
       }
     end,
@@ -233,9 +297,7 @@ return {
           use_telescope = true,
         },
         inlay_hints = {
-          show_parameter_hints = true,
-          parameter_hints_prefix = ' <-',
-          other_hints_prefix = ' =>',
+          auto = false,
         },
       },
       server = {

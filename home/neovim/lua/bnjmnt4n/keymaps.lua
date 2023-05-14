@@ -142,6 +142,7 @@ end
 -- stylua: ignore start
 map('n', '<leader>ts', function() toggle 'spell' end, { desc = 'Toggle spelling' })
 map('n', '<leader>tw', function() toggle 'wrap' end, { desc = 'Toggle word wrap' })
+map('n', '<leader>th', function() require('lsp-inlayhints').toggle() end, { desc = 'Toggle LSP inlay hints' })
 -- stylua: ignore end
 
 map('n', '<leader>tl', function()
