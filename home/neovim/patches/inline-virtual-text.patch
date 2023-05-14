@@ -1,0 +1,3163 @@
+From 0b749d72849680e5bb87e75924651fd07ee227d6 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 16:31:08 +1100
+Subject: [PATCH 01/24] feat(ui): inline virtual text
+
+vim-patch:9.0.0067: cannot show virtual text
+
+Problem:    Cannot show virtual text.
+Solution:   Initial changes for virtual text support, using text properties.
+
+https://github.com/vim/vim/commit/7f9969c559b51446632ac7e8f76cde07e7d0078d
+
+vim-patch:9.0.0116: virtual text not displayed if 'signcolumn' is "yes"
+
+Problem:    Virtual text not displayed if 'signcolumn' is "yes".
+Solution:   Set c_extra and c_final to NUL.
+https://github.com/vim/vim/commit/711483cd1381a4ed848d783ae0a6792d5b04447b
+
+Co-authored-by: bfredl <bjorn.linse@gmail.com>
+---
+ src/nvim/api/extmark.c                  |  4 ++
+ src/nvim/decoration.h                   |  5 +-
+ src/nvim/drawline.c                     | 49 +++++++++++++--
+ src/nvim/plines.c                       | 27 ++++++++-
+ src/nvim/plines.h                       |  2 +
+ test/functional/ui/decorations_spec.lua | 79 +++++++++++++++++++++++++
+ 6 files changed, 158 insertions(+), 8 deletions(-)
+
+diff --git a/src/nvim/api/extmark.c b/src/nvim/api/extmark.c
+index 87232a8a93e41..9214d4e1f18b8 100644
+--- a/src/nvim/api/extmark.c
++++ b/src/nvim/api/extmark.c
+@@ -479,6 +479,8 @@ Array nvim_buf_get_extmarks(Buffer buffer, Integer ns_id, Object start, Object e
+ ///                 - "overlay": display over the specified column, without
+ ///                              shifting the underlying text.
+ ///                 - "right_align": display right aligned in the window.
++///                 - "inline": display at the specified column, and
++///                              shift the buffer text to the right as needed
+ ///               - virt_text_win_col : position the virtual text at a fixed
+ ///                                     window column (starting from the first
+ ///                                     text column)
+@@ -697,6 +699,8 @@ Integer nvim_buf_set_extmark(Buffer buffer, Integer ns_id, Integer line, Integer
+       decor.virt_text_pos = kVTOverlay;
+     } else if (strequal("right_align", str.data)) {
+       decor.virt_text_pos = kVTRightAlign;
++    } else if (strequal("inline", str.data)) {
++      decor.virt_text_pos = kVTInline;
+     } else {
+       VALIDATE_S(false, "virt_text_pos", "", {
+         goto error;
+diff --git a/src/nvim/decoration.h b/src/nvim/decoration.h
+index 92001d496d9ed..9935c60317ee1 100644
+--- a/src/nvim/decoration.h
++++ b/src/nvim/decoration.h
+@@ -23,9 +23,12 @@ typedef enum {
+   kVTOverlay,
+   kVTWinCol,
+   kVTRightAlign,
++  kVTInline,
+ } VirtTextPos;
+ 
+-EXTERN const char *const virt_text_pos_str[] INIT(= { "eol", "overlay", "win_col", "right_align" });
++EXTERN const char *const virt_text_pos_str[] INIT(=
++                                                  { "eol", "overlay", "win_col", "right_align",
++                                                    "inline" });
+ 
+ typedef enum {
+   kHlModeUnknown,
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index e6cdf3d60d887..4ecb20162af2b 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1030,6 +1030,9 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   int left_curline_col = 0;
+   int right_curline_col = 0;
+ 
++  VirtText virt_inline = KV_INITIAL_VALUE;
++  size_t virt_inline_i = 0;
++
+   int match_conc      = 0;              ///< cchar for match functions
+   bool on_last_col    = false;
+   int syntax_flags    = 0;
+@@ -1705,7 +1708,9 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       wlv.n_extra = 0;
+     }
+ 
+-    if (wlv.draw_state == WL_LINE && (area_highlighting || has_spell)) {
++    int extmark_attr = 0;
++    if (wlv.draw_state == WL_LINE
++        && (area_highlighting || has_spell || (extra_check && !has_fold))) {
+       // handle Visual or match highlighting in this line
+       if (wlv.vcol == wlv.fromcol
+           || (wlv.vcol + 1 == wlv.fromcol && wlv.n_extra == 0
+@@ -1786,6 +1791,44 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           wlv.char_attr = 0;
+         }
+       }
++
++      if (has_decor && v >= 0) {
++        bool selected = (area_active || (area_highlighting && noinvcur
++                                         && wlv.vcol == wp->w_virtcol));
++        extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off,
++                                            selected, &decor_state);
++
++        // we could already be inside an existing virt_line with multiple chunks
++        if (!(virt_inline_i < kv_size(virt_inline))) {
++          DecorState *state = &decor_state;
++          for (size_t i = 0; i < kv_size(state->active); i++) {
++            DecorRange *item = &kv_A(state->active, i);
++            if (!(item->start_row == state->row
++                  && kv_size(item->decor.virt_text)
++                  && item->decor.virt_text_pos == kVTInline)) {
++              continue;
++            }
++            if (item->win_col >= -1 && item->start_col <= v) {
++              virt_inline = item->decor.virt_text;
++              virt_inline_i = 0;
++              item->win_col = -2;
++              break;
++            }
++          }
++        }
++
++        if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
++          VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
++          wlv.p_extra = vtc.text;
++          wlv.n_extra = (int)strlen(wlv.p_extra);
++          wlv.c_extra = NUL;
++          wlv.c_final = NUL;
++          wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
++          n_attr = wlv.n_extra;
++          extmark_attr = 0;
++          virt_inline_i++;
++        }
++      }
+     }
+ 
+     // Get the next character to put on the screen.
+@@ -2018,10 +2061,6 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         }
+ 
+         if (has_decor && v > 0) {
+-          bool selected = (area_active || (area_highlighting && noinvcur
+-                                           && wlv.vcol == wp->w_virtcol));
+-          int extmark_attr = decor_redraw_col(wp, (colnr_T)v - 1, wlv.off,
+-                                              selected, &decor_state);
+           if (extmark_attr != 0) {
+             if (!attr_pri) {
+               wlv.char_attr = hl_combine_attr(wlv.char_attr, extmark_attr);
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index 3e69e547cb36d..7174c39f6051b 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -304,8 +304,16 @@ void init_chartabsize_arg(chartabsize_T *cts, win_T *wp, linenr_T lnum FUNC_ATTR
+   cts->cts_line = line;
+   cts->cts_ptr = ptr;
+   cts->cts_cur_text_width = 0;
+-  // TODO(bfredl): actually lookup inline virtual text here
+   cts->cts_has_virt_text = false;
++  cts->cts_row = lnum - 1;
++
++  if (cts->cts_row >= 0) {
++    marktree_itr_get(wp->w_buffer->b_marktree, cts->cts_row, 0, cts->cts_iter);
++    mtkey_t mark = marktree_itr_current(cts->cts_iter);
++    if (mark.pos.row == lnum-1) {
++      cts->cts_has_virt_text = true;
++    }
++  }
+ }
+ 
+ /// Free any allocated item in "cts".
+@@ -383,7 +391,22 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+   // First get normal size, without 'linebreak' or virtual text
+   int size = win_chartabsize(wp, s, vcol);
+   if (cts->cts_has_virt_text) {
+-    // TODO(bfredl): inline virtual text
++    int col = (int)(s - line);
++    while (true) {
++      mtkey_t mark = marktree_itr_current(cts->cts_iter);
++      if (mark.pos.row != cts->cts_row || mark.pos.col > col) {
++        break;
++      } else if (mark.pos.col == col) { // TODO: or maybe unconditionally, what if byte-misaligned?
++        if (!mt_end(mark)) {
++          Decoration decor = get_decor(mark);
++          if (decor.virt_text_pos == kVTInline) {
++            cts->cts_cur_text_width = decor.virt_text_width;
++            size += cts->cts_cur_text_width;
++          }
++        }
++      }
++      marktree_itr_next(wp->w_buffer->b_marktree, cts->cts_iter);
++    }
+   }
+ 
+   int c = (uint8_t)(*s);
+diff --git a/src/nvim/plines.h b/src/nvim/plines.h
+index 808f6d284e01a..a15c234bbaf9a 100644
+--- a/src/nvim/plines.h
++++ b/src/nvim/plines.h
+@@ -11,9 +11,11 @@ typedef struct {
+   win_T *cts_win;
+   char *cts_line;    // start of the line
+   char *cts_ptr;     // current position in line
++  int cts_row;
+ 
+   bool cts_has_virt_text;  // true if if a property inserts text
+   int cts_cur_text_width;     // width of current inserted text
++  MarkTreeIter cts_iter[1];
+   // TODO(bfredl): iterator in to the marktree for scanning virt text
+ 
+   int cts_vcol;    // virtual column at current position
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index f531878bc6ffb..4a578ab43a63d 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -645,6 +645,7 @@ describe('extmark decorations', function()
+       [25] = {background = Screen.colors.LightRed};
+       [26] = {background=Screen.colors.DarkGrey, foreground=Screen.colors.LightGrey};
+       [27] = {background = Screen.colors.Plum1};
++      [28] = {foreground = Screen.colors.SlateBlue};
+     }
+ 
+     ns = meths.create_namespace 'test'
+@@ -1166,6 +1167,84 @@ end]]
+     screen:expect_unchanged(true)
+   end)
+ 
++  it('can have virtual text of inline position', function()
++    insert(example_text)
++    feed 'gg'
++    screen:expect{grid=[[
++      ^for _,item in ipairs(items) do                    |
++          local text, hl_id_cell, count = unpack(item)  |
++          if hl_id_cell ~= nil then                     |
++              hl_id = hl_id_cell                        |
++          end                                           |
++          for _ = 1, (count or 1) do                    |
++              local cell = line[colpos]                 |
++              cell.text = text                          |
++              cell.hl_id = hl_id                        |
++              colpos = colpos+1                         |
++          end                                           |
++      end                                               |
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++    ]]}
++
++    meths.buf_set_extmark(0, ns, 1, 14, {virt_text={{': ', 'Special'}, {'string', 'Type'}}, virt_text_pos='inline'})
++    screen:expect{grid=[[
++      ^for _,item in ipairs(items) do                    |
++          local text{28:: }{3:string}, hl_id_cell, count = unpack|
++      (item)                                            |
++          if hl_id_cell ~= nil then                     |
++              hl_id = hl_id_cell                        |
++          end                                           |
++          for _ = 1, (count or 1) do                    |
++              local cell = line[colpos]                 |
++              cell.text = text                          |
++              cell.hl_id = hl_id                        |
++              colpos = colpos+1                         |
++          end                                           |
++      end                                               |
++      {1:~                                                 }|
++                                                        |
++    ]]}
++
++    screen:try_resize(55, 15)
++    screen:expect{grid=[[
++      ^for _,item in ipairs(items) do                         |
++          local text{28:: }{3:string}, hl_id_cell, count = unpack(item|
++      )                                                      |
++          if hl_id_cell ~= nil then                          |
++              hl_id = hl_id_cell                             |
++          end                                                |
++          for _ = 1, (count or 1) do                         |
++              local cell = line[colpos]                      |
++              cell.text = text                               |
++              cell.hl_id = hl_id                             |
++              colpos = colpos+1                              |
++          end                                                |
++      end                                                    |
++      {1:~                                                      }|
++                                                             |
++    ]]}
++
++    screen:try_resize(56, 15)
++    screen:expect{grid=[[
++      ^for _,item in ipairs(items) do                          |
++          local text{28:: }{3:string}, hl_id_cell, count = unpack(item)|
++          if hl_id_cell ~= nil then                           |
++              hl_id = hl_id_cell                              |
++          end                                                 |
++          for _ = 1, (count or 1) do                          |
++              local cell = line[colpos]                       |
++              cell.text = text                                |
++              cell.hl_id = hl_id                              |
++              colpos = colpos+1                               |
++          end                                                 |
++      end                                                     |
++      {1:~                                                       }|
++      {1:~                                                       }|
++                                                              |
++    ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From edfe1749765e1bfeee5a3dd6f9cc26f6e131be52 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 17:37:28 +1100
+Subject: [PATCH 02/24] fix(ui): fix cursor position with multiple inline
+ virtual text
+
+vim-patch9.0.0121: cannot put virtual text after or below a line
+
+Problem:    Cannot put virtual text after or below a line.
+Solution:   Add "text_align" and "text_wrap" arguments.
+
+https://github.com/vim/vim/commit/b7963df98f9dbbb824713acad2f47c9989fcf8f3
+
+This only patches the fix, not the whole thing.
+---
+ src/nvim/drawline.c                     |  3 +--
+ src/nvim/plines.c                       |  9 +++++----
+ test/functional/ui/decorations_spec.lua | 27 +++++++++++++++++++++++++
+ 3 files changed, 33 insertions(+), 6 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 4ecb20162af2b..659d0e17b7685 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1795,8 +1795,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       if (has_decor && v >= 0) {
+         bool selected = (area_active || (area_highlighting && noinvcur
+                                          && wlv.vcol == wp->w_virtcol));
+-        extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off,
+-                                            selected, &decor_state);
++        extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off, selected, &decor_state);
+ 
+         // we could already be inside an existing virt_line with multiple chunks
+         if (!(virt_inline_i < kv_size(virt_inline))) {
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index 7174c39f6051b..ecb2b95f08eb9 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -310,7 +310,7 @@ void init_chartabsize_arg(chartabsize_T *cts, win_T *wp, linenr_T lnum FUNC_ATTR
+   if (cts->cts_row >= 0) {
+     marktree_itr_get(wp->w_buffer->b_marktree, cts->cts_row, 0, cts->cts_iter);
+     mtkey_t mark = marktree_itr_current(cts->cts_iter);
+-    if (mark.pos.row == lnum-1) {
++    if (mark.pos.row == lnum - 1) {
+       cts->cts_has_virt_text = true;
+     }
+   }
+@@ -396,12 +396,13 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+       mtkey_t mark = marktree_itr_current(cts->cts_iter);
+       if (mark.pos.row != cts->cts_row || mark.pos.col > col) {
+         break;
+-      } else if (mark.pos.col == col) { // TODO: or maybe unconditionally, what if byte-misaligned?
++      } else if (mark.pos.col
++                 == col) {  // TODO(bfredl): or maybe unconditionally, what if byte-misaligned?
+         if (!mt_end(mark)) {
+           Decoration decor = get_decor(mark);
+           if (decor.virt_text_pos == kVTInline) {
+-            cts->cts_cur_text_width = decor.virt_text_width;
+-            size += cts->cts_cur_text_width;
++            cts->cts_cur_text_width += decor.virt_text_width;
++            size += decor.virt_text_width;
+           }
+         }
+       }
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 4a578ab43a63d..7afa90b0c90a5 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1245,6 +1245,33 @@ end]]
+                                                               |
+     ]]}
+   end)
++
++  it('cursor positions are correct with multiple inline virtual text', function()
++    insert('12345678')
++    meths.buf_set_extmark(0, ns, 0, 4,
++        { virt_text = { { ' virtual text ', 'Special' } }, virt_text_pos = 'inline' })
++    meths.buf_set_extmark(0, ns, 0, 4,
++        { virt_text = { { ' virtual text ', 'Special' } }, virt_text_pos = 'inline' })
++    feed '^'
++    feed '4l'
++        screen:expect { grid = [[
++      1234{28: virtual text  virtual text }^5678              |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 1c8f4b0713525fce96d51fa8a1979dc9209843f7 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 18:32:44 +1100
+Subject: [PATCH 03/24] vim-patch:9.0.0130: cursor position wrong when
+ inserting around virtual text
+
+Problem:    Cursor position wrong when inserting around virtual text.
+Solution:   Update the cursor position properly.
+
+https://github.com/vim/vim/commit/1f4ee19eefecd8f70b7cbe8ee9db8ace6352e23e
+---
+ src/nvim/buffer_defs.h | 1 +
+ src/nvim/decoration.c  | 4 ++++
+ src/nvim/edit.c        | 4 ++--
+ src/nvim/extmark.c     | 3 +++
+ 4 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/nvim/buffer_defs.h b/src/nvim/buffer_defs.h
+index ce8ee2188223c..6d3fc2091906d 100644
+--- a/src/nvim/buffer_defs.h
++++ b/src/nvim/buffer_defs.h
+@@ -808,6 +808,7 @@ struct file_buffer {
+ 
+   MarkTree b_marktree[1];
+   Map(uint32_t, uint32_t) b_extmark_ns[1];         // extmark namespaces
++  size_t b_virt_text;           // number of virtual texts
+   size_t b_virt_line_blocks;    // number of virt_line blocks
+   size_t b_signs;               // number of sign extmarks
+   size_t b_signs_with_text;     // number of sign extmarks with text
+diff --git a/src/nvim/decoration.c b/src/nvim/decoration.c
+index 87e4441f32a52..46f641dfb26f9 100644
+--- a/src/nvim/decoration.c
++++ b/src/nvim/decoration.c
+@@ -95,6 +95,10 @@ void decor_remove(buf_T *buf, int row, int row2, Decoration *decor)
+ {
+   decor_redraw(buf, row, row2, decor);
+   if (decor) {
++    if (kv_size(decor->virt_text)) {
++      assert(buf->b_virt_text > 0);
++      buf->b_virt_text--;
++    }
+     if (kv_size(decor->virt_lines)) {
+       assert(buf->b_virt_line_blocks > 0);
+       buf->b_virt_line_blocks--;
+diff --git a/src/nvim/edit.c b/src/nvim/edit.c
+index 2078fc425121c..f0266f31795fb 100644
+--- a/src/nvim/edit.c
++++ b/src/nvim/edit.c
+@@ -232,7 +232,7 @@ static void insert_enter(InsertState *s)
+   stop_insert_mode = false;
+ 
+   // need to position cursor again when on a TAB
+-  if (gchar_cursor() == TAB) {
++  if (gchar_cursor() == TAB || curbuf->b_virt_text > 0) {
+     curwin->w_valid &= ~(VALID_WROW|VALID_WCOL|VALID_VIRTCOL);
+   }
+ 
+@@ -3469,7 +3469,7 @@ static bool ins_esc(long *count, int cmdchar, bool nomove)
+   State = MODE_NORMAL;
+   may_trigger_modechanged();
+   // need to position cursor again when on a TAB
+-  if (gchar_cursor() == TAB) {
++  if (gchar_cursor() == TAB || curbuf->b_virt_text > 0) {
+     curwin->w_valid &= ~(VALID_WROW|VALID_WCOL|VALID_VIRTCOL);
+   }
+ 
+diff --git a/src/nvim/extmark.c b/src/nvim/extmark.c
+index 727be1562cadc..7665763fc52ca 100644
+--- a/src/nvim/extmark.c
++++ b/src/nvim/extmark.c
+@@ -153,6 +153,9 @@ void extmark_set(buf_T *buf, uint32_t ns_id, uint32_t *idp, int row, colnr_T col
+   }
+ 
+   if (decor) {
++    if (kv_size(decor->virt_text)) {
++      buf->b_virt_text++;
++    }
+     if (kv_size(decor->virt_lines)) {
+       buf->b_virt_line_blocks++;
+     }
+
+From be7a4a0b55ecba996e259ff2865d5ed8593c839a Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 18:50:45 +1100
+Subject: [PATCH 04/24] fix(ui): adjust the cursor when inserting virtual text
+
+Credit to: Jesse Bakker
+
+https://github.com/neovim/neovim/pull/20130#issuecomment-1369652743
+
+Co-authored-by: Jesse Bakker <github@jessebakker.com>
+---
+ src/nvim/decoration.c                   |  3 +++
+ test/functional/ui/decorations_spec.lua | 26 +++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+
+diff --git a/src/nvim/decoration.c b/src/nvim/decoration.c
+index 46f641dfb26f9..0f1bd282f23c2 100644
+--- a/src/nvim/decoration.c
++++ b/src/nvim/decoration.c
+@@ -83,6 +83,9 @@ void decor_redraw(buf_T *buf, int row1, int row2, Decoration *decor)
+ 
+   if (decor && decor_virt_pos(*decor)) {
+     redraw_buf_line_later(buf, row1 + 1, false);
++    if (decor->virt_text_pos == kVTInline) {
++      changed_line_display_buf(buf);
++    }
+   }
+ 
+   if (decor && kv_size(decor->virt_lines)) {
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 7afa90b0c90a5..eca69db992311 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1272,6 +1272,32 @@ end]]
+                                                         |
+       ]]}
+   end)
++
++  it('adjusts cursor location correctly when inserting around inline virtual text', function()
++        insert('12345678')
++        feed '$'
++        meths.buf_set_extmark(0, ns, 0, 4,
++            { virt_text = { { ' virtual text ', 'Special' } }, virt_text_pos = 'inline' })
++
++        screen:expect { grid = [[
++      1234{28: virtual text }567^8                            |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]
++        }
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From f08760c53e0ac8e0a1ad4d60189f9d7b870e96b7 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 20:31:52 +1100
+Subject: [PATCH 05/24] fix(ui): fix multi-byte characters highlight in virtual
+ text
+
+This also fixes insert cursor position around virtual text
+
+vim-patch:9.0.0132: multi-byte characters in virtual text not handled correctly
+
+Problem:    Multi-byte characters in virtual text not handled correctly.
+Solution:   Count screen cells instead of bytes.
+
+https://github.com/vim/vim/commit/09ff4b54fb86a64390ba9c609853c6410ea6197c
+---
+ src/nvim/charset.c                      |  6 +-
+ src/nvim/drawline.c                     |  2 +-
+ test/functional/ui/decorations_spec.lua | 84 ++++++++++++++++++++++---
+ 3 files changed, 82 insertions(+), 10 deletions(-)
+
+diff --git a/src/nvim/charset.c b/src/nvim/charset.c
+index 8cae83188132b..48a38dd3d3e45 100644
+--- a/src/nvim/charset.c
++++ b/src/nvim/charset.c
+@@ -1079,8 +1079,10 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+   }
+ 
+   if (cursor != NULL) {
+-    // cursor is after inserted text
+-    vcol += cts.cts_cur_text_width;
++    if ((State & MODE_INSERT) == 0) {
++      // cursor is after inserted text
++      vcol += cts.cts_cur_text_width;
++    }
+     if ((*ptr == TAB)
+         && (State & MODE_NORMAL)
+         && !wp->w_p_list
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 659d0e17b7685..555f0c3395f64 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1823,7 +1823,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           wlv.c_extra = NUL;
+           wlv.c_final = NUL;
+           wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
+-          n_attr = wlv.n_extra;
++          n_attr = mb_charlen(vtc.text);
+           extmark_attr = 0;
+           virt_inline_i++;
+         }
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index eca69db992311..3d9549f3b8df9 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1254,7 +1254,7 @@ end]]
+         { virt_text = { { ' virtual text ', 'Special' } }, virt_text_pos = 'inline' })
+     feed '^'
+     feed '4l'
+-        screen:expect { grid = [[
++    screen:expect { grid = [[
+       1234{28: virtual text  virtual text }^5678              |
+       {1:~                                                 }|
+       {1:~                                                 }|
+@@ -1274,12 +1274,12 @@ end]]
+   end)
+ 
+   it('adjusts cursor location correctly when inserting around inline virtual text', function()
+-        insert('12345678')
+-        feed '$'
+-        meths.buf_set_extmark(0, ns, 0, 4,
++    insert('12345678')
++    feed '$'
++    meths.buf_set_extmark(0, ns, 0, 4,
+             { virt_text = { { ' virtual text ', 'Special' } }, virt_text_pos = 'inline' })
+ 
+-        screen:expect { grid = [[
++    screen:expect { grid = [[
+       1234{28: virtual text }567^8                            |
+       {1:~                                                 }|
+       {1:~                                                 }|
+@@ -1295,8 +1295,78 @@ end]]
+       {1:~                                                 }|
+       {1:~                                                 }|
+                                                         |
+-      ]]
+-        }
++      ]]}
++  end)
++
++  it('has correct highlighting with multi-byte characters in inline virtual text', function()
++    insert('12345678')
++    meths.buf_set_extmark(0, ns, 0, 4,
++            { virt_text = { { 'múlti-byté chñröcters 修补', 'Special' } }, virt_text_pos = 'inline' })
++
++    screen:expect { grid = [[
++      1234{28:múlti-byté chñröcters 修补}567^8                |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
++
++  it('has correct cursor position when inserting around virtual text', function()
++    insert('12345678')
++    meths.buf_set_extmark(0, ns, 0, 4,
++            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    feed '^'
++    feed '3l'
++    feed 'a'
++    screen:expect { grid = [[
++      1234{28:^virtual text}5678                              |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {24:-- INSERT --}                                      |
++      ]]}
++    feed '<ESC>'
++    feed '^'
++    feed '4l'
++    feed 'i'
++    screen:expect { grid = [[
++      1234{28:^virtual text}5678                              |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {24:-- INSERT --}                                      |
++      ]]}
+   end)
+ end)
+ 
+
+From 38b13cd33b6c27e42676c036b5b56fafec8cbb0b Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 26 Mar 2023 00:10:28 +1100
+Subject: [PATCH 06/24] vim-patch:9.0.0143: cursor positioned after virtual
+ text in empty line
+
+Problem:    Cursor positioned after virtual text in empty line.
+Solution:   Keep cursor in the first column. (closes vim/vim#10786)
+
+https://github.com/vim/vim/commit/afd2aa79eda3fe69f2e7c87d0b9b4bca874f386a
+---
+ src/nvim/plines.c                       |  2 +-
+ test/functional/ui/decorations_spec.lua | 22 ++++++++++++++++++++++
+ 2 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index ecb2b95f08eb9..8dc4882d0be4f 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -390,7 +390,7 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+ 
+   // First get normal size, without 'linebreak' or virtual text
+   int size = win_chartabsize(wp, s, vcol);
+-  if (cts->cts_has_virt_text) {
++  if (cts->cts_has_virt_text && *line != NUL) {
+     int col = (int)(s - line);
+     while (true) {
+       mtkey_t mark = marktree_itr_current(cts->cts_iter);
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 3d9549f3b8df9..9d37b10f1295a 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1368,6 +1368,28 @@ end]]
+       {24:-- INSERT --}                                      |
+       ]]}
+   end)
++
++  it('has correct cursor position with virtual text on an empty line', function()
++    meths.buf_set_extmark(0, ns, 0, 0,
++            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    screen:expect { grid = [[
++      {28:^virtual text}                                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 48e161594ca2aac8f33befcb1636439cb50bdc4e Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 26 Mar 2023 14:49:09 +1100
+Subject: [PATCH 07/24] vim-patch:9.0.0179: cursor pos wrong with wrapping
+ virtual text in empty line
+
+Problem:    Cursor position wrong with wrapping virtual text in empty line.
+Solution:   Adjust handling of an empty line. (closes vim/vim#10875)
+
+https://github.com/vim/vim/commit/49a90792d950c51608d0459ef8699fe921070718
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/charset.c                      |  9 ++-
+ src/nvim/plines.c                       | 42 +++++++++---
+ test/functional/ui/decorations_spec.lua | 86 +++++++++++++++++++++++++
+ 3 files changed, 125 insertions(+), 12 deletions(-)
+
+diff --git a/src/nvim/charset.c b/src/nvim/charset.c
+index 48a38dd3d3e45..3b48392d49dfb 100644
+--- a/src/nvim/charset.c
++++ b/src/nvim/charset.c
+@@ -989,6 +989,7 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+   }
+ 
+   chartabsize_T cts;
++  bool on_NUL = false;
+   init_chartabsize_arg(&cts, wp, pos->lnum, 0, line, line);
+ 
+   // This function is used very often, do some speed optimizations.
+@@ -1054,6 +1055,10 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+       if (*cts.cts_ptr == NUL) {
+         // NUL at end of line only takes one column
+         incr = 1;
++        if (cts.cts_cur_text_width > 0) {
++          incr = cts.cts_cur_text_width;
++        }
++        on_NUL = true;
+         break;
+       }
+ 
+@@ -1079,8 +1084,8 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+   }
+ 
+   if (cursor != NULL) {
+-    if ((State & MODE_INSERT) == 0) {
+-      // cursor is after inserted text
++    if ((State & MODE_INSERT) == 0 && !on_NUL) {
++      // cursor is after inserted text, unless on the NUL
+       vcol += cts.cts_cur_text_width;
+     }
+     if ((*ptr == TAB)
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index 8dc4882d0be4f..fec47583f395d 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -102,12 +102,16 @@ int plines_win_nofold(win_T *wp, linenr_T lnum)
+   char *s;
+   unsigned col;
+   int width;
++  chartabsize_T cts;
+ 
+   s = ml_get_buf(wp->w_buffer, lnum, false);
+-  if (*s == NUL) {  // empty line
+-    return 1;
++  init_chartabsize_arg(&cts, wp, lnum, 0, s, s);
++  if (*s == NUL && !cts.cts_has_virt_text) {
++    return 1;  // be quick for an empty line
+   }
+-  col = win_linetabsize(wp, lnum, s, MAXCOL);
++  win_linetabsize_cts(&cts, (colnr_T)MAXCOL);
++  clear_chartabsize_arg(&cts);
++  col = (unsigned)cts.cts_vcol;
+ 
+   // If list mode is on, then the '$' at the end of the line may take up one
+   // extra column.
+@@ -262,6 +266,11 @@ int linetabsize_col(int startcol, char *s)
+   while (*cts.cts_ptr != NUL) {
+     cts.cts_vcol += lbr_chartabsize_adv(&cts);
+   }
++  if (cts.cts_has_virt_text && cts.cts_ptr == cts.cts_line) {
++    // check for virtual text in an empty line
++    (void)lbr_chartabsize_adv(&cts);
++    cts.cts_vcol += cts.cts_cur_text_width;
++  }
+   clear_chartabsize_arg(&cts);
+   return cts.cts_vcol;
+ }
+@@ -277,10 +286,7 @@ unsigned win_linetabsize(win_T *wp, linenr_T lnum, char *line, colnr_T len)
+ {
+   chartabsize_T cts;
+   init_chartabsize_arg(&cts, wp, lnum, 0, line, line);
+-  for (; *cts.cts_ptr != NUL && (len == MAXCOL || cts.cts_ptr < line + len);
+-       MB_PTR_ADV(cts.cts_ptr)) {
+-    cts.cts_vcol += win_lbr_chartabsize(&cts, NULL);
+-  }
++  win_linetabsize_cts(&cts, len);
+   clear_chartabsize_arg(&cts);
+   return (unsigned)cts.cts_vcol;
+ }
+@@ -292,6 +298,20 @@ unsigned     linetabsize(win_T *wp, linenr_T lnum)
+   return win_linetabsize(wp, lnum, ml_get_buf(wp->w_buffer, lnum, false), (colnr_T)MAXCOL);
+ }
+ 
++void win_linetabsize_cts(chartabsize_T *cts, colnr_T len)
++{
++  for (; *cts->cts_ptr != NUL && (len == MAXCOL || cts->cts_ptr < cts->cts_line + len);
++       MB_PTR_ADV(cts->cts_ptr)) {
++    cts->cts_vcol += win_lbr_chartabsize(cts, NULL);
++  }
++  // check for a virtual text on an empty line
++  if (cts->cts_has_virt_text && *cts->cts_ptr == NUL
++      && cts->cts_ptr == cts->cts_line) {
++    (void)win_lbr_chartabsize(cts, NULL);
++    cts->cts_vcol += cts->cts_cur_text_width;
++  }
++}
++
+ /// Prepare the structure passed to chartabsize functions.
+ ///
+ /// "line" is the start of the line, "ptr" is the first relevant character.
+@@ -390,14 +410,16 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+ 
+   // First get normal size, without 'linebreak' or virtual text
+   int size = win_chartabsize(wp, s, vcol);
+-  if (cts->cts_has_virt_text && *line != NUL) {
++  if (cts->cts_has_virt_text) {
++    int charlen = *s == NUL ? 1 : utf_ptr2len(s);
+     int col = (int)(s - line);
+     while (true) {
+       mtkey_t mark = marktree_itr_current(cts->cts_iter);
+       if (mark.pos.row != cts->cts_row || mark.pos.col > col) {
+         break;
+-      } else if (mark.pos.col
+-                 == col) {  // TODO(bfredl): or maybe unconditionally, what if byte-misaligned?
++      } else if (mark.pos.col >= col
++                 && mark.pos.col < col + charlen) {  // TODO(bfredl): or maybe unconditionally, what
++                                                     // if byte-misaligned?
+         if (!mt_end(mark)) {
+           Decoration decor = get_decor(mark);
+           if (decor.virt_text_pos == kVTInline) {
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 9d37b10f1295a..3890882ea20a4 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1390,6 +1390,92 @@ end]]
+                                                         |
+       ]]}
+   end)
++
++  it('text is drawn correctly when inserting a wrapping virtual text on an empty line', function()
++    feed('o<esc>')
++    insert([[aaaaaaa
++
++bbbbbbb]])
++    meths.buf_set_extmark(0, ns, 0, 0,
++            { virt_text = { { string.rep('X', 51), 'Special' } }, virt_text_pos = 'inline' })
++    meths.buf_set_extmark(0, ns, 2, 0,
++            { virt_text = { { string.rep('X', 50), 'Special' } }, virt_text_pos = 'inline' })
++    feed('gg0')
++    screen:expect { grid = [[
++      {28:^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      {28:X}                                                 |
++      aaaaaaa                                           |
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      bbbbbbb                                           |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('j')
++    screen:expect { grid = [[
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      {28:X}                                                 |
++      ^aaaaaaa                                           |
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      bbbbbbb                                           |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('j')
++    screen:expect { grid = [[
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      {28:X}                                                 |
++      aaaaaaa                                           |
++      {28:^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      bbbbbbb                                           |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('j')
++    screen:expect { grid = [[
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      {28:X}                                                 |
++      aaaaaaa                                           |
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      ^bbbbbbb                                           |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 9216420b37f476d42ddd6761c3f762428119808a Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 26 Mar 2023 16:09:09 +1100
+Subject: [PATCH 08/24] vim-patch:9.0.0178: cursor position wrong with virtual
+ text before Tab
+
+Problem:    Cursor position wrong with virtual text before Tab.
+Solution:   Use the byte length, not the cell with, to compare the column.
+            Correct tab size after text prop. (closes vim/vim#10866)
+
+https://github.com/vim/vim/commit/e428fa04a758cc87ea580c856a796e58e407504b
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/charset.c                      |   8 +-
+ src/nvim/plines.c                       |   7 ++
+ test/functional/ui/decorations_spec.lua | 105 ++++++++++++++++++++++++
+ 3 files changed, 116 insertions(+), 4 deletions(-)
+
+diff --git a/src/nvim/charset.c b/src/nvim/charset.c
+index 3b48392d49dfb..24267ebd508bd 100644
+--- a/src/nvim/charset.c
++++ b/src/nvim/charset.c
+@@ -1084,10 +1084,6 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+   }
+ 
+   if (cursor != NULL) {
+-    if ((State & MODE_INSERT) == 0 && !on_NUL) {
+-      // cursor is after inserted text, unless on the NUL
+-      vcol += cts.cts_cur_text_width;
+-    }
+     if ((*ptr == TAB)
+         && (State & MODE_NORMAL)
+         && !wp->w_p_list
+@@ -1096,6 +1092,10 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+       // cursor at end
+       *cursor = vcol + incr - 1;
+     } else {
++      if ((State & MODE_INSERT) == 0 && !on_NUL) {
++        // cursor is after inserted text, unless on the NUL
++        vcol += cts.cts_cur_text_width;
++      }
+       // cursor at start
+       *cursor = vcol + head;
+     }
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index fec47583f395d..4f3030fb8429a 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -411,6 +411,7 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+   // First get normal size, without 'linebreak' or virtual text
+   int size = win_chartabsize(wp, s, vcol);
+   if (cts->cts_has_virt_text) {
++    int tab_size = size;
+     int charlen = *s == NUL ? 1 : utf_ptr2len(s);
+     int col = (int)(s - line);
+     while (true) {
+@@ -425,6 +426,12 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+           if (decor.virt_text_pos == kVTInline) {
+             cts->cts_cur_text_width += decor.virt_text_width;
+             size += decor.virt_text_width;
++            if (*s == TAB) {
++              // tab size changes because of the inserted text
++              size -= tab_size;
++              tab_size = win_chartabsize(wp, s, vcol + size);
++              size += tab_size;
++            }
+           }
+         }
+       }
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 3890882ea20a4..397ef45c2dcae 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1476,6 +1476,111 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('cursor position is correct with virtual text attatched to hard tabs', function()
++    command('set noexpandtab')
++    feed('i')
++    feed('<TAB>')
++    feed('<TAB>')
++    feed('test')
++    feed('<ESC>')
++    meths.buf_set_extmark(0, ns, 0, 1,
++            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    feed('0')
++    screen:expect { grid = [[
++             ^ {28:virtual text}    test                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('l')
++    screen:expect { grid = [[
++              {28:virtual text}   ^ test                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('l')
++    screen:expect { grid = [[
++              {28:virtual text}    ^test                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('l')
++    screen:expect { grid = [[
++              {28:virtual text}    t^est                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('l')
++    screen:expect { grid = [[
++              {28:virtual text}    te^st                      |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 9174847d998fa87519a59023614b2966d213c077 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sun, 26 Mar 2023 17:40:07 +1100
+Subject: [PATCH 09/24] vim-patch:9.0.0183: extra space after virtual text when
+ 'linebreak' is set
+
+Problem:    Extra space after virtual text when 'linebreak' is set.
+Solution:   Do not count virtual text when getting linebreak value.
+            (closes vim/vim#10884)
+
+https://github.com/vim/vim/commit/52de3a8d3943520bbd4e5e40a4c43fcc7182dac0
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c                     |  4 +++-
+ test/functional/ui/decorations_spec.lua | 25 +++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 555f0c3395f64..623376a2b1b44 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -2167,7 +2167,10 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           chartabsize_T cts;
+ 
+           init_chartabsize_arg(&cts, wp, lnum, wlv.vcol, line, p);
++          // do not want virtual text to be counted here
++          cts.cts_has_virt_text = false;
+           wlv.n_extra = win_lbr_chartabsize(&cts, NULL) - 1;
++          clear_chartabsize_arg(&cts);
+ 
+           // We have just drawn the showbreak value, no need to add
+           // space for it again.
+@@ -2199,7 +2202,6 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+               c = ' ';
+             }
+           }
+-          clear_chartabsize_arg(&cts);
+         }
+ 
+         in_multispace = c == ' ' && ((ptr > line + 1 && ptr[-2] == ' ') || *ptr == ' ');
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 397ef45c2dcae..2eebed7684a0a 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1581,6 +1581,31 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('has correct cursor position with virtual text on an empty line', function()
++    command('set linebreak')
++    insert('one twoword')
++    feed('0')
++    meths.buf_set_extmark(0, ns, 0, 3,
++            { virt_text = { { ': virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    screen:expect { grid = [[
++      ^one{28:: virtual text} twoword                         |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 6d2260a636851181a1957e7304e8bb4299dd3f42 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 27 Mar 2023 01:25:37 +1100
+Subject: [PATCH 10/24] fix(ui): fix visual and search highlighting interfering
+ with virtual text
+
+vim-patch:9.0.0193: search and match highlgith interfere with virtual text
+
+Problem:    Search and match highlgith interfere with virtual text highlight.
+            (Ben Jackson)
+Solution:   Check for match highlight after text properties.  Reset and
+            restore search highlight when showing virtual text.
+            (closes vim/vim#10892)
+
+https://github.com/vim/vim/commit/e38fc86180fd3f6b372648eea6adc3f623fea302
+
+vim-patch:9.0.0452: Visual highlighting extends into virtual text prop
+
+Problem:    Visual highlighting extends into virtual text prop.
+Solution:   Do not highlight what isn't actually selected.  Fix ordering of
+            stored text props.
+
+https://github.com/vim/vim/commit/6eda17d881c9b2880ccb2a4d11951939a58f233d
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c                     | 92 +++++++++++++++----------
+ test/functional/ui/decorations_spec.lua | 92 ++++++++++++++++++++++++-
+ 2 files changed, 146 insertions(+), 38 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 623376a2b1b44..3fe796ad2e38e 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -978,7 +978,10 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   bool area_highlighting = false;       // Visual or incsearch highlighting in this line
+   int vi_attr = 0;                      // attributes for Visual and incsearch highlighting
+   int area_attr = 0;                    // attributes desired by highlighting
++  int saved_area_attr = 0;              // idem for area_attr
+   int search_attr = 0;                  // attributes desired by 'hlsearch'
++  int saved_search_attr = 0;            // search_attr to be used when n_extra
++                                        // goes to zero
+   int vcol_save_attr = 0;               // saved attr for 'cursorcolumn'
+   int syntax_attr = 0;                  // attributes desired by syntax
+   bool has_syntax = false;              // this buffer has syntax highl.
+@@ -1728,6 +1731,50 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         area_active = false;
+       }
+ 
++      if (has_decor && v >= 0) {
++        bool selected = (area_active || (area_highlighting && noinvcur
++                                         && wlv.vcol == wp->w_virtcol));
++        extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off,
++                                        selected, &decor_state);
++
++        // we could already be inside an existing virt_line with multiple chunks
++        if (!(virt_inline_i < kv_size(virt_inline))) {
++          DecorState *state = &decor_state;
++          for (size_t i = 0; i < kv_size(state->active); i++) {
++            DecorRange *item = &kv_A(state->active, i);
++            if (!(item->start_row == state->row
++                  && kv_size(item->decor.virt_text)
++                  && item->decor.virt_text_pos == kVTInline)) {
++              continue;
++            }
++            if (item->win_col >= -1 && item->start_col <= v) {
++              virt_inline = item->decor.virt_text;
++              virt_inline_i = 0;
++              item->win_col = -2;
++              break;
++            }
++          }
++        }
++
++        if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
++          VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
++          wlv.p_extra = vtc.text;
++          wlv.n_extra = (int)strlen(wlv.p_extra);
++          wlv.c_extra = NUL;
++          wlv.c_final = NUL;
++          wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
++          n_attr = mb_charlen(vtc.text);
++          // restore search_attr and area_attr when n_extra
++          // is down to zero
++          saved_search_attr = search_attr;
++          saved_area_attr = area_attr;
++          search_attr = 0;
++          area_attr = 0;
++          extmark_attr = 0;
++          virt_inline_i++;
++        }
++      }
++
+       if (!wlv.n_extra) {
+         // Check for start/end of 'hlsearch' and other matches.
+         // After end, check for start/end of next match.
+@@ -1791,43 +1838,6 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           wlv.char_attr = 0;
+         }
+       }
+-
+-      if (has_decor && v >= 0) {
+-        bool selected = (area_active || (area_highlighting && noinvcur
+-                                         && wlv.vcol == wp->w_virtcol));
+-        extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off, selected, &decor_state);
+-
+-        // we could already be inside an existing virt_line with multiple chunks
+-        if (!(virt_inline_i < kv_size(virt_inline))) {
+-          DecorState *state = &decor_state;
+-          for (size_t i = 0; i < kv_size(state->active); i++) {
+-            DecorRange *item = &kv_A(state->active, i);
+-            if (!(item->start_row == state->row
+-                  && kv_size(item->decor.virt_text)
+-                  && item->decor.virt_text_pos == kVTInline)) {
+-              continue;
+-            }
+-            if (item->win_col >= -1 && item->start_col <= v) {
+-              virt_inline = item->decor.virt_text;
+-              virt_inline_i = 0;
+-              item->win_col = -2;
+-              break;
+-            }
+-          }
+-        }
+-
+-        if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
+-          VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
+-          wlv.p_extra = vtc.text;
+-          wlv.n_extra = (int)strlen(wlv.p_extra);
+-          wlv.c_extra = NUL;
+-          wlv.c_final = NUL;
+-          wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
+-          n_attr = mb_charlen(vtc.text);
+-          extmark_attr = 0;
+-          virt_inline_i++;
+-        }
+-      }
+     }
+ 
+     // Get the next character to put on the screen.
+@@ -1889,6 +1899,14 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         wlv.p_extra++;
+       }
+       wlv.n_extra--;
++      if (wlv.n_extra <= 0) {
++        if (search_attr == 0) {
++          search_attr = saved_search_attr;
++        }
++        if (area_attr == 0 && *ptr != NUL) {
++          area_attr = saved_area_attr;
++        }
++      }
+     } else if (foldinfo.fi_lines > 0) {
+       // skip writing the buffer line itself
+       c = NUL;
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 2eebed7684a0a..fea5c2ffb6df5 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -646,6 +646,8 @@ describe('extmark decorations', function()
+       [26] = {background=Screen.colors.DarkGrey, foreground=Screen.colors.LightGrey};
+       [27] = {background = Screen.colors.Plum1};
+       [28] = {foreground = Screen.colors.SlateBlue};
++      [29] = {background = Screen.colors.Yellow1};
++      [30] = {reverse = true};
+     }
+ 
+     ns = meths.create_namespace 'test'
+@@ -1582,7 +1584,7 @@ bbbbbbb]])
+       ]]}
+   end)
+ 
+-  it('has correct cursor position with virtual text on an empty line', function()
++  it('cursor position is correct with virtual text on an empty line', function()
+     command('set linebreak')
+     insert('one twoword')
+     feed('0')
+@@ -1606,6 +1608,94 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('search highlight is correct with virtual text attatched to', function()
++    insert('foo foo foo foo')
++    feed('0')
++    meths.buf_set_extmark(0, ns, 0, 8,
++            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    screen:expect { grid = [[
++      ^foo foo {28:virtual text}foo foo                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('/foo')
++    screen:expect { grid = [[
++      {29:foo} {30:foo} {28:virtual text}{29:foo} {29:foo}                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      /foo^                                              |
++      ]]}
++  end)
++
++  it('visual select highlight is correct with virtual text attatched to', function()
++    insert('foo foo foo foo')
++    feed('0')
++    meths.buf_set_extmark(0, ns, 0, 8,
++            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    feed('8l')
++    screen:expect { grid = [[
++      foo foo {28:virtual text}^foo foo                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('v')
++    feed('2h')
++    screen:expect { grid = [[
++      foo fo^o{18: }{28:virtual text}{18:f}oo foo                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {24:-- VISUAL --}                                      |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 4b5eac734053f08333959f1294067ff618815d97 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Tue, 28 Mar 2023 01:23:21 +1100
+Subject: [PATCH 11/24] vim-patch:9.0.0205: cursor in wrong position when
+ inserting after virtual text
+
+Problem:    Cursor in wrong position when inserting after virtual text. (Ben
+            Jackson)
+Solution:   Put the cursor after the virtual text, where the text will be
+            inserted. (closes vim/vim#10914)
+
+https://github.com/vim/vim/commit/28c9f895716cfa8f1220bc41b72a534c0e10cabe
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/charset.c                      |  2 +-
+ src/nvim/plines.c                       |  2 ++
+ src/nvim/plines.h                       |  1 +
+ test/functional/ui/decorations_spec.lua | 47 ++++++++++++++++++++++++-
+ 4 files changed, 50 insertions(+), 2 deletions(-)
+
+diff --git a/src/nvim/charset.c b/src/nvim/charset.c
+index 24267ebd508bd..2917bb31eef1c 100644
+--- a/src/nvim/charset.c
++++ b/src/nvim/charset.c
+@@ -1092,7 +1092,7 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+       // cursor at end
+       *cursor = vcol + incr - 1;
+     } else {
+-      if ((State & MODE_INSERT) == 0 && !on_NUL) {
++      if (((State & MODE_INSERT) == 0 || !cts.cts_has_right_gravity) && !on_NUL) {
+         // cursor is after inserted text, unless on the NUL
+         vcol += cts.cts_cur_text_width;
+       }
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index 4f3030fb8429a..b1266a87a921a 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -325,6 +325,7 @@ void init_chartabsize_arg(chartabsize_T *cts, win_T *wp, linenr_T lnum FUNC_ATTR
+   cts->cts_ptr = ptr;
+   cts->cts_cur_text_width = 0;
+   cts->cts_has_virt_text = false;
++  cts->cts_has_right_gravity = true;
+   cts->cts_row = lnum - 1;
+ 
+   if (cts->cts_row >= 0) {
+@@ -425,6 +426,7 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+           Decoration decor = get_decor(mark);
+           if (decor.virt_text_pos == kVTInline) {
+             cts->cts_cur_text_width += decor.virt_text_width;
++            cts->cts_has_right_gravity = mt_right(mark);
+             size += decor.virt_text_width;
+             if (*s == TAB) {
+               // tab size changes because of the inserted text
+diff --git a/src/nvim/plines.h b/src/nvim/plines.h
+index a15c234bbaf9a..6e4768bc7dfea 100644
+--- a/src/nvim/plines.h
++++ b/src/nvim/plines.h
+@@ -14,6 +14,7 @@ typedef struct {
+   int cts_row;
+ 
+   bool cts_has_virt_text;  // true if if a property inserts text
++  bool cts_has_right_gravity;
+   int cts_cur_text_width;     // width of current inserted text
+   MarkTreeIter cts_iter[1];
+   // TODO(bfredl): iterator in to the marktree for scanning virt text
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index fea5c2ffb6df5..6a1697b9babc9 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1652,11 +1652,12 @@ bbbbbbb]])
+       ]]}
+   end)
+ 
++    feed('8l')
+   it('visual select highlight is correct with virtual text attatched to', function()
+     insert('foo foo foo foo')
+     feed('0')
+     meths.buf_set_extmark(0, ns, 0, 8,
+-            { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
+     feed('8l')
+     screen:expect { grid = [[
+       foo foo {28:virtual text}^foo foo                       |
+@@ -1696,6 +1697,50 @@ bbbbbbb]])
+       {24:-- VISUAL --}                                      |
+       ]]}
+   end)
++
++  it('cursor position is correct when inserting around a virtual text with right gravity set to false', function()
++    insert('foo foo foo foo')
++    meths.buf_set_extmark(0, ns, 0, 8,
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    feed('0')
++    feed('8l')
++    screen:expect { grid = [[
++      foo foo {28:virtual text}^foo foo                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('i')
++    screen:expect { grid = [[
++      foo foo {28:virtual text}^foo foo                       |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {24:-- INSERT --}                                      |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 147110c289a19d40ef81e6930f46a9a84d431b20 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 01:05:08 +1000
+Subject: [PATCH 12/24] fix(ui): fixes incorrect rendering when virtual text is
+ not visable and nowrap
+
+---
+ src/nvim/drawline.c                     |  8 ++++----
+ test/functional/ui/decorations_spec.lua | 27 +++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 3fe796ad2e38e..0a2640fc3f118 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1742,12 +1742,12 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           DecorState *state = &decor_state;
+           for (size_t i = 0; i < kv_size(state->active); i++) {
+             DecorRange *item = &kv_A(state->active, i);
+-            if (!(item->start_row == state->row
+-                  && kv_size(item->decor.virt_text)
+-                  && item->decor.virt_text_pos == kVTInline)) {
++            if (item->start_row != state->row
++                  || !kv_size(item->decor.virt_text)
++                  || item->decor.virt_text_pos != kVTInline) {
+               continue;
+             }
+-            if (item->win_col >= -1 && item->start_col <= v) {
++            if (item->win_col >= -1 && item->start_col == v) {
+               virt_inline = item->decor.virt_text;
+               virt_inline_i = 0;
+               item->win_col = -2;
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 6a1697b9babc9..03febca88f816 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1741,6 +1741,33 @@ bbbbbbb]])
+       {24:-- INSERT --}                                      |
+       ]]}
+   end)
++
++  it('no wrap is rendered correctly with multiple virtual text, where one is hidden', function()
++    insert('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
++    command("set nowrap")
++    meths.buf_set_extmark(0, ns, 0, 50,
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    meths.buf_set_extmark(0, ns, 0, 2,
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    feed('$')
++    screen:expect { grid = [[
++      opqrstuvwxyzabcdefghijklmnopqrstuvwx{28:virtual text}y^z|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 4d22e23900d6b74292a75cc798057641bd85ffda Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 01:43:06 +1000
+Subject: [PATCH 13/24] vim-patch:9.0.0716: with 'nowrap' virtual text "after"
+ does not scroll left
+
+Problem:    With 'nowrap' virtual text "after" does not scroll left.
+Solution:   Skip part of the virtual text that is left of the window.
+            (closes vim/vim#11320)  Fix going beyond the last column of the window.
+
+https://github.com/vim/vim/commit/cd105417a53fcf97c0935f3468201ef11516c9f1
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c                     | 30 ++++++++++++++++++++++---
+ test/functional/ui/decorations_spec.lua | 27 +++++++++++++++++++++-
+ 2 files changed, 53 insertions(+), 4 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 0a2640fc3f118..026662a19ebb0 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -966,7 +966,11 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   int n_attr3 = 0;                      // chars with overruling special attr
+   int saved_attr3 = 0;                  // char_attr saved for n_attr3
+ 
+-  int n_skip = 0;                       // nr of chars to skip for 'nowrap'
++  int n_skip = 0;                       // nr of chars to skip for 'nowrap' or
++                                        // concealing
++  int skip_cells = 0;                   // nr of cells to skip for virtual text
++                                        // after the line, when w_skipcol is
++                                        // larger than the text length
+ 
+   int fromcol_prev = -2;                // start of inverting after cursor
+   bool noinvcur = false;                // don't invert the cursor
+@@ -1434,6 +1438,12 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       }
+     }
+ 
++    // If there the text doesn't reach to the desired column, need to skip
++    // "skip_cells" cells when virtual text follows.
++    if (!wp->w_p_wrap && v > wlv.vcol) {
++      skip_cells = (int)(v - wlv.vcol);
++    }
++
+     // Adjust for when the inverted text is before the screen,
+     // and when the start of the inverted text is before the screen.
+     if (wlv.tocol <= wlv.vcol) {
+@@ -1743,8 +1753,8 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           for (size_t i = 0; i < kv_size(state->active); i++) {
+             DecorRange *item = &kv_A(state->active, i);
+             if (item->start_row != state->row
+-                  || !kv_size(item->decor.virt_text)
+-                  || item->decor.virt_text_pos != kVTInline) {
++                || !kv_size(item->decor.virt_text)
++                || item->decor.virt_text_pos != kVTInline) {
+               continue;
+             }
+             if (item->win_col >= -1 && item->start_col == v) {
+@@ -1772,6 +1782,20 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           area_attr = 0;
+           extmark_attr = 0;
+           virt_inline_i++;
++          // If the text didn't reach until the first window
++          // column we need to skip cells.
++          if (skip_cells > 0) {
++            if (wlv.n_extra > skip_cells) {
++              wlv.n_extra -= skip_cells;
++              wlv.p_extra += skip_cells;
++              skip_cells = 0;
++            } else {
++              // the whole text is left of the window, drop
++              // it and advance to the next one
++              skip_cells -= wlv.n_extra;
++              wlv.n_extra = 0;
++            }
++          }
+         }
+       }
+ 
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 03febca88f816..26dcef05f9683 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1742,7 +1742,7 @@ bbbbbbb]])
+       ]]}
+   end)
+ 
+-  it('no wrap is rendered correctly with multiple virtual text, where one is hidden', function()
++  it('draws correctly with no wrap multiple virtual text, where one is hidden', function()
+     insert('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+     command("set nowrap")
+     meths.buf_set_extmark(0, ns, 0, 50,
+@@ -1768,6 +1768,31 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('draws correctly with no wrap and a long virtual text', function()
++    insert('abcdefghi')
++    command("set nowrap")
++    meths.buf_set_extmark(0, ns, 0, 2,
++      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    feed('$')
++    screen:expect { grid = [[
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}cdefgh^i|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 7d3cbe4d5d7c2e76ba2106f024ea6130ac5cd1d4 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Wed, 12 Apr 2023 18:21:46 +1000
+Subject: [PATCH 14/24] fix(ui): fix tabs not being spaced properly after
+ virtual text with no wrap
+
+also fixes incorrect skipping of multibyte characters
+---
+ src/nvim/drawline.c                     | 26 +++++++++++++++++++------
+ src/nvim/mbyte.c                        | 18 +++++++++++++++++
+ test/functional/ui/decorations_spec.lua | 25 ++++++++++++++++++++++++
+ 3 files changed, 63 insertions(+), 6 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 026662a19ebb0..7ad0f4064bfcb 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -969,8 +969,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   int n_skip = 0;                       // nr of chars to skip for 'nowrap' or
+                                         // concealing
+   int skip_cells = 0;                   // nr of cells to skip for virtual text
+-                                        // after the line, when w_skipcol is
+-                                        // larger than the text length
++  int skipped_cells = 0;                // nr of skipped virtual text cells
+ 
+   int fromcol_prev = -2;                // start of inverting after cursor
+   bool noinvcur = false;                // don't invert the cursor
+@@ -1785,14 +1784,22 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           // If the text didn't reach until the first window
+           // column we need to skip cells.
+           if (skip_cells > 0) {
+-            if (wlv.n_extra > skip_cells) {
+-              wlv.n_extra -= skip_cells;
+-              wlv.p_extra += skip_cells;
++            int virt_text_len = n_attr;
++            if (virt_text_len > skip_cells) {
++              int len = mb_charlen2bytelen(wlv.p_extra, skip_cells);
++              wlv.n_extra -= len;
++              wlv.p_extra += len;
++              n_attr -= skip_cells;
++              // Skipped cells needed to be accounted for in vcol.
++              skipped_cells += skip_cells;
+               skip_cells = 0;
+             } else {
+               // the whole text is left of the window, drop
+               // it and advance to the next one
+-              skip_cells -= wlv.n_extra;
++              skip_cells -= virt_text_len;
++              // Skipped cells needed to be accounted for in vcol.
++              skipped_cells += virt_text_len;
++              n_attr = 0;
+               wlv.n_extra = 0;
+             }
+           }
+@@ -2971,6 +2978,13 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       n_skip--;
+     }
+ 
++    // The skipped cells need to be accounted for in vcol.
++    if (wlv.draw_state > WL_STC
++        && skipped_cells > 0) {
++      wlv.vcol += skipped_cells;
++      skipped_cells = 0;
++    }
++
+     // Only advance the "wlv.vcol" when after the 'number' or
+     // 'relativenumber' column.
+     if (wlv.draw_state > WL_STC
+diff --git a/src/nvim/mbyte.c b/src/nvim/mbyte.c
+index 7d61b918d269d..66c26275f122d 100644
+--- a/src/nvim/mbyte.c
++++ b/src/nvim/mbyte.c
+@@ -2024,6 +2024,24 @@ int mb_charlen(const char *str)
+   return count;
+ }
+ 
++int mb_charlen2bytelen(const char *str, int charlen)
++{
++  const char *p = str;
++  int count = 0;
++
++  if (p == NULL) {
++    return 0;
++  }
++
++  for (int i = 0; *p != NUL && i < charlen; i++) {
++    int b = utfc_ptr2len(p);
++    p += b;
++    count += b;
++  }
++
++  return count;
++}
++
+ /// Like mb_charlen() but for a string with specified length.
+ int mb_charlen_len(const char *str, int len)
+ {
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 26dcef05f9683..a7b9a7aa1651c 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1793,6 +1793,31 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('tabs are the correct length with no wrap following virtual text', function()
++    command('set nowrap')
++    feed('itest<TAB>a<ESC>')
++    meths.buf_set_extmark(0, ns, 0, 0,
++      { virt_text = { { string.rep('a', 55), 'Special' } }, virt_text_pos = 'inline' })
++    feed('gg$')
++    screen:expect { grid = [[
++      {28:aaaaaaaaaaaaaaaaaaaaaaaaa}test     ^a               |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 39179bb858798775c2251d11a047cfbe58b33d37 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 20:46:50 +1000
+Subject: [PATCH 15/24] vim-patch:9.0.0944: 'cursorline' causes virtual text
+ highlight to continue
+
+Problem:    'cursorline' causes virtual text highlight to continue.
+Solution:   Save and restore line_attr. (closes vim/vim#11588)
+
+https://github.com/vim/vim/commit/6ac16f0c0fe923098b9df5ac430f1923045f16ea
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c                     | 18 ++++++++++++++++++
+ test/functional/ui/decorations_spec.lua | 25 +++++++++++++++++++++++++
+ 2 files changed, 43 insertions(+)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 7ad0f4064bfcb..8bafeca723add 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -102,6 +102,7 @@ typedef struct {
+                              ///< when c_extra and c_final are NUL
+   char *p_extra_free;        ///< p_extra buffer that needs to be freed
+   int extra_attr;            ///< attributes for p_extra
++                             ///< with win_attr if needed
+   int c_extra;               ///< extra chars, all the same
+   int c_final;               ///< final char, mandatory if set
+ 
+@@ -923,6 +924,7 @@ static void win_line_continue(winlinevars_T *wlv)
+   if (wlv->saved_n_extra > 0) {
+     // Continue item from end of wrapped line.
+     wlv->n_extra = wlv->saved_n_extra;
++    wlv->saved_n_extra = 0;
+     wlv->c_extra = wlv->saved_c_extra;
+     wlv->c_final = wlv->saved_c_final;
+     wlv->p_extra = wlv->saved_p_extra;
+@@ -985,6 +987,8 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   int search_attr = 0;                  // attributes desired by 'hlsearch'
+   int saved_search_attr = 0;            // search_attr to be used when n_extra
+                                         // goes to zero
++  bool reset_extra_attr = false;
++
+   int vcol_save_attr = 0;               // saved attr for 'cursorcolumn'
+   int syntax_attr = 0;                  // attributes desired by syntax
+   bool has_syntax = false;              // this buffer has syntax highl.
+@@ -1765,6 +1769,10 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           }
+         }
+ 
++        if (wlv.n_extra == 0) {
++          reset_extra_attr = false;
++        }
++
+         if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
+           VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
+           wlv.p_extra = vtc.text;
+@@ -1930,6 +1938,9 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         wlv.p_extra++;
+       }
+       wlv.n_extra--;
++
++      // Only restore search_attr and area_attr after "n_extra" in
++      // the next screen line is also done.
+       if (wlv.n_extra <= 0) {
+         if (search_attr == 0) {
+           search_attr = saved_search_attr;
+@@ -1937,6 +1948,9 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         if (area_attr == 0 && *ptr != NUL) {
+           area_attr = saved_area_attr;
+         }
++        // wlv.extra_attr should be used at this position but not
++        // any further.
++        reset_extra_attr = true;
+       }
+     } else if (foldinfo.fi_lines > 0) {
+       // skip writing the buffer line itself
+@@ -2591,6 +2605,10 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+     // Don't override visual selection highlighting.
+     if (n_attr > 0 && wlv.draw_state == WL_LINE && !search_attr_from_match) {
+       wlv.char_attr = hl_combine_attr(wlv.char_attr, wlv.extra_attr);
++      if (reset_extra_attr) {
++        reset_extra_attr = false;
++        wlv.extra_attr = 0;
++      }
+     }
+ 
+     // Handle the case where we are in column 0 but not on the first
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index a7b9a7aa1651c..c07672893bdc6 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1818,6 +1818,31 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('highlighting does not extend when no wrap is enabled with a long virtual text', function()
++    insert('abcdef')
++    command("set nowrap")
++    meths.buf_set_extmark(0, ns, 0, 3,
++      { virt_text = { { string.rep('X', 50), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    feed('$')
++    screen:expect { grid = [[
++      {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}de^f|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 84613294247684de5376d5592498aef36e31964f Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 23:12:56 +1000
+Subject: [PATCH 16/24] fix(ui): fix incorrect highlighting when virtual text
+ wraps with number
+
+---
+ src/nvim/drawline.c                     |  2 +-
+ test/functional/ui/decorations_spec.lua | 27 +++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 8bafeca723add..e44b8541531e9 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1941,7 +1941,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+ 
+       // Only restore search_attr and area_attr after "n_extra" in
+       // the next screen line is also done.
+-      if (wlv.n_extra <= 0) {
++      if (wlv.n_extra <= 0 && wlv.saved_n_extra <= 0) {
+         if (search_attr == 0) {
+           search_attr = saved_search_attr;
+         }
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index c07672893bdc6..21db3919ba384 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1843,6 +1843,33 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('highlighting is correct when virtual text wraps with number', function()
++    insert([[
++    test
++    test]])
++    command('set number')
++    meths.buf_set_extmark(0, ns, 0, 1,
++      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    feed('gg0')
++    screen:expect { grid = [[
++      {2:  1 }^t{28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
++      {2:    }{28:XXXXXXXXXX}est                                 |
++      {2:  2 }test                                          |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From e1a75f9d64f9200d7b956c3f55663567530e313b Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Wed, 5 Apr 2023 00:29:05 +1000
+Subject: [PATCH 17/24] fix(ui): fix incorrect highlighting when virtual text
+ next to match
+
+---
+ src/nvim/drawline.c                     |  8 +++-
+ test/functional/ui/decorations_spec.lua | 53 ++++++++++++++++++++++---
+ 2 files changed, 54 insertions(+), 7 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index e44b8541531e9..5711e550a0a09 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -102,7 +102,6 @@ typedef struct {
+                              ///< when c_extra and c_final are NUL
+   char *p_extra_free;        ///< p_extra buffer that needs to be freed
+   int extra_attr;            ///< attributes for p_extra
+-                             ///< with win_attr if needed
+   int c_extra;               ///< extra chars, all the same
+   int c_final;               ///< final char, mandatory if set
+ 
+@@ -1026,6 +1025,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+   int prev_c1 = 0;                      // first composing char for prev_c
+ 
+   bool search_attr_from_match = false;  // if search_attr is from :match
++  bool saved_search_attr_from_match = false;  // if search_attr is from :match
+   bool has_decor = false;               // this buffer has decoration
+   int win_col_offset = 0;               // offset for window columns
+ 
+@@ -1785,6 +1785,8 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           // is down to zero
+           saved_search_attr = search_attr;
+           saved_area_attr = area_attr;
++          saved_search_attr_from_match = search_attr_from_match;
++          search_attr_from_match = false;
+           search_attr = 0;
+           area_attr = 0;
+           extmark_attr = 0;
+@@ -1814,7 +1816,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         }
+       }
+ 
+-      if (!wlv.n_extra) {
++      if (wlv.n_extra == 0) {
+         // Check for start/end of 'hlsearch' and other matches.
+         // After end, check for start/end of next match.
+         // When another match, have to check for start again.
+@@ -2608,6 +2610,8 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       if (reset_extra_attr) {
+         reset_extra_attr = false;
+         wlv.extra_attr = 0;
++        // search_attr_from_match can be restored now that the extra_attr has been applied
++        search_attr_from_match = saved_search_attr_from_match;
+       }
+     }
+ 
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 21db3919ba384..f7d9e491714e1 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1746,9 +1746,9 @@ bbbbbbb]])
+     insert('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+     command("set nowrap")
+     meths.buf_set_extmark(0, ns, 0, 50,
+-      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
+     meths.buf_set_extmark(0, ns, 0, 2,
+-      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
+     feed('$')
+     screen:expect { grid = [[
+       opqrstuvwxyzabcdefghijklmnopqrstuvwx{28:virtual text}y^z|
+@@ -1773,7 +1773,7 @@ bbbbbbb]])
+     insert('abcdefghi')
+     command("set nowrap")
+     meths.buf_set_extmark(0, ns, 0, 2,
+-      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline' })
+     feed('$')
+     screen:expect { grid = [[
+       {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}cdefgh^i|
+@@ -1823,7 +1823,7 @@ bbbbbbb]])
+     insert('abcdef')
+     command("set nowrap")
+     meths.buf_set_extmark(0, ns, 0, 3,
+-      { virt_text = { { string.rep('X', 50), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++      { virt_text = { { string.rep('X', 50), 'Special' } }, virt_text_pos = 'inline' })
+     feed('$')
+     screen:expect { grid = [[
+       {28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}de^f|
+@@ -1850,7 +1850,7 @@ bbbbbbb]])
+     test]])
+     command('set number')
+     meths.buf_set_extmark(0, ns, 0, 1,
+-      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++      { virt_text = { { string.rep('X', 55), 'Special' } }, virt_text_pos = 'inline' })
+     feed('gg0')
+     screen:expect { grid = [[
+       {2:  1 }^t{28:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}|
+@@ -1870,6 +1870,49 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('highlighting is correct when virtual text is proceeded with a match', function()
++    insert([[test]])
++    meths.buf_set_extmark(0, ns, 0, 2,
++      { virt_text = { { 'virtual text', 'Special' } }, virt_text_pos = 'inline' })
++    feed('gg0')
++    command('match ErrorMsg /e/')
++    screen:expect { grid = [[
++      ^t{4:e}{28:virtual text}st                                  |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++    command('match ErrorMsg /s/')
++    screen:expect { grid = [[
++      ^te{28:virtual text}{4:s}t                                  |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From d210c901c2e25b19c3944a1967096991a7d94ffd Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Mon, 3 Apr 2023 22:13:15 +1000
+Subject: [PATCH 18/24] vim-patch:9.0.1067: in diff mode virtual text is
+ highlighted incorrectly
+
+Problem:    In diff mode virtual text is highlighted incorrectly. (Rick Howe)
+Solution:   Do not use diff attributes for virtual text. (closes vim/vim#11714)
+
+https://github.com/vim/vim/commit/d097af77797f030e0f29f9bbc298358a5addb2a5
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c                     | 38 +++++++++++++++-------
+ test/functional/ui/decorations_spec.lua | 43 +++++++++++++++++++++++++
+ 2 files changed, 69 insertions(+), 12 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 5711e550a0a09..1b85ac510f888 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -105,9 +105,12 @@ typedef struct {
+   int c_extra;               ///< extra chars, all the same
+   int c_final;               ///< final char, mandatory if set
+ 
++  bool extra_for_extmark;
++
+   // saved "extra" items for when draw_state becomes WL_LINE (again)
+   int saved_n_extra;
+   char *saved_p_extra;
++  bool saved_extra_for_extmark;
+   int saved_c_extra;
+   int saved_c_final;
+   int saved_char_attr;
+@@ -909,6 +912,7 @@ static void win_line_start(win_T *wp, winlinevars_T *wlv, bool save_extra)
+     wlv->draw_state = WL_START;
+     wlv->saved_n_extra = wlv->n_extra;
+     wlv->saved_p_extra = wlv->p_extra;
++    wlv->saved_extra_for_extmark = wlv->extra_for_extmark;
+     wlv->saved_c_extra = wlv->c_extra;
+     wlv->saved_c_final = wlv->c_final;
+     wlv->saved_char_attr = wlv->char_attr;
+@@ -924,6 +928,7 @@ static void win_line_continue(winlinevars_T *wlv)
+     // Continue item from end of wrapped line.
+     wlv->n_extra = wlv->saved_n_extra;
+     wlv->saved_n_extra = 0;
++    wlv->extra_for_extmark = wlv->saved_extra_for_extmark;
+     wlv->c_extra = wlv->saved_c_extra;
+     wlv->c_final = wlv->saved_c_final;
+     wlv->p_extra = wlv->saved_p_extra;
+@@ -1769,7 +1774,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           }
+         }
+ 
+-        if (wlv.n_extra == 0) {
++        if (wlv.n_extra == 0 || !wlv.extra_for_extmark) {
+           reset_extra_attr = false;
+         }
+ 
+@@ -1777,6 +1782,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+           VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
+           wlv.p_extra = vtc.text;
+           wlv.n_extra = (int)strlen(wlv.p_extra);
++          wlv.extra_for_extmark = true;
+           wlv.c_extra = NUL;
+           wlv.c_final = NUL;
+           wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
+@@ -1834,12 +1840,14 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+       }
+ 
+       if (wlv.diff_hlf != (hlf_T)0) {
++        // When there is extra text (eg: virtual text) it gets the
++        // diff highlighting for the line, but not for changed text.
+         if (wlv.diff_hlf == HLF_CHD && ptr - line >= change_start
+             && wlv.n_extra == 0) {
+           wlv.diff_hlf = HLF_TXD;                   // changed text
+         }
+-        if (wlv.diff_hlf == HLF_TXD && ptr - line > change_end
+-            && wlv.n_extra == 0) {
++        if (wlv.diff_hlf == HLF_TXD && ((ptr - line > change_end && wlv.n_extra == 0)
++                                        || (wlv.n_extra > 0 && wlv.extra_for_extmark))) {
+           wlv.diff_hlf = HLF_CHD;                   // changed line
+         }
+         wlv.line_attr = win_hl_attr(wp, (int)wlv.diff_hlf);
+@@ -1943,16 +1951,22 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+ 
+       // Only restore search_attr and area_attr after "n_extra" in
+       // the next screen line is also done.
+-      if (wlv.n_extra <= 0 && wlv.saved_n_extra <= 0) {
+-        if (search_attr == 0) {
+-          search_attr = saved_search_attr;
+-        }
+-        if (area_attr == 0 && *ptr != NUL) {
+-          area_attr = saved_area_attr;
++      if (wlv.n_extra <= 0) {
++        if (wlv.saved_n_extra <= 0) {
++          if (search_attr == 0) {
++            search_attr = saved_search_attr;
++          }
++          if (area_attr == 0 && *ptr != NUL) {
++            area_attr = saved_area_attr;
++          }
++
++          if (wlv.extra_for_extmark) {
++            // wlv.extra_attr should be used at this position but not
++            // any further.
++            reset_extra_attr = true;
++          }
+         }
+-        // wlv.extra_attr should be used at this position but not
+-        // any further.
+-        reset_extra_attr = true;
++        wlv.extra_for_extmark = false;
+       }
+     } else if (foldinfo.fi_lines > 0) {
+       // skip writing the buffer line itself
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index f7d9e491714e1..29267aa280728 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -648,6 +648,9 @@ describe('extmark decorations', function()
+       [28] = {foreground = Screen.colors.SlateBlue};
+       [29] = {background = Screen.colors.Yellow1};
+       [30] = {reverse = true};
++      [31] = {foreground = Screen.colors.SlateBlue, background = Screen.colors.LightMagenta};
++      [32] = {bold = true, reverse = true};
++      [33] = {background = Screen.colors.Red1, bold = true}
+     }
+ 
+     ns = meths.create_namespace 'test'
+@@ -1913,6 +1916,46 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('in diff mode virtual text is highlighted correct', function()
++    insert([[
++    9000
++    0009
++    0009
++    9000
++    0009
++    ]])
++    command("set diff")
++    meths.buf_set_extmark(0, ns, 0, 1,
++      { virt_text = { { 'test', 'Special' } }, virt_text_pos = 'inline', right_gravity = false })
++    command("vnew")
++    insert([[
++    000
++    000
++    000
++    000
++    000
++    ]])
++    command("set diff")
++    feed('gg0')
++    screen:expect { grid = [[
++      {27:^000                      }│{33:9}{31:test}{27:000                }|
++      {27:000                      }│{27:000}{33:9}{27:                    }|
++      {27:000                      }│{27:000}{33:9}{27:                    }|
++      {27:000                      }│{33:9}{27:000                    }|
++      {27:000                      }│{27:000}{33:9}{27:                    }|
++                               │                        |
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {1:~                        }│{1:~                       }|
++      {32:[No Name] [+]             }{30:[No Name] [+]           }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From aa105774be6144d1c2ce81c0172c80e3cd473630 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Wed, 19 Apr 2023 19:02:33 +1000
+Subject: [PATCH 19/24] fix(ui): fix virtual text not displaying when two
+ overlapping inlines (nowrap)
+
+---
+ src/nvim/drawline.c                     | 125 ++++++++++++------------
+ test/functional/ui/decorations_spec.lua |  27 +++++
+ 2 files changed, 92 insertions(+), 60 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 1b85ac510f888..fc8bd1d2191c9 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1755,70 +1755,76 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         extmark_attr = decor_redraw_col(wp, (colnr_T)v, wlv.off,
+                                         selected, &decor_state);
+ 
+-        // we could already be inside an existing virt_line with multiple chunks
+-        if (!(virt_inline_i < kv_size(virt_inline))) {
+-          DecorState *state = &decor_state;
+-          for (size_t i = 0; i < kv_size(state->active); i++) {
+-            DecorRange *item = &kv_A(state->active, i);
+-            if (item->start_row != state->row
+-                || !kv_size(item->decor.virt_text)
+-                || item->decor.virt_text_pos != kVTInline) {
+-              continue;
+-            }
+-            if (item->win_col >= -1 && item->start_col == v) {
+-              virt_inline = item->decor.virt_text;
+-              virt_inline_i = 0;
+-              item->win_col = -2;
+-              break;
++        while (true) {
++          // we could already be inside an existing virt_line with multiple chunks
++          if (!(virt_inline_i < kv_size(virt_inline))) {
++            DecorState *state = &decor_state;
++            for (size_t i = 0; i < kv_size(state->active); i++) {
++              DecorRange *item = &kv_A(state->active, i);
++              if (item->start_row != state->row
++                  || !kv_size(item->decor.virt_text)
++                  || item->decor.virt_text_pos != kVTInline) {
++                continue;
++              }
++              if (item->win_col >= -1 && item->start_col == v) {
++                virt_inline = item->decor.virt_text;
++                virt_inline_i = 0;
++                item->win_col = -2;
++                break;
++              }
+             }
+           }
+-        }
+ 
+-        if (wlv.n_extra == 0 || !wlv.extra_for_extmark) {
+-          reset_extra_attr = false;
+-        }
++          if (wlv.n_extra == 0 || !wlv.extra_for_extmark) {
++            reset_extra_attr = false;
++          }
+ 
+-        if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
+-          VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
+-          wlv.p_extra = vtc.text;
+-          wlv.n_extra = (int)strlen(wlv.p_extra);
+-          wlv.extra_for_extmark = true;
+-          wlv.c_extra = NUL;
+-          wlv.c_final = NUL;
+-          wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
+-          n_attr = mb_charlen(vtc.text);
+-          // restore search_attr and area_attr when n_extra
+-          // is down to zero
+-          saved_search_attr = search_attr;
+-          saved_area_attr = area_attr;
+-          saved_search_attr_from_match = search_attr_from_match;
+-          search_attr_from_match = false;
+-          search_attr = 0;
+-          area_attr = 0;
+-          extmark_attr = 0;
+-          virt_inline_i++;
+-          // If the text didn't reach until the first window
+-          // column we need to skip cells.
+-          if (skip_cells > 0) {
+-            int virt_text_len = n_attr;
+-            if (virt_text_len > skip_cells) {
+-              int len = mb_charlen2bytelen(wlv.p_extra, skip_cells);
+-              wlv.n_extra -= len;
+-              wlv.p_extra += len;
+-              n_attr -= skip_cells;
+-              // Skipped cells needed to be accounted for in vcol.
+-              skipped_cells += skip_cells;
+-              skip_cells = 0;
+-            } else {
+-              // the whole text is left of the window, drop
+-              // it and advance to the next one
+-              skip_cells -= virt_text_len;
+-              // Skipped cells needed to be accounted for in vcol.
+-              skipped_cells += virt_text_len;
+-              n_attr = 0;
+-              wlv.n_extra = 0;
++          if (wlv.n_extra <= 0 && virt_inline_i < kv_size(virt_inline)) {
++            VirtTextChunk vtc = kv_A(virt_inline, virt_inline_i);
++            wlv.p_extra = vtc.text;
++            wlv.n_extra = (int)strlen(wlv.p_extra);
++            wlv.extra_for_extmark = true;
++            wlv.c_extra = NUL;
++            wlv.c_final = NUL;
++            wlv.extra_attr = vtc.hl_id ? syn_id2attr(vtc.hl_id) : 0;
++            n_attr = mb_charlen(vtc.text);
++            // restore search_attr and area_attr when n_extra
++            // is down to zero
++            saved_search_attr = search_attr;
++            saved_area_attr = area_attr;
++            saved_search_attr_from_match = search_attr_from_match;
++            search_attr_from_match = false;
++            search_attr = 0;
++            area_attr = 0;
++            extmark_attr = 0;
++            virt_inline_i++;
++            // If the text didn't reach until the first window
++            // column we need to skip cells.
++            if (skip_cells > 0) {
++              int virt_text_len = n_attr;
++              if (virt_text_len > skip_cells) {
++                int len = mb_charlen2bytelen(wlv.p_extra, skip_cells);
++                wlv.n_extra -= len;
++                wlv.p_extra += len;
++                n_attr -= skip_cells;
++                // Skipped cells needed to be accounted for in vcol.
++                skipped_cells += skip_cells;
++                skip_cells = 0;
++              } else {
++                // the whole text is left of the window, drop
++                // it and advance to the next one
++                skip_cells -= virt_text_len;
++                // Skipped cells needed to be accounted for in vcol.
++                skipped_cells += virt_text_len;
++                n_attr = 0;
++                wlv.n_extra = 0;
++
++                // go to the start so the next virtual text chunk can be selected.
++                continue;
++              }
+             }
+           }
++          break;
+         }
+       }
+ 
+@@ -3015,8 +3021,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+     }
+ 
+     // The skipped cells need to be accounted for in vcol.
+-    if (wlv.draw_state > WL_STC
+-        && skipped_cells > 0) {
++    if (wlv.draw_state > WL_STC && skipped_cells > 0) {
+       wlv.vcol += skipped_cells;
+       skipped_cells = 0;
+     }
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index 29267aa280728..fdc09b6247ff0 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1956,6 +1956,33 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('correctly draws when there are multiple overlapping virtual texts on the same line with nowrap', function()
++    command('set nowrap')
++    insert('a')
++    meths.buf_set_extmark(0, ns, 0, 0,
++      { virt_text = { { string.rep('a', 55), 'Special' } }, virt_text_pos = 'inline' })
++    meths.buf_set_extmark(0, ns, 0, 0,
++      { virt_text = { { string.rep('b', 55), 'Special' } }, virt_text_pos = 'inline' })
++    feed('$')
++    screen:expect { grid = [[
++      {28:bbbbbbbbbbbbbbbbbbbbbbbbb}^a                        |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From d394092df1add566b1c8313bb3519e008d003816 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Thu, 20 Apr 2023 02:15:49 +1000
+Subject: [PATCH 20/24] fix(ui): fix overflowing nowrap virtual text not
+ displaying if tab follows
+
+---
+ src/nvim/drawline.c                     |  1 +
+ test/functional/ui/decorations_spec.lua | 32 +++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index fc8bd1d2191c9..326ddfcdfa830 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -1798,6 +1798,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+             area_attr = 0;
+             extmark_attr = 0;
+             virt_inline_i++;
++            n_skip = 0;
+             // If the text didn't reach until the first window
+             // column we need to skip cells.
+             if (skip_cells > 0) {
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index fdc09b6247ff0..b4a5ae6b88d0b 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1983,6 +1983,38 @@ bbbbbbb]])
+                                                         |
+       ]]}
+   end)
++
++  it('correctly draws when overflowing virtual text is followed by tab with no wrap', function()
++    command('set nowrap')
++    feed('i<TAB>test<ESC>')
++    meths.buf_set_extmark(
++      0,
++      ns,
++      0,
++      0,
++      { virt_text = { { string.rep('a', 60), 'Special' } }, virt_text_pos = 'inline' }
++    )
++    feed('0')
++    screen:expect({
++      grid = [[
++      {28:aaaaaaaaaaaaaaaaaaaaaa}   ^ test                    |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]],
++    })
++  end)
+ end)
+ 
+ describe('decorations: virtual lines', function()
+
+From 382cbf6fed934bd9d4cd0cae7e51f459c3562e98 Mon Sep 17 00:00:00 2001
+From: Ibby <33922797+SleepySwords@users.noreply.github.com>
+Date: Sat, 1 Apr 2023 15:04:49 +1100
+Subject: [PATCH 21/24] vim-patch:9.0.0210: 'list' mode does not work properly
+ with virtual text
+
+Problem:    'list' mode does not work properly with virtual text.
+Solution:   Show the "$" at the right position. (closes vim/vim#10913)
+
+https://github.com/vim/vim/commit/c3a483fc3c65f649f9985bb88792a465ea18b0a2#diff-15009492c2b1d0a2629908b4618ad51c99d16746f238a0e6451dfe32355ed32fR1653
+
+This commit only contains the seemingly refactored portion (not entirely
+sure what it does)
+
+Co-authored-by: Bram Moolenaar <Bram@vim.org>
+---
+ src/nvim/drawline.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/src/nvim/drawline.c b/src/nvim/drawline.c
+index 326ddfcdfa830..2426728f7317e 100644
+--- a/src/nvim/drawline.c
++++ b/src/nvim/drawline.c
+@@ -2484,15 +2484,11 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+               && wlv.line_attr == 0
+               && wlv.line_attr_lowprio == 0) {
+             // In virtualedit, visual selections may extend beyond end of line
+-            if (area_highlighting && virtual_active()
+-                && wlv.tocol != MAXCOL && wlv.vcol < wlv.tocol) {
+-              wlv.n_extra = 0;
+-            } else {
++            if (!(area_highlighting && virtual_active()
++                  && wlv.tocol != MAXCOL && wlv.vcol < wlv.tocol)) {
+               wlv.p_extra = at_end_str;
+-              wlv.n_extra = 1;
+-              wlv.c_extra = NUL;
+-              wlv.c_final = NUL;
+             }
++            wlv.n_extra = 0;
+           }
+           if (wp->w_p_list && wp->w_p_lcs_chars.eol > 0) {
+             c = wp->w_p_lcs_chars.eol;
+@@ -2869,7 +2865,7 @@ int win_line(win_T *wp, linenr_T lnum, int startrow, int endrow, bool nochange,
+         && !has_fold
+         && (*ptr != NUL
+             || lcs_eol_one > 0
+-            || (wlv.n_extra && (wlv.c_extra != NUL || *wlv.p_extra != NUL)))) {
++            || (wlv.n_extra > 0 && (wlv.c_extra != NUL || *wlv.p_extra != NUL)))) {
+       c = wp->w_p_lcs_chars.ext;
+       wlv.char_attr = win_hl_attr(wp, HLF_AT);
+       mb_c = c;
+
+From 2f9ac7bc6d4f5f7e3e012b0ba881c0708b577ce1 Mon Sep 17 00:00:00 2001
+From: tom-anders <13141438+tom-anders@users.noreply.github.com>
+Date: Sat, 6 May 2023 15:14:00 +0200
+Subject: [PATCH 22/24] docs: update api.txt and add inline virtual text to
+ news.txt
+
+---
+ runtime/doc/api.txt  | 2 ++
+ runtime/doc/news.txt | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/runtime/doc/api.txt b/runtime/doc/api.txt
+index 62afdc583072b..d608b14d7a861 100644
+--- a/runtime/doc/api.txt
++++ b/runtime/doc/api.txt
+@@ -2661,6 +2661,8 @@ nvim_buf_set_extmark({buffer}, {ns_id}, {line}, {col}, {*opts})
+                     • "overlay": display over the specified column, without
+                       shifting the underlying text.
+                     • "right_align": display right aligned in the window.
++                    • "inline": display at the specified column, and shift the
++                      buffer text to the right as needed
+ 
+                   • virt_text_win_col : position the virtual text at a fixed
+                     window column (starting from the first text column)
+diff --git a/runtime/doc/news.txt b/runtime/doc/news.txt
+index bc357ac534f49..45a195b9bd433 100644
+--- a/runtime/doc/news.txt
++++ b/runtime/doc/news.txt
+@@ -52,6 +52,8 @@ iterators |luaref-in|.
+ • |'smoothscroll'| option to scroll by screen line rather than by text line
+ when |'wrap'| is set.
+ 
++• Added inline virtual text support to |nvim_buf_set_extmark()|.
++
+ ==============================================================================
+ CHANGED FEATURES                                                 *news-changed*
+ 
+
+From d469552cee1a497bdd1c019bbfb8cadab5d776e9 Mon Sep 17 00:00:00 2001
+From: tom-anders <13141438+tom-anders@users.noreply.github.com>
+Date: Sun, 7 May 2023 13:23:15 +0200
+Subject: [PATCH 23/24] fixup! vim-patch:9.0.0130: cursor position wrong when
+ inserting around virtual text
+
+---
+ src/nvim/buffer_defs.h | 2 +-
+ src/nvim/decoration.c  | 6 +++---
+ src/nvim/edit.c        | 4 ++--
+ src/nvim/extmark.c     | 4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/nvim/buffer_defs.h b/src/nvim/buffer_defs.h
+index 6d3fc2091906d..52d541ebadf3f 100644
+--- a/src/nvim/buffer_defs.h
++++ b/src/nvim/buffer_defs.h
+@@ -808,7 +808,7 @@ struct file_buffer {
+ 
+   MarkTree b_marktree[1];
+   Map(uint32_t, uint32_t) b_extmark_ns[1];         // extmark namespaces
+-  size_t b_virt_text;           // number of virtual texts
++  size_t b_virt_text_inline;                       // number of inline virtual texts
+   size_t b_virt_line_blocks;    // number of virt_line blocks
+   size_t b_signs;               // number of sign extmarks
+   size_t b_signs_with_text;     // number of sign extmarks with text
+diff --git a/src/nvim/decoration.c b/src/nvim/decoration.c
+index 0f1bd282f23c2..ce1af290c12b9 100644
+--- a/src/nvim/decoration.c
++++ b/src/nvim/decoration.c
+@@ -98,9 +98,9 @@ void decor_remove(buf_T *buf, int row, int row2, Decoration *decor)
+ {
+   decor_redraw(buf, row, row2, decor);
+   if (decor) {
+-    if (kv_size(decor->virt_text)) {
+-      assert(buf->b_virt_text > 0);
+-      buf->b_virt_text--;
++    if (kv_size(decor->virt_text) && decor->virt_text_pos == kVTInline) {
++      assert(buf->b_virt_text_inline > 0);
++      buf->b_virt_text_inline--;
+     }
+     if (kv_size(decor->virt_lines)) {
+       assert(buf->b_virt_line_blocks > 0);
+diff --git a/src/nvim/edit.c b/src/nvim/edit.c
+index f0266f31795fb..e3a4fcbcd3c96 100644
+--- a/src/nvim/edit.c
++++ b/src/nvim/edit.c
+@@ -232,7 +232,7 @@ static void insert_enter(InsertState *s)
+   stop_insert_mode = false;
+ 
+   // need to position cursor again when on a TAB
+-  if (gchar_cursor() == TAB || curbuf->b_virt_text > 0) {
++  if (gchar_cursor() == TAB || curbuf->b_virt_text_inline > 0) {
+     curwin->w_valid &= ~(VALID_WROW|VALID_WCOL|VALID_VIRTCOL);
+   }
+ 
+@@ -3469,7 +3469,7 @@ static bool ins_esc(long *count, int cmdchar, bool nomove)
+   State = MODE_NORMAL;
+   may_trigger_modechanged();
+   // need to position cursor again when on a TAB
+-  if (gchar_cursor() == TAB || curbuf->b_virt_text > 0) {
++  if (gchar_cursor() == TAB || curbuf->b_virt_text_inline > 0) {
+     curwin->w_valid &= ~(VALID_WROW|VALID_WCOL|VALID_VIRTCOL);
+   }
+ 
+diff --git a/src/nvim/extmark.c b/src/nvim/extmark.c
+index 7665763fc52ca..7117b7bd5dd59 100644
+--- a/src/nvim/extmark.c
++++ b/src/nvim/extmark.c
+@@ -153,8 +153,8 @@ void extmark_set(buf_T *buf, uint32_t ns_id, uint32_t *idp, int row, colnr_T col
+   }
+ 
+   if (decor) {
+-    if (kv_size(decor->virt_text)) {
+-      buf->b_virt_text++;
++    if (kv_size(decor->virt_text) && decor->virt_text_pos == kVTInline) {
++      buf->b_virt_text_inline++;
+     }
+     if (kv_size(decor->virt_lines)) {
+       buf->b_virt_line_blocks++;
+
+From 3e65d37c381873cdcc4b3fc48616dc483d1333bd Mon Sep 17 00:00:00 2001
+From: bfredl <bjorn.linse@gmail.com>
+Date: Tue, 9 May 2023 14:26:03 +0200
+Subject: [PATCH 24/24] fix(extmark): fix cursor position with both left and
+ right gravity inline text
+
+---
+ src/nvim/charset.c                      | 14 ++++----
+ src/nvim/plines.c                       | 22 +++++++------
+ src/nvim/plines.h                       |  4 +--
+ test/functional/ui/decorations_spec.lua | 43 +++++++++++++++++++++++++
+ 4 files changed, 64 insertions(+), 19 deletions(-)
+
+diff --git a/src/nvim/charset.c b/src/nvim/charset.c
+index 2917bb31eef1c..49890a460a769 100644
+--- a/src/nvim/charset.c
++++ b/src/nvim/charset.c
+@@ -1053,11 +1053,8 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+ 
+       // make sure we don't go past the end of the line
+       if (*cts.cts_ptr == NUL) {
+-        // NUL at end of line only takes one column
+-        incr = 1;
+-        if (cts.cts_cur_text_width > 0) {
+-          incr = cts.cts_cur_text_width;
+-        }
++        // NUL at end of line only takes one column, unless there is virtual text
++        incr = MAX(1, cts.cts_cur_text_width_left + cts.cts_cur_text_width_right);
+         on_NUL = true;
+         break;
+       }
+@@ -1092,9 +1089,12 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
+       // cursor at end
+       *cursor = vcol + incr - 1;
+     } else {
+-      if (((State & MODE_INSERT) == 0 || !cts.cts_has_right_gravity) && !on_NUL) {
++      if (!on_NUL) {
+         // cursor is after inserted text, unless on the NUL
+-        vcol += cts.cts_cur_text_width;
++        vcol += cts.cts_cur_text_width_left;
++        if ((State & MODE_INSERT) == 0) {
++          vcol += cts.cts_cur_text_width_right;
++        }
+       }
+       // cursor at start
+       *cursor = vcol + head;
+diff --git a/src/nvim/plines.c b/src/nvim/plines.c
+index b1266a87a921a..4933a9dc2d821 100644
+--- a/src/nvim/plines.c
++++ b/src/nvim/plines.c
+@@ -269,7 +269,7 @@ int linetabsize_col(int startcol, char *s)
+   if (cts.cts_has_virt_text && cts.cts_ptr == cts.cts_line) {
+     // check for virtual text in an empty line
+     (void)lbr_chartabsize_adv(&cts);
+-    cts.cts_vcol += cts.cts_cur_text_width;
++    cts.cts_vcol += cts.cts_cur_text_width_left + cts.cts_cur_text_width_right;
+   }
+   clear_chartabsize_arg(&cts);
+   return cts.cts_vcol;
+@@ -308,7 +308,7 @@ void win_linetabsize_cts(chartabsize_T *cts, colnr_T len)
+   if (cts->cts_has_virt_text && *cts->cts_ptr == NUL
+       && cts->cts_ptr == cts->cts_line) {
+     (void)win_lbr_chartabsize(cts, NULL);
+-    cts->cts_vcol += cts->cts_cur_text_width;
++    cts->cts_vcol += cts->cts_cur_text_width_left + cts->cts_cur_text_width_right;
+   }
+ }
+ 
+@@ -323,9 +323,9 @@ void init_chartabsize_arg(chartabsize_T *cts, win_T *wp, linenr_T lnum FUNC_ATTR
+   cts->cts_vcol = col;
+   cts->cts_line = line;
+   cts->cts_ptr = ptr;
+-  cts->cts_cur_text_width = 0;
++  cts->cts_cur_text_width_left = 0;
++  cts->cts_cur_text_width_right = 0;
+   cts->cts_has_virt_text = false;
+-  cts->cts_has_right_gravity = true;
+   cts->cts_row = lnum - 1;
+ 
+   if (cts->cts_row >= 0) {
+@@ -398,7 +398,8 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+   int mb_added = 0;
+   int numberextra;
+ 
+-  cts->cts_cur_text_width = 0;
++  cts->cts_cur_text_width_left = 0;
++  cts->cts_cur_text_width_right = 0;
+ 
+   // No 'linebreak', 'showbreak' and 'breakindent': return quickly.
+   if (!wp->w_p_lbr && !wp->w_p_bri && *get_showbreak_value(wp) == NUL
+@@ -419,14 +420,15 @@ int win_lbr_chartabsize(chartabsize_T *cts, int *headp)
+       mtkey_t mark = marktree_itr_current(cts->cts_iter);
+       if (mark.pos.row != cts->cts_row || mark.pos.col > col) {
+         break;
+-      } else if (mark.pos.col >= col
+-                 && mark.pos.col < col + charlen) {  // TODO(bfredl): or maybe unconditionally, what
+-                                                     // if byte-misaligned?
++      } else if (mark.pos.col >= col && mark.pos.col < col + charlen) {
+         if (!mt_end(mark)) {
+           Decoration decor = get_decor(mark);
+           if (decor.virt_text_pos == kVTInline) {
+-            cts->cts_cur_text_width += decor.virt_text_width;
+-            cts->cts_has_right_gravity = mt_right(mark);
++            if (mt_right(mark)) {
++              cts->cts_cur_text_width_right += decor.virt_text_width;
++            } else {
++              cts->cts_cur_text_width_left += decor.virt_text_width;
++            }
+             size += decor.virt_text_width;
+             if (*s == TAB) {
+               // tab size changes because of the inserted text
+diff --git a/src/nvim/plines.h b/src/nvim/plines.h
+index 6e4768bc7dfea..fa55357193e75 100644
+--- a/src/nvim/plines.h
++++ b/src/nvim/plines.h
+@@ -14,8 +14,8 @@ typedef struct {
+   int cts_row;
+ 
+   bool cts_has_virt_text;  // true if if a property inserts text
+-  bool cts_has_right_gravity;
+-  int cts_cur_text_width;     // width of current inserted text
++  int cts_cur_text_width_left;     // width of virtual text left of cursor
++  int cts_cur_text_width_right;     // width of virtual text right of cursor
+   MarkTreeIter cts_iter[1];
+   // TODO(bfredl): iterator in to the marktree for scanning virt text
+ 
+diff --git a/test/functional/ui/decorations_spec.lua b/test/functional/ui/decorations_spec.lua
+index b4a5ae6b88d0b..00e39cc4dab25 100644
+--- a/test/functional/ui/decorations_spec.lua
++++ b/test/functional/ui/decorations_spec.lua
+@@ -1745,6 +1745,49 @@ bbbbbbb]])
+       ]]}
+   end)
+ 
++  it('cursor position is correct when inserting around virtual texts with both left and right gravity ', function()
++    insert('foo foo foo foo')
++    meths.buf_set_extmark(0, ns, 0, 8, { virt_text = {{ '>>', 'Special' }}, virt_text_pos = 'inline', right_gravity = false })
++    meths.buf_set_extmark(0, ns, 0, 8, { virt_text = {{ '<<', 'Special' }}, virt_text_pos = 'inline', right_gravity = true })
++    feed('08l')
++    screen:expect{ grid = [[
++      foo foo {28:>><<}^foo foo                               |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++                                                        |
++      ]]}
++
++    feed('i')
++    screen:expect { grid = [[
++      foo foo {28:>>^<<}foo foo                               |
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {1:~                                                 }|
++      {24:-- INSERT --}                                      |
++      ]]}
++  end)
++
+   it('draws correctly with no wrap multiple virtual text, where one is hidden', function()
+     insert('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+     command("set nowrap")

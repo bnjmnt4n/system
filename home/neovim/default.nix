@@ -8,7 +8,12 @@ let
         {
           lua = pkgs.luajit;
         }
-    else pkgs.neovim-nightly;
+    else
+      pkgs.neovim-nightly.overrideAttrs (oa: {
+        patches = (oa.patches or [ ]) ++ [
+          ./patches/inline-virtual-text.patch
+        ];
+      });
   lazyNvimSetupScript = pkgs.writeScript "lazy-nvim-setup" ''
     #!/bin/sh
     set -eux
