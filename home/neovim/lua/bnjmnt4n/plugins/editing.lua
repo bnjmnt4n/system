@@ -328,4 +328,11 @@ return {
       -- Make special mapping for "add surrounding for line"
     end,
   },
+
+  -- Remove whitespace
+  {
+    'lewis6991/spaceless.nvim',
+    event = 'VeryLazy',
+    config = true,
+  },
 }
