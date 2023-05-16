@@ -212,6 +212,22 @@ return {
     end,
   },
 
+  -- LSP status
+  {
+    'j-hui/fidget.nvim',
+    config = function()
+      require('fidget').setup {
+        window = {
+          relative = 'editor',
+        },
+      }
+      vim.cmd [[
+        highlight link FidgetTitle Comment
+        highlight link FidgetTask Comment
+      ]]
+    end,
+  },
+
   -- Inlay hints
   {
     'lvimuser/lsp-inlayhints.nvim',
