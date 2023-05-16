@@ -90,17 +90,25 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Enter paste mode
 vim.o.pastetoggle = '<F3>'
 
+-- Help: `q` to quit
+local help_group = vim.api.nvim_create_augroup('Help', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = help_group,
+  pattern = 'help',
+  callback = function()
+    vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = true, silent = true })
+  end,
+})
+
 -- Quickfix list: `q` to quit, `x` to open Trouble
 local quickfixlist_group = vim.api.nvim_create_augroup('QuickfixList', { clear = true })
 vim.api.nvim_create_autocmd('FileType', {
   group = quickfixlist_group,
   pattern = 'qf',
-  command = 'nnoremap <buffer> q :lclose <bar> cclose <cr>',
-})
-vim.api.nvim_create_autocmd('FileType', {
-  group = quickfixlist_group,
-  pattern = 'qf',
-  command = 'nnoremap <buffer> x :lclose <bar> cclose <bar> Trouble quickfix <cr>',
+  callback = function()
+    vim.keymap.set('n', 'q', ':lclose <bar> cclose<cr>', { buffer = true, silent = true })
+    vim.keymap.set('n', 'x', ':lclose <bar> cclose <bar> Trouble quickfix<cr>', { buffer = true, silent = true })
+  end,
 })
 
 require 'bnjmnt4n.keymaps'
