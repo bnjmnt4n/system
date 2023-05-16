@@ -65,7 +65,6 @@ local on_attach = function(client, bufnr)
   map('n', 'gr', vim.lsp.buf.references, { desc = 'Go to references', noremap = true })
   map('n', 'K', vim.lsp.buf.hover, { desc = 'Hover' })
   map('n', '<c-k>', vim.lsp.buf.signature_help, { desc = 'Signature help' })
-  map('n', '<leader>cr', vim.lsp.buf.rename, { desc = 'Rename variable' })
   -- TODO: confirm keybindings?
   map('n', '<leader>D', vim.lsp.buf.type_definition, { desc = 'Go to type definition' })
   map('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show line diagnostics' })
@@ -234,6 +233,22 @@ return {
     branch = 'anticonceal',
     event = { 'BufReadPre', 'BufNewFile' },
     config = true,
+  },
+
+  -- Incremental rename
+  {
+    'smjonas/inc-rename.nvim',
+    config = true,
+    keys = {
+      {
+        '<leader>cr',
+        function()
+          return ':IncRename ' .. vim.fn.expand '<cword>'
+        end,
+        desc = 'Rename variable',
+        expr = true,
+      },
+    },
   },
 
   -- Nvim-based language server + diagnostics
