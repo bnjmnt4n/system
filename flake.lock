@@ -464,11 +464,11 @@
     "lazy-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1679734688,
-        "narHash": "sha256-L84yAak8i79a+bfAFDUi0C8x12MJGVFzMLVr0maMXoE=",
+        "lastModified": 1683987169,
+        "narHash": "sha256-Xfs6vtawPz9i+KREQnPpyPj3etS2oxCqZP9w+73b4t4=",
         "owner": "folke",
         "repo": "lazy.nvim",
-        "rev": "57cce98dfdb2f2dd05a0567d89811e6d0505e13b",
+        "rev": "aba872ec78ffe7f7367764ab0fff6f0170421fde",
         "type": "github"
       },
       "original": {
