@@ -76,12 +76,14 @@ return {
       return {
         -- stylua: ignore
         defaults = {
-          i = {
-            ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
-          },
-          n = {
-            ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
-            ['q'] = function(...) return require('telescope.actions').close(...) end,
+          mappings = {
+            i = {
+              ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
+            },
+            n = {
+              ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
+              ['q'] = function(...) return require('telescope.actions').close(...) end,
+            },
           },
         },
         extensions = {
@@ -134,6 +136,7 @@ return {
         topdelete = { hl = 'GitGutterDelete', text = '‾' },
         changedelete = { hl = 'GitGutterChange', text = '~' },
       },
+      current_line_blame = true,
 
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
