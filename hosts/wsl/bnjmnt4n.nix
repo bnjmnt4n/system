@@ -17,7 +17,7 @@ in
     ../../home/difftastic.nix # ../../home/delta.nix
     ../../home/tmux.nix
 
-    ../../home/emacs/default.nix
+    # ../../home/emacs/default.nix
     ../../home/neovim/default.nix
   ];
 

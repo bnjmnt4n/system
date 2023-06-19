@@ -15,7 +15,7 @@ require('lazy').setup('bnjmnt4n.plugins', {
   performance = {
     reset_packpath = false,
     rtp = {
-      reset = false,
+      reset = true,
     },
   },
 })

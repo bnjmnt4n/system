@@ -6,6 +6,9 @@ return {
   {
     'tpope/vim-fugitive',
     event = 'VeryLazy',
+    dependencies = {
+      'tpope/vim-rhubarb',
+    },
     keys = {
       { '<leader>gG', '<cmd>Git<cr>', desc = 'Fugitive' },
       { '<leader>ga', '<cmd>Git add %:p<cr><cr>', desc = 'git add current file' },
@@ -16,6 +19,8 @@ return {
       { '<leader>gl', ':silent! Gclog<cr>:bot copen<cr>', desc = 'git log', silent = false },
       { '<leader>gm', ':GMove<space>', desc = 'git move', silent = false },
       { '<leader>go', ':Git checkout<space>', desc = 'git checkout', silent = false },
+      { '<leader>gy', ':GBrowse!<cr>', desc = 'Copy link to clipboard' },
+      { '<leader>gy', ':GBrowse!<cr>', desc = 'Copy link to clipboard', mode = 'v' },
     },
   },
 
@@ -100,6 +105,12 @@ return {
       require('telescope').load_extension 'fzf'
       require('telescope').load_extension 'file_browser'
       require('telescope').load_extension 'ui-select'
+
+      -- https://github.com/nvim-telescope/telescope.nvim/issues/699
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufNew', 'BufWinEnter' }, {
+        group = vim.api.nvim_create_augroup('ts_fold_workaround', { clear = true }),
+        command = 'set foldexpr=nvim_treesitter#foldexpr()',
+      })
     end,
   },
 

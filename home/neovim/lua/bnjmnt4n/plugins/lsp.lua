@@ -46,7 +46,7 @@ local on_attach = function(client, bufnr)
         vim.lsp.buf.format {
           bufnr = bufnr,
           filter = function(cl)
-            return cl.name == 'null-ls'
+            return cl.name == 'null-ls' or cl.name == 'eslint'
           end,
         }
       end,
@@ -102,7 +102,7 @@ return {
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
       -- Enable the following language servers
-      local servers = { 'clangd', 'cssls', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
+      local servers = { 'astro', 'clangd', 'cssls', 'eslint', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
 
       for _, lsp in ipairs(servers) do
         nvim_lsp[lsp].setup {
@@ -122,7 +122,7 @@ return {
 
           local bufnr = args.buf
           local client = vim.lsp.get_client_by_id(args.data.client_id)
-          require('lsp-inlayhints').on_attach(client, bufnr)
+          require('lsp-inlayhints').on_attach(client, bufnr, false)
         end,
       })
 
@@ -155,20 +155,6 @@ return {
             },
           },
         },
-      }
-
-      -- ESLint
-      nvim_lsp.eslint.setup {
-        on_attach = function(client, bufnr)
-          vim.api.nvim_clear_autocmds { group = lsp_formatting_augroup, buffer = bufnr }
-          vim.api.nvim_create_autocmd('BufWritePre', {
-            group = lsp_formatting_augroup,
-            buffer = bufnr,
-            command = 'EslintFixAll',
-          })
-          on_attach(client, bufnr)
-        end,
-        capabilities = capabilities,
       }
 
       -- Tailwind
@@ -214,6 +200,7 @@ return {
   -- LSP status
   {
     'j-hui/fidget.nvim',
+    branch = 'legacy',
     config = function()
       require('fidget').setup {
         window = {

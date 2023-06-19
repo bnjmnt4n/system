@@ -71,10 +71,6 @@
       # Remove the old tag with this name and tag the latest commit with it.
       retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r";
 
-      # Remove branches that have already been merged with main.
-      # a.k.a. ‘delete merged’
-      dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d";
-
       # List contributors with number of commits.
       contributors = "shortlog --summary --numbered";
 
@@ -96,8 +92,8 @@
     };
   };
 
-  # programs.gh.enable = true;
-  home.packages = [ pkgs.gh ];
+  programs.gh.enable = true;
+  home.packages = [ pkgs.gh pkgs.git-branchless ];
 
   # Shell aliases.
   programs.fish.shellAliases.g = "git";

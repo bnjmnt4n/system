@@ -332,7 +332,7 @@ return {
   -- Remove whitespace
   {
     'lewis6991/spaceless.nvim',
-    event = 'VeryLazy',
+    event = 'InsertEnter',
     config = true,
   },
 }
