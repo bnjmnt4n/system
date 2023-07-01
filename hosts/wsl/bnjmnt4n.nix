@@ -49,13 +49,10 @@ in
 
   home.packages = with pkgs; [
     canvas-downloader
-    imgurs
     hledger
     restic
     scripts.setupResticEnv
     yt-dlp
-    inter
-    (nerdfonts.override { fonts = [ "Iosevka" ]; })
   ];
 
   home.sessionVariables = {
