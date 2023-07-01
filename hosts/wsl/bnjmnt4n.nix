@@ -18,6 +18,7 @@ in
     ../../home/tmux.nix
 
     # ../../home/emacs/default.nix
+    ../../home/helix.nix
     ../../home/neovim/default.nix
   ];
 
