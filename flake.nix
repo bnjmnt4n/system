@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-staging.url = "github:NixOS/nixpkgs/staging";
     flake-utils.url = "github:numtide/flake-utils";
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -19,10 +20,7 @@
       url = "github:doomemacs/doomemacs";
       flake = false;
     };
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     lazy-nvim = {
       url = "github:folke/lazy.nvim/stable";
       flake = false;
@@ -31,7 +29,6 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
-    imgurs.url = "github:bnjmnt4n/imgurs";
     canvas-downloader = {
       url = "github:k-walter/canvas-downloader";
       flake = false;
@@ -85,10 +82,17 @@
           ] ++ modules;
         };
       makeHomeManagerConfiguration = { system, username, configuration }:
-        home-manager.lib.homeManagerConfiguration {
+        let
           pkgs = makePkgs system;
+        in
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
           modules = [
             {
+              nixpkgs = {
+                overlays = makeOverlays system;
+                config.allowUnfree = true;
+              };
               home = {
                 inherit username;
                 homeDirectory = "/home/${username}";

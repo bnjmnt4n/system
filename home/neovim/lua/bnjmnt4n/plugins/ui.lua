@@ -55,11 +55,10 @@ return {
     'lukas-reineke/indent-blankline.nvim',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
+      indent = { char = '┊' },
     },
     config = function(_, opts)
-      require('indent_blankline').setup(opts)
+      require('ibl').setup(opts)
       vim.g.indent_blankline_char_highlight = 'LineNr'
       -- Fixes bug where empty lines hold on to their highlighting
       -- https://github.com/lukas-reineke/indent-blankline.nvim/issues/59

@@ -4,19 +4,13 @@ inputs: system: final: prev:
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
   kill-focused = prev.callPackage ./kill-focused.nix { };
 
-  # Fetch from Git until a new version is released.
-  youtube-dl = prev.youtube-dl.overrideAttrs (old: {
-    src = prev.fetchFromGitHub {
-      owner = "ytdl-org";
-      repo = "youtube-dl";
-      rev = "195f22f679330549882a8234e7234942893a4902";
-      sha256 = "bXxgY8/4LUwhyyC29AbVPnfkDFOzht/th9mboaDx55c=";
-    };
-    patches = [ ];
-    postInstall = "";
-  });
+  neovim-unwrapped = prev.neovim-unwrapped.override {
+    libvterm-neovim = inputs.nixpkgs-staging.legacyPackages."${system}".libvterm-neovim;
+  };
+  neovim-nightly = prev.neovim-nightly.override {
+    libvterm-neovim = inputs.nixpkgs-staging.legacyPackages."${system}".libvterm-neovim;
+  };
 
-  imgurs = inputs.imgurs.packages."${system}".default;
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;
   };

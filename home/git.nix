@@ -93,7 +93,11 @@
   };
 
   programs.gh.enable = true;
-  home.packages = [ pkgs.gh pkgs.git-branchless pkgs.lazygit ];
+  home.packages = [
+    pkgs.gh
+    pkgs.git-branchless
+    pkgs.lazygit
+  ];
 
   # Shell aliases.
   programs.fish.shellAliases.g = "git";

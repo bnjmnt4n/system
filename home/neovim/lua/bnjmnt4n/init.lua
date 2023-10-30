@@ -87,9 +87,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
--- Enter paste mode
-vim.o.pastetoggle = '<F3>'
-
 -- Help: `q` to quit
 local help_group = vim.api.nvim_create_augroup('Help', { clear = true })
 vim.api.nvim_create_autocmd('FileType', {
