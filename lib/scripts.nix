@@ -28,12 +28,13 @@ rec {
 
   nixFlakeInit = pkgs.writeShellScriptBin "nix-flake-init" ''
     nix flake init -t "${inputs.self}#''${1:-default}"
+    echo "use flake" >> .envrc
     direnv allow .
   '';
 
   nixFlakeSync = pkgs.writeShellScriptBin "nix-flake-sync" ''
-    [ -f .envrc ] && ${pkgs.gnused}/bin/sed -i 's/nixpkgs.url *= *[^;]\+;/nixpkgs.url = "github:NixOS\/nixpkgs?rev=${inputs.nixpkgs.rev}";/g' flake.nix
-    [ -f .envrc ] && ${pkgs.gnused}/bin/sed -i 's/flake-utils.url *= *[^;]\+;/flake-utils.url = "github:numtide\/flake-utils?rev=${inputs.flake-utils.rev}";/g' flake.nix
+    [ -f flake.nix ] && ${pkgs.gnused}/bin/sed -i 's/nixpkgs.url *= *[^;]\+;/nixpkgs.url = "github:NixOS\/nixpkgs?rev=${inputs.nixpkgs.rev}";/g' flake.nix
+    [ -f flake.nix ] && ${pkgs.gnused}/bin/sed -i 's/flake-utils.url *= *[^;]\+;/flake-utils.url = "github:numtide\/flake-utils?rev=${inputs.flake-utils.rev}";/g' flake.nix
     [ -f .envrc ] && direnv allow .
   '';
 

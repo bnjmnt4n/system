@@ -144,8 +144,10 @@
       templates = {
         default = { path = ./templates/default; description = "Default"; };
         go = { path = ./templates/go; description = "Go"; };
+        mariadb = { path = ./templates/mariadb; description = "MariaDB"; };
         ocaml = { path = ./templates/ocaml; description = "OCaml"; };
         postgres = { path = ./templates/postgres; description = "PostgreSQL"; };
+        python = { path = ./templates/python; description = "Python"; };
         rust = { path = ./templates/rust; description = "Rust"; };
         web = { path = ./templates/web; description = "Web"; };
         zig = { path = ./templates/zig; description = "Zig"; };
