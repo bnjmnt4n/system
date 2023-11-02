@@ -4,6 +4,7 @@ inputs: system: final: prev:
   freeze-focused = prev.callPackage ./freeze-focused.nix { };
   kill-focused = prev.callPackage ./kill-focused.nix { };
 
+  firefox-darwin = prev.callPackage ./firefox-darwin.nix { };
   neovim-unwrapped = prev.neovim-unwrapped.override {
     libvterm-neovim = inputs.nixpkgs-staging.legacyPackages."${system}".libvterm-neovim;
   };
