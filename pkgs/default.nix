@@ -14,7 +14,7 @@ inputs: system: final: prev:
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;
   };
-  socprint = prev.callPackage ./socprint {
+  socprint = prev.callPackage ./socprint.nix {
     src = inputs.socprint;
   };
   otf2bdf = prev.callPackage ./otf2bdf { };
