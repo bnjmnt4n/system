@@ -21,7 +21,6 @@
         "application/x-extension-xht" = "firefox.desktop";
         "application/pdf" = "org.pwmt.zathura-pdf-mupdf.desktop";
         "application/zip" = "xarchiver.desktop";
-        "text/" = "emacsclient.desktop"; # TODO
         "image/" = "imv.desktop";
         "video/" = "mpv.desktop";
         "audio/" = "mpv.desktop";

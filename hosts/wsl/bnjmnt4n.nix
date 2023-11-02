@@ -17,7 +17,6 @@ in
     ../../home/difftastic.nix # ../../home/delta.nix
     ../../home/tmux.nix
 
-    # ../../home/emacs/default.nix
     ../../home/helix.nix
     ../../home/neovim/default.nix
   ];
@@ -58,6 +57,5 @@ in
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
-    GDK_DPI_SCALE = 1.5;
   };
 }

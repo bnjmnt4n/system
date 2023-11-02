@@ -7,10 +7,9 @@ rec {
   terminal = "${pkgs.alacritty}/bin/alacritty";
   browser = "${pkgs.firefox}/bin/firefox";
   browser_alt = "${pkgs.chromium}/bin/chromium";
-  emacs = "${pkgs.emacsPgtk}/bin/emacsclient -c -a emacs";
-  editor = emacs;
+  # TODO.
+  editor = "${terminal}";
   explorer = "${pkgs.xfce.thunar}/bin/thunar";
-  telegram = "${emacs} -e '(=telegram)'";
 
   # Launcher command.
   launcher = "${pkgs.wofi}/bin/wofi --show drun 'Applications'";

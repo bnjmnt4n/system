@@ -47,7 +47,6 @@
     let
       makeOverlays = system: [
         inputs.agenix.overlays.default
-        inputs.emacs-overlay.overlay
         inputs.neovim-nightly-overlay.overlay
         inputs.nur.overlay
         inputs.tree-grepper.overlay."${system}"
