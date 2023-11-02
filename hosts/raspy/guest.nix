@@ -7,10 +7,6 @@
     ../../home/gtk.nix
   ];
 
-  # TODO: remove?
-  home.username = "guest";
-  home.homeDirectory = "/home/guest";
-
   home.packages = with pkgs; [
     # File manager
     (xfce.thunar.override {

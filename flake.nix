@@ -1,5 +1,5 @@
 {
-  description = "bnjmnt4n's NixOS configuration";
+  description = "bnjmnt4n's system configurations";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -43,100 +43,34 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, agenix, nixos-hardware, home-manager, ... }@inputs:
+  outputs = { self, flake-utils, nixos-hardware, ... }@inputs:
     let
-      makeOverlays = system: [
-        inputs.agenix.overlays.default
-        inputs.neovim-nightly-overlay.overlay
-        inputs.nur.overlay
-        inputs.tree-grepper.overlay."${system}"
-        (import ./pkgs/default.nix inputs system)
-      ];
-      makePkgs = system: import nixpkgs {
-        inherit system;
-        overlays = makeOverlays system;
-        config.allowUnfree = true;
-      };
-      makeNixosConfiguration = { system, modules }:
-        let
-          pkgs = makePkgs system;
-        in
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            home-manager.nixosModules.home-manager
-            agenix.nixosModules.age
-            {
-              # Before changing this value read the documentation for this option
-              # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-              system.stateVersion = "20.03";
-              system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
-              nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-              nix.registry.nixpkgs.flake = nixpkgs;
-              # Use our custom instance of nixpkgs.
-              nixpkgs = { inherit pkgs; };
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-            }
-          ] ++ modules;
-        };
-      makeHomeManagerConfiguration = { system, username, configuration }:
-        let
-          pkgs = makePkgs system;
-        in
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          modules = [
-            {
-              nixpkgs = {
-                overlays = makeOverlays system;
-                config.allowUnfree = true;
-              };
-              home = {
-                inherit username;
-                homeDirectory = "/home/${username}";
-              };
-            }
-            configuration
-          ];
-          extraSpecialArgs = { inherit inputs; };
-        };
+      utils = import ./lib/utils.nix inputs;
     in
     {
-      nixosConfigurations.gastropod = makeNixosConfiguration {
+      nixosConfigurations.gastropod = utils.makeNixosConfiguration {
         system = "x86_64-linux";
-        modules = [
-          ./hosts/gastropod/configuration.nix
-          # TODO: abstract home-manager user handling.
-          {
-            home-manager.users.bnjmnt4n = import ./hosts/gastropod/bnjmnt4n.nix;
-          }
-        ];
+        hostname = "gastropod";
+        users = [ "bnjmnt4n" ];
       };
 
-      nixosConfigurations.raspy = makeNixosConfiguration {
+      nixosConfigurations.raspy = utils.makeNixosConfiguration {
         system = "aarch64-linux";
-        modules = [
-          nixos-hardware.nixosModules.raspberry-pi-4
-          ./hosts/raspy/configuration.nix
-          # TODO: abstract home-manager user handling.
-          {
-            home-manager.users.bnjmnt4n = import ./hosts/raspy/bnjmnt4n.nix;
-            home-manager.users.guest = import ./hosts/raspy/guest.nix;
-          }
-        ];
+        hostname = "raspy";
+        users = [ "bnjmnt4n" ];
+        modules = [nixos-hardware.nixosModules.raspberry-pi-4];
       };
 
-      homeConfigurations.bnjmnt4n = makeHomeManagerConfiguration {
+      homeConfigurations.bnjmnt4n = utils.makeHomeManagerConfiguration {
         system = "x86_64-linux";
+        hostname = "gastropod";
         username = "bnjmnt4n";
-        configuration = ./hosts/gastropod/bnjmnt4n.nix;
       };
 
-      homeConfigurations.wsl = makeHomeManagerConfiguration {
+      homeConfigurations.wsl = utils.makeHomeManagerConfiguration {
         system = "x86_64-linux";
+        hostname = "wsl";
         username = "bnjmnt4n";
-        configuration = ./hosts/wsl/bnjmnt4n.nix;
       };
 
       defaultTemplate = { path = ./templates/default; description = "Default"; };
@@ -156,7 +90,7 @@
     # Convenient shortcuts to switch configurations within this repository.
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = makePkgs system;
+        pkgs = utils.makePkgs system;
         scripts = import ./lib/scripts.nix { inherit pkgs inputs; };
       in
       {

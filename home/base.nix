@@ -9,10 +9,6 @@ in
     ./ssh.nix
   ];
 
-  # TODO: shift to flake.nix?
-  programs.home-manager.enable = true;
-  home.stateVersion = "20.09";
-
   xdg.configFile."nixpkgs/config.nix".text = ''
     { allowUnfree = true; }
   '';

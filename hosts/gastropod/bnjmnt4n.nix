@@ -27,10 +27,6 @@
     ../../home/wayland.nix
   ];
 
-  # TODO: remove?
-  home.username = "bnjmnt4n";
-  home.homeDirectory = "/home/bnjmnt4n";
-
   home.packages = with pkgs; [
     # File manager
     (xfce.thunar.override {
