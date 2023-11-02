@@ -41,7 +41,7 @@ $ mkdir -p ~/.config/nix
 $ echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
 # Build configuration
-$ nix build .#homeConfigurations.wsl.activationPackage
+$ nix build .#homeConfigurations.$HOSTNAME_$USER.activationPackage
 $ ./result/activate
 ```
 

@@ -67,9 +67,9 @@
         username = "bnjmnt4n";
       };
 
-      homeConfigurations.wsl = utils.makeHomeManagerConfiguration {
+      homeConfigurations.windows_bnjmnt4n = utils.makeHomeManagerConfiguration {
         system = "x86_64-linux";
-        hostname = "wsl";
+        hostname = "windows";
         username = "bnjmnt4n";
       };
 
