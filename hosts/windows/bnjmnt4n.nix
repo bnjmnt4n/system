@@ -18,7 +18,7 @@ in
     ../../home/tmux.nix
 
     ../../home/helix.nix
-    ../../home/neovim/default.nix
+    ../../home/neovim
   ];
 
   xdg.configFile."nix/nix.conf".text = ''

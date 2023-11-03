@@ -4,9 +4,12 @@
   programs.ssh = {
     enable = true;
     matchBlocks = {
-      "sunfire" = {
-        hostname = "sunfire.comp.nus.edu.sg";
-        user = "tanb";
+      "*" = {
+        extraOptions = {
+          "IgnoreUnknown" = "AddKeysToAgent,UseKeychain";
+          "AddKeysToAgent" = "yes";
+          "UseKeychain" = "yes";
+        };
       };
       "stu" = {
         hostname = "stu.comp.nus.edu.sg";
@@ -15,12 +18,12 @@
       "xcn??" = {
         hostname = "%h";
         user = "tanb";
-        proxyJump = "sunfire";
+        proxyJump = "stu";
       };
       "xgp??" = {
         hostname = "%h";
         user = "tanb";
-        proxyJump = "sunfire";
+        proxyJump = "stu";
       };
       "soctf*" = {
         hostname = "%h";

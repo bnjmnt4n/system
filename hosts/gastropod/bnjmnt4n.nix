@@ -13,14 +13,14 @@
     ../../home/delta.nix
     ../../home/tmux.nix
 
-    ../../home/neovim/default.nix
+    ../../home/neovim
 
     ../../home/beets.nix
     ../../home/mail.nix
 
     ../../home/alacritty.nix
     ../../home/chromium.nix
-    ../../home/firefox/default.nix
+    ../../home/firefox
     ../../home/gtk.nix
     ../../home/mpv.nix
     ../../home/spotify.nix

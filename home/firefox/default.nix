@@ -3,10 +3,11 @@
 {
   programs.firefox = {
     enable = true;
-    package = pkgs.firefox;
+    package = if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then pkgs.firefox-darwin else pkgs.firefox;
 
     profiles = {
       default = {
+        isDefault = true;
         userChrome = pkgs.lib.readFile ./userChrome.css;
         extensions = with pkgs.nur.repos.rycee.firefox-addons; [
           bitwarden
@@ -20,7 +21,6 @@
           vimium
         ];
         settings = {
-          "browser.quitShortcut.disabled" = true;
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "";
           "browser.urlbar.suggest.searches" = false;

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
   # Fast terminal emulator.
@@ -7,11 +7,14 @@
     settings = {
       env.TERM = "xterm-256color";
 
-      background_opacity = 0.95;
+      shell = {
+        program = "login";
+        args = [ "-fp" config.home.username ];
+      };
 
       font = {
-        normal.family = "Iosevka Term";
-        size = 16;
+        normal.family = "Iosevka Nerd Font";
+        size = 20;
       };
 
       window.padding = {

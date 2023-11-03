@@ -6,7 +6,7 @@ in
 {
   imports = [
     ./sway.nix
-    ./waybar/default.nix
+    ./waybar
     ./mako.nix
     ./wlsunset.nix
     ./wofi.nix

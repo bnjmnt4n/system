@@ -5,7 +5,6 @@
     ./hardware-configuration.nix
 
     ../../nixos/nix.nix
-    ../../nixos/binary-caches.nix
 
     ../../nixos/defaults.nix
     ../../nixos/console-font.nix

@@ -1,7 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
-  services.gpg-agent = {
+  services.gpg-agent = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     enable = true;
     enableExtraSocket = true;
     enableSshSupport = true;
@@ -11,7 +11,13 @@
     maxCacheTtlSsh = 34560000;
   };
 
-  home.packages = [
-    pkgs.gnupg
-  ];
+  programs.gpg.enable = true;
+
+  # Mac-specific configuration.
+  # TODO: do we need to initiate a service?
+  home.packages = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ pkgs.pinentry_mac ];
+  home.file.".gnupg/gpg-agent.conf".text = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
+    ''
+      pinentry-program ${pkgs.pinentry_mac}/${pkgs.pinentry_mac.binaryPath}
+    '';
 }

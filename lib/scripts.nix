@@ -7,7 +7,12 @@ rec {
   # Copied from https://github.com/terlar/nix-config/blob/570134ba7007f68e058855e0d6a1677a9dc3fa27/lib/scripts.nix
   switchNixos = pkgs.writeShellScriptBin "swn" ''
     set -euo pipefail
-    sudo nixos-rebuild switch --flake . $@
+    platform=$(uname)
+    if [ "$platform" == "Darwin" ]; then
+      darwin-rebuild switch --flake . $@
+    else
+      sudo nixos-rebuild switch --flake . $@
+    fi
   '';
 
   switchHome = pkgs.writeShellScriptBin "swh" ''

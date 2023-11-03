@@ -1,12 +1,15 @@
-{ self, nixpkgs, agenix, home-manager, ... }@inputs:
+{ self, nixpkgs, agenix, home-manager, darwin, ... }@inputs:
 
+let
+  homeStateVersion = "20.09";
+in
 rec {
   makeOverlays = system: [
     inputs.agenix.overlays.default
     inputs.neovim-nightly-overlay.overlay
     inputs.nur.overlay
     inputs.tree-grepper.overlay."${system}"
-    (import ../pkgs/default.nix inputs system)
+    (import ../pkgs inputs system)
   ];
 
   makePkgs = system: import nixpkgs {
@@ -15,7 +18,7 @@ rec {
     config.allowUnfree = true;
   };
 
-  makeNixosConfiguration = { system, hostname, username, modules, users }:
+  makeNixosConfiguration = { system, hostname, username, modules ? [ ], users }:
     let
       pkgs = makePkgs system;
     in
@@ -37,15 +40,69 @@ rec {
           home-manager.useUserPackages = true;
         }
         (../hosts + "/${hostname}/configuration.nix")
-      ] ++ nixpkgs.lib.lists.singleton nixpkgs.lib.attrsets.genAttrs users (user: {
-        home-manager.users."${user}" = {
-          home = {
-            username = user;
-            homeDirectory = "/home/${user}";
-            stateVersion = "20.09";
-          };
-        } // import (../hosts + "/${hostname}/${user}.nix");
-      });
+        (nixpkgs.lib.lists.foldl'
+          (attrs: user: attrs // {
+            home-manager.users.${user} = args: {
+              imports = [
+                (../hosts + "/${hostname}/${user}.nix")
+              ];
+
+              home = {
+                username = user;
+                homeDirectory = "/home/${user}";
+                stateVersion = homeStateVersion;
+              };
+            };
+          })
+          { }
+          users)
+      ];
+    };
+
+  makeDarwinConfiguration = { system, hostname, modules ? [ ], users }:
+    let
+      pkgs = makePkgs system;
+    in
+    darwin.lib.darwinSystem {
+      inherit system;
+      specialArgs = { inherit inputs; };
+      modules = [
+        home-manager.darwinModules.home-manager
+        (../hosts + "/${hostname}/configuration.nix")
+        {
+          # Before changing this value read the documentation for this option
+          # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+          system.stateVersion = 4;
+          system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
+          nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+          nix.registry.nixpkgs.flake = nixpkgs;
+          # Use our custom instance of nixpkgs.
+          nixpkgs.pkgs = pkgs;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+        }
+        (nixpkgs.lib.lists.foldl'
+          (attrs: user: attrs // {
+            users.users."${user}" = {
+              home = "/Users/${user}";
+              shell = "/run/current-system/sw/bin/fish";
+            };
+            home-manager.users.${user} = args: {
+              imports = [
+                (../hosts + "/${hostname}/${user}.nix")
+              ];
+
+              home = {
+                username = user;
+                homeDirectory = "/Users/${user}";
+                stateVersion = homeStateVersion;
+              };
+            };
+          })
+          { }
+          users)
+      ];
     };
 
   makeHomeManagerConfiguration = { system, hostname, username }:
@@ -62,8 +119,8 @@ rec {
           };
           home = {
             inherit username;
-            homeDirectory = "/home/${username}";
-            stateVersion = "20.09";
+            homeDirectory = if system == "aarch64-darwin" then "/Users/${username}" else "/home/${username}";
+            stateVersion = homeStateVersion;
           };
           programs.home-manager.enable = true;
         }

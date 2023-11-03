@@ -2,12 +2,9 @@
 
 let
   customNeovim =
-    if pkgs.stdenv.isAarch64
+    if pkgs.stdenv.hostPlatform.system == "aarch64-linux"
     then
-      pkgs.neovim-nightly.override
-        {
-          lua = pkgs.luajit;
-        }
+      pkgs.neovim-nightly.override { lua = pkgs.luajit; }
     else
       pkgs.neovim-nightly;
   lazyNvimSetupScript = pkgs.writeScript "lazy-nvim-setup" ''

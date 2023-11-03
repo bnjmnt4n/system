@@ -2,7 +2,6 @@
 {
   imports = [
     ../../nixos/nix.nix
-    ../../nixos/binary-caches.nix
 
     ../../nixos/defaults.nix
     ../../nixos/fonts.nix

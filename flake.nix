@@ -2,9 +2,13 @@
   description = "bnjmnt4n's system configurations";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixpkgs-staging.url = "github:NixOS/nixpkgs/staging";
     flake-utils.url = "github:numtide/flake-utils";
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,11 +18,6 @@
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
-    doomemacs = {
-      url = "github:doomemacs/doomemacs";
-      flake = false;
     };
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     lazy-nvim = {
@@ -48,29 +47,42 @@
       utils = import ./lib/utils.nix inputs;
     in
     {
-      nixosConfigurations.gastropod = utils.makeNixosConfiguration {
-        system = "x86_64-linux";
-        hostname = "gastropod";
+      nixosConfigurations = {
+        gastropod = utils.makeNixosConfiguration {
+          system = "x86_64-linux";
+          hostname = "gastropod";
+          users = [ "bnjmnt4n" ];
+        };
+        raspy = utils.makeNixosConfiguration {
+          system = "aarch64-linux";
+          hostname = "raspy";
+          users = [ "bnjmnt4n" "guest" ];
+          modules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
+        };
+      };
+
+      darwinConfigurations.macbook = utils.makeDarwinConfiguration {
+        system = "aarch64-darwin";
+        hostname = "macbook";
         users = [ "bnjmnt4n" ];
       };
 
-      nixosConfigurations.raspy = utils.makeNixosConfiguration {
-        system = "aarch64-linux";
-        hostname = "raspy";
-        users = [ "bnjmnt4n" ];
-        modules = [nixos-hardware.nixosModules.raspberry-pi-4];
-      };
-
-      homeConfigurations.bnjmnt4n = utils.makeHomeManagerConfiguration {
-        system = "x86_64-linux";
-        hostname = "gastropod";
-        username = "bnjmnt4n";
-      };
-
-      homeConfigurations.windows_bnjmnt4n = utils.makeHomeManagerConfiguration {
-        system = "x86_64-linux";
-        hostname = "windows";
-        username = "bnjmnt4n";
+      homeConfigurations = {
+        gastropod_bnjmnt4n = utils.makeHomeManagerConfiguration {
+          system = "x86_64-linux";
+          hostname = "gastropod";
+          username = "bnjmnt4n";
+        };
+        macbook_bnjmnt4n = utils.makeHomeManagerConfiguration {
+          system = "aarch64-darwin";
+          hostname = "macbook";
+          username = "bnjmnt4n";
+        };
+        windows_bnjmnt4n = utils.makeHomeManagerConfiguration {
+          system = "x86_64-linux";
+          hostname = "windows";
+          username = "bnjmnt4n";
+        };
       };
 
       defaultTemplate = { path = ./templates/default; description = "Default"; };
