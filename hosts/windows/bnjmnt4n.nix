@@ -37,13 +37,11 @@ in
     fi
   '';
 
-  fonts.fontconfig.enable = true;
-
   # Disable Ubuntu login message.
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
-    # canvas-downloader
+    canvas-downloader
     hledger
     restic
     scripts.setupResticEnv

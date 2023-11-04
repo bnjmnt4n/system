@@ -1,47 +1,42 @@
 # bnjmnt4n/system
 
-This repository contains configuration files for my system, written largely in [Nix][nixos].
-
-I'm currently running [NixOS][nixos] with [swaywm][swaywm], using [Neovim][neovim] as my editor.
+This repository contains configuration files for my systems, written largely in [Nix][nixos].
 
 ## Setup
 
 A Nix installation with flakes support is required.
 
 ```sh
+# Install Nix if not installed
+$ sh <(curl -L https://nixos.org/nix/install) --no-daemon # WSL
+$ sh <(curl -L https://nixos.org/nix/install) # Linux/Mac
+
+# Setup Nix flakes support
+$ mkdir -p ~/.config/nix
+$ echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+
 # Clone the repository.
 $ git clone https://github.com/bnjmnt4n/system.git
 $ cd system
 
-# Rebuilds my NixOS configuration.
-$ sudo nixos-rebuild switch --flake '.#gastropod'
-
-# Rebuilds my home-manager configuration.
-$ nix build '.#homeConfigurations.bnjmnt4n.activationPackage'
-$ ./result/activate
-
-# Alternatively
+# Use local development shell
 $ nix develop
-$ swn # Switch to the new NixOS configuration.
+$ swn # Switch to the new NixOS/nix-darwin configuration.
 $ swh # Switch to the new home configuration.
 
 # Update dependencies.
 $ nix flake update
-```
 
-### WSL
+# Alternative commands:
+# Switching NixOS configuration:
+$ sudo nixos-rebuild switch --flake '.#$HOSTNAME'
 
-```sh
-# Install Nix
-$ sh <(curl -L https://nixos.org/nix/install) --no-daemon
+# Switching nix-darwin configuration:
+$ nix build '.#darwinConfigurations.$HOSTNAME_$USER.system'
+$ ./result/sw/bin/darwin-rebuild switch --flake . '.#$HOSTNAME'
 
-# Setup Nix flakes support
-$ nix-env -iA nixpkgs.nixUnstable
-$ mkdir -p ~/.config/nix
-$ echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
-
-# Build configuration
-$ nix build .#homeConfigurations.$HOSTNAME_$USER.activationPackage
+# Switching home-manager configuration:
+$ nix build '.#homeConfigurations.$HOSTNAME_$USERNAME.activationPackage'
 $ ./result/activate
 ```
 

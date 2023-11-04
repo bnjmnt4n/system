@@ -16,8 +16,9 @@
   # Mac-specific configuration.
   # TODO: do we need to initiate a service?
   home.packages = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin [ pkgs.pinentry_mac ];
-  home.file.".gnupg/gpg-agent.conf".text = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-    ''
+  home.file = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    ".gnupg/gpg-agent.conf".text = ''
       pinentry-program ${pkgs.pinentry_mac}/${pkgs.pinentry_mac.binaryPath}
     '';
+  };
 }

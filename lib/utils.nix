@@ -1,4 +1,4 @@
-{ self, nixpkgs, agenix, home-manager, darwin, ... }@inputs:
+{ self, nixpkgs, agenix, home-manager, darwin, nix-index-database, ... }@inputs:
 
 let
   homeStateVersion = "20.09";
@@ -8,7 +8,6 @@ rec {
     inputs.agenix.overlays.default
     inputs.neovim-nightly-overlay.overlay
     inputs.nur.overlay
-    inputs.tree-grepper.overlay."${system}"
     (import ../pkgs inputs system)
   ];
 
@@ -27,6 +26,7 @@ rec {
       modules = modules ++ [
         home-manager.nixosModules.home-manager
         agenix.nixosModules.age
+        nix-index-database.nixosModules.nix-index
         {
           # Before changing this value read the documentation for this option
           # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
@@ -34,6 +34,7 @@ rec {
           system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
           nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
           nix.registry.nixpkgs.flake = nixpkgs;
+          nix.registry.my.flake = self;
           # Use our custom instance of nixpkgs.
           nixpkgs = { inherit pkgs; };
           home-manager.useGlobalPkgs = true;
@@ -68,20 +69,22 @@ rec {
       specialArgs = { inherit inputs; };
       modules = [
         home-manager.darwinModules.home-manager
-        (../hosts + "/${hostname}/configuration.nix")
+        nix-index-database.darwinModules.nix-index
         {
           # Before changing this value read the documentation for this option
           # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
           system.stateVersion = 4;
           system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
           nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
+          nix.registry.my.flake = self;
           nix.registry.nixpkgs.flake = nixpkgs;
           # Use our custom instance of nixpkgs.
-          nixpkgs.pkgs = pkgs;
+          nixpkgs = { inherit pkgs; };
           home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
         }
+        (../hosts + "/${hostname}/configuration.nix")
         (nixpkgs.lib.lists.foldl'
           (attrs: user: attrs // {
             users.users."${user}" = {
@@ -112,11 +115,14 @@ rec {
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [
+        nix-index-database.hmModules.nix-index
         {
           nixpkgs = {
             overlays = makeOverlays system;
             config.allowUnfree = true;
           };
+          nix.registry.nixpkgs.flake = nixpkgs;
+          nix.registry.my.flake = self;
           home = {
             inherit username;
             homeDirectory = if system == "aarch64-darwin" then "/Users/${username}" else "/home/${username}";

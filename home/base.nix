@@ -13,6 +13,8 @@ in
     { allowUnfree = true; }
   '';
 
+  programs.nix-index.enable = true;
+
   home.packages = with pkgs; [
     # System
     age
@@ -38,8 +40,6 @@ in
     # ast-grep
     # comby
     tokei
-    # TODO: there are no aarch64 binaries for tree-grepper
-    # (lib.mkIf (!pkgs.hostPlatform.stdenv.isAarch64) tree-grepper)
 
     # Nix tools
     nixpkgs-fmt

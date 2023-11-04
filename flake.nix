@@ -13,6 +13,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-index-database = {
+      url = "github:Mic92/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nur.url = "github:nix-community/NUR";
     agenix = {
@@ -35,10 +39,6 @@
     socprint = {
       url = "github:dlqs/SOCprint";
       flake = false;
-    };
-    tree-grepper = {
-      url = "github:BrianHicks/tree-grepper";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
