@@ -35,6 +35,7 @@
 
   environment.systemPackages = [
     pkgs.rectangle
+    pkgs.wezterm
     pkgs.zoom-us
   ];
 

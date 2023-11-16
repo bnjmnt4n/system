@@ -11,7 +11,7 @@ in
     ../../home/git.nix
     ../../home/gpg.nix
 
-    ../../home/alacritty.nix
+    ../../home/wezterm.nix
     ../../home/bat.nix
     ../../home/firefox
     # ../../home/difftastic.nix # ../../home/delta.nix
