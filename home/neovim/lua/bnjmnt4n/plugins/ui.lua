@@ -1,9 +1,9 @@
 return {
-  -- Vim ports of Modus Themes
   {
-    'ishan9299/modus-theme-vim',
+    'miikanissi/modus-themes.nvim',
+    priority = 1000,
     config = function()
-      vim.cmd [[colorscheme modus-operandi]]
+      vim.cmd [[colorscheme modus_operandi]]
     end,
   },
 
