@@ -1,12 +1,14 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # Fast terminal emulator.
   programs.alacritty = {
     enable = true;
+    package = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin) pkgs.emptyDirectory;
     settings = {
       env.TERM = "xterm-256color";
 
+      # TODO: macOS only.
       shell = {
         program = "login";
         args = [ "-fp" config.home.username ];
