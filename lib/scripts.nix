@@ -18,9 +18,9 @@ rec {
   switchHome = pkgs.writeShellScriptBin "swh" ''
     set -euo pipefail
     export PATH=${with pkgs; lib.makeBinPath [ coreutils gitMinimal jq nixUnstable ]}
-    hst=$(uname -n)
     usr="''${1:-$USER}"
-    attr="''${hst}_''${usr}"
+    hst=$(uname -n)
+    attr="''${usr}@''${hst}"
     1>&2 echo "Switching Home Manager configuration for $usr on $hst"
     attrExists="$(nix eval --json .#homeConfigurations --apply 'x: (builtins.any (n: n == "'$attr'") (builtins.attrNames x))' 2>/dev/null)"
     if [ "$attrExists" != "true" ]; then

@@ -67,17 +67,17 @@
       };
 
       homeConfigurations = {
-        gastropod_bnjmnt4n = utils.makeHomeManagerConfiguration {
+        "bnjmnt4n@gastropod" = utils.makeHomeManagerConfiguration {
           system = "x86_64-linux";
           hostname = "gastropod";
           username = "bnjmnt4n";
         };
-        macbook_bnjmnt4n = utils.makeHomeManagerConfiguration {
+        "bnjmnt4n@macbook" = utils.makeHomeManagerConfiguration {
           system = "aarch64-darwin";
           hostname = "macbook";
           username = "bnjmnt4n";
         };
-        windows_bnjmnt4n = utils.makeHomeManagerConfiguration {
+        "bnjmnt4n@windows" = utils.makeHomeManagerConfiguration {
           system = "x86_64-linux";
           hostname = "windows";
           username = "bnjmnt4n";
