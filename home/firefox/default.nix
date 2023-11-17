@@ -48,16 +48,23 @@
             "Wikipedia (en)".metaData.alias = "@wk";
             "Amazon.com".metaData.hidden = true;
             "Bing".metaData.hidden = true;
+            "eBay".metaData.hidden = true;
 
             "YouTube" = {
-              urls = [{ template = "https//www.youtube.com/results?search_query={searchTerms}&page={startPage?}"; }];
+              urls = [{ template = "https//www.youtube.com/results?search_query={searchTerms}"; }];
               definedAliases = [ "@yt" ];
               iconUpdateUrl = "https://www.youtube.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
-            "GitHub" = {
-              urls = [{ template = "https//github.com/search?q={searchTerms}"; }];
-              definedAliases = [ "@gh" ];
+            "GitHub (Code)" = {
+              urls = [{ template = "https://github.com/search?q={searchTerms}"; }];
+              definedAliases = [ "@ghc" ];
+              iconUpdateUrl = "https://github.com/favicon.ico";
+              updateInterval = 24 * 60 * 60 * 1000;
+            };
+            "GitHub (Repositories)" = {
+              urls = [{ template = "https://github.com/search?q={searchTerms}"; }];
+              definedAliases = [ "@ghr" ];
               iconUpdateUrl = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
@@ -127,7 +134,8 @@
             "Google"
             "Wikipedia (en)"
             "YouTube"
-            "GitHub"
+            "GitHub (Code)"
+            "GitHub (Repositories)"
             "Twitter"
             "Genius"
             "Stack Overflow"
