@@ -8,7 +8,15 @@ return {
       -- Text object mappings
       'nvim-treesitter/nvim-treesitter-textobjects',
       -- Display code context
-      'nvim-treesitter/nvim-treesitter-context',
+      {
+        'nvim-treesitter/nvim-treesitter-context',
+        opts = {
+          enable = true,
+          max_lines = 3,
+          mode = 'cursor',
+        },
+        keys = { '<leader>tc', '<cmd>TSContextToggle<cr>', desc = 'Toggle treesitter context' },
+      },
     },
     opts = {
       highlight = {

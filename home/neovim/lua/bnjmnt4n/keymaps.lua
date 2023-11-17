@@ -164,7 +164,7 @@ map('n', '<leader>tg', function()
 end, { desc = 'Toggle diagnostics' })
 
 local conceallevel = vim.o.conceallevel > 0 and vim.o.conceallevel or 3
-map('n', '<leader>tc', function()
+map('n', '<leader>to', function()
   toggle('conceallevel', false, { 0, conceallevel })
 end, { desc = 'Toggle conceal' })
 
