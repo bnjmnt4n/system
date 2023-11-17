@@ -2,23 +2,24 @@
 
 # Based on https://cmacr.ae/blog/managing-firefox-on-macos-with-nix/.
 # TODO: remove when https://github.com/NixOS/nixpkgs/pull/194908 is merged.
+# TODO: Check for updates at https://www.mozilla.org/en-US/firefox/releases/.
 
 stdenv.mkDerivation rec {
   pname = "Firefox";
-  version = "119.0";
+  version = "120.0";
 
   buildInputs = [ undmg ];
   sourceRoot = ".";
   phases = [ "unpackPhase" "installPhase" ];
   installPhase = ''
-      mkdir -p "$out/Applications"
-      cp -r Firefox.app "$out/Applications/Firefox.app"
-    '';
+    mkdir -p "$out/Applications"
+    cp -r Firefox.app "$out/Applications/Firefox.app"
+  '';
 
   src = fetchurl {
     name = "Firefox-${version}.dmg";
     url = "https://download-installer.cdn.mozilla.net/pub/firefox/releases/${version}/mac/en-GB/Firefox%20${version}.dmg";
-    sha256 = "sha256-OwyKis1T1HzCBS1UF/d74YBvD1TEqyxvy0oUvvKb0Fo=";
+    sha256 = "sha256-E/in9dx95UVf8dclWSZBhsa6ME60QLiyUuG9vVj+Ohw=";
   };
 
   meta = with lib; {

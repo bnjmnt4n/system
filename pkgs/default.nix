@@ -1,12 +1,6 @@
 inputs: system: final: prev:
 {
   firefox-darwin = prev.callPackage ./firefox-darwin.nix { };
-  neovim-unwrapped = prev.neovim-unwrapped.override {
-    libvterm-neovim = inputs.nixpkgs-staging.legacyPackages."${system}".libvterm-neovim;
-  };
-  neovim-nightly = prev.neovim-nightly.override {
-    libvterm-neovim = inputs.nixpkgs-staging.legacyPackages."${system}".libvterm-neovim;
-  };
 
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;
