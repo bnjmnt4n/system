@@ -26,7 +26,6 @@ in
     fd
     file
     fzf
-    gvfs
     htop
     jq
     less
