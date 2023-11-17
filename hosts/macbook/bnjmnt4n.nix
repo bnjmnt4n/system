@@ -24,4 +24,12 @@ in
     EDITOR = "nvim";
     VISUAL = "nvim";
   };
+
+  home.packages = [
+    pkgs.canvas-downloader
+    pkgs.socprint
+  ];
+
+  # Disable login message.
+  home.file.".hushlogin".text = "";
 }
