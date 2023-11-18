@@ -4,6 +4,7 @@ inputs: system: final: prev:
 
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;
+    inherit (prev.darwin.apple_sdk.frameworks) Security;
   };
   socprint = prev.callPackage ./socprint.nix {
     src = inputs.socprint;

@@ -1,4 +1,4 @@
-{ src, lib, rustPlatform, fetchFromGitHub, openssl, pkg-config }:
+{ src, lib, stdenv, rustPlatform, fetchFromGitHub, openssl, pkg-config, Security }:
 
 rustPlatform.buildRustPackage rec {
   pname = "canvas-downloader";
@@ -15,7 +15,7 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     openssl
-  ];
+  ] ++ lib.optionals stdenv.isDarwin [ Security ];
 
   meta = with lib; {
     description = "Downloads files from all courses in canvas.";
