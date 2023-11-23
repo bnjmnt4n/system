@@ -24,6 +24,26 @@ return {
     },
   },
 
+  -- Symbol outlines
+  {
+    'stevearc/aerial.nvim',
+    event = 'VeryLazy',
+    opts = {
+      attach_mode = 'global',
+      backends = { 'lsp', 'treesitter', 'markdown', 'man' },
+      show_guides = true,
+      guides = {
+        mid_item = '├╴',
+        last_item = '└╴',
+        nested_top = '│ ',
+        whitespace = '  ',
+      },
+    },
+    keys = {
+      { '<leader>os', '<cmd>AerialToggle<cr>', desc = 'Open symbols' },
+    },
+  },
+
   -- Fuzzy finder
   {
     'nvim-telescope/telescope-file-browser.nvim',
@@ -42,7 +62,12 @@ return {
     cmd = 'Telescope',
     -- stylua: ignore
     keys = {
-      { '<leader><space>', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
+      {
+        '<leader><space>',
+        function() require('telescope.builtin').find_files() end,
+        desc =
+        'Find files in folder'
+      },
       {
         '<leader>.',
         function() require('telescope').extensions.file_browser.file_browser { cwd = vim.fn.expand '%:p:h', hidden = true } end,
@@ -53,29 +78,70 @@ return {
         function() require('telescope.builtin').buffers { sort_lastused = true } end,
         desc = 'Find buffer',
       },
-      { '<leader>?', function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
-      { '<leader>/', function() require('telescope.builtin').live_grep() end, desc = 'Search in project' },
-      { "<leader>'", function() require('telescope.builtin').resume() end, desc = 'Resume previous search' },
-
-      { '<leader>bi', function() require('telescope.builtin').buffers() end, desc = 'Find buffer' },
+      { '<leader>?',  function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
+      {
+        '<leader>/',
+        function() require('telescope.builtin').live_grep() end,
+        desc =
+        'Search in project'
+      },
+      {
+        "<leader>'",
+        function() require('telescope.builtin').resume() end,
+        desc =
+        'Resume previous search'
+      },
+      { '<leader>bi', function() require('telescope.builtin').buffers() end,  desc = 'Find buffer' },
 
       -- TODO: keep here???
-      { '<leader>ca', vim.lsp.buf.code_action, desc = 'Code actions' },
-      { '<leader>cb', function() require('telescope.builtin').lsp_document_symbols() end, desc = 'Document symbols' },
-      { '<leader>cx', function() require('telescope.builtin').lsp_workspace_diagnostics() end, desc = 'Workspace diagnostics' },
-
-      { '<leader>ff', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
-      { '<leader>fr', function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
-
-      { '<leader>gc', function() require('telescope.builtin').git_commits() end, desc = 'git commits' },
+      { '<leader>ca', vim.lsp.buf.code_action,                                desc = 'Code actions' },
+      {
+        '<leader>cb',
+        function() require('telescope.builtin').lsp_document_symbols() end,
+        desc =
+        'Document symbols'
+      },
+      {
+        '<leader>cx',
+        function() require('telescope.builtin').lsp_workspace_diagnostics() end,
+        desc =
+        'Workspace diagnostics'
+      },
+      {
+        '<leader>ff',
+        function() require('telescope.builtin').find_files() end,
+        desc =
+        'Find files in folder'
+      },
+      { '<leader>fr', function() require('telescope.builtin').oldfiles() end,     desc = 'Recent files' },
+      { '<leader>gc', function() require('telescope.builtin').git_commits() end,  desc = 'git commits' },
       { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = 'git branches' },
-      { '<leader>gs', function() require('telescope.builtin').git_status() end, desc = 'git status' },
-      { '<leader>gp', function() require('telescope.builtin').git_bcommits() end, desc = 'git buffer commits' },
-
-      { '<leader>sd', function() require('telescope.builtin').grep_string() end, desc = 'Find current word in project' },
+      { '<leader>gs', function() require('telescope.builtin').git_status() end,   desc = 'git status' },
+      {
+        '<leader>gp',
+        function() require('telescope.builtin').git_bcommits() end,
+        desc =
+        'git buffer commits'
+      },
+      {
+        '<leader>sd',
+        function() require('telescope.builtin').grep_string() end,
+        desc =
+        'Find current word in project'
+      },
       { '<leader>sh', function() require('telescope.builtin').help_tags() end, desc = 'Find help' },
-      { '<leader>ss', function() require('telescope.builtin').current_buffer_fuzzy_find() end, desc = 'Find in buffer' },
-      { '<leader>sp', function() require('telescope.builtin').live_grep() end, desc = 'Find in project' },
+      {
+        '<leader>ss',
+        function() require('telescope.builtin').current_buffer_fuzzy_find() end,
+        desc =
+        'Find in buffer'
+      },
+      {
+        '<leader>sp',
+        function() require('telescope.builtin').live_grep() end,
+        desc =
+        'Find in project'
+      },
     },
     opts = function()
       return {
@@ -121,8 +187,8 @@ return {
     keys = {
       { '<leader>bd', function() require('mini.bufremove').delete(0, false) end, desc = 'Delete buffer' },
       { '<leader>bk', function() require('mini.bufremove').delete(0, false) end, desc = 'Delete buffer' },
-      { '<leader>bD', function() require('mini.bufremove').delete(0, true) end, desc = 'Delete buffer (force)' },
-      { '<leader>bK', function() require('mini.bufremove').delete(0, true) end, desc = 'Delete buffer (force)' },
+      { '<leader>bD', function() require('mini.bufremove').delete(0, true) end,  desc = 'Delete buffer (force)' },
+      { '<leader>bK', function() require('mini.bufremove').delete(0, true) end,  desc = 'Delete buffer (force)' },
     },
   },
 
@@ -240,12 +306,32 @@ return {
     cmd = { 'Trouble', 'TroubleToggle' },
     -- stylua: ignore
     keys = {
-      { '<leader>xx', '<cmd>Trouble<cr>', desc = 'Trouble' },
-      { '<leader>xw', '<cmd>Trouble workspace_diagnostics<cr>', desc = 'Trouble Workspace Diagnostics' },
-      { '<leader>xd', '<cmd>Trouble document_diagnostics<cr>', desc = 'Trouble Document Diagnostics' },
-      { '<leader>xl', '<cmd>Trouble loclist<cr>', desc = 'Trouble Loclist' },
-      { '<leader>xq', '<cmd>Trouble quickfix<cr>', desc = 'Trouble Quickfix' },
-      { '<leader>xn', function() require("trouble").next({ skip_groups = true, jump = true }) end, desc = 'Next' },
+      { '<leader>xx', '<cmd>Trouble<cr>',                                                              desc = 'Trouble' },
+      {
+        '<leader>xw',
+        '<cmd>Trouble workspace_diagnostics<cr>',
+        desc =
+        'Trouble Workspace Diagnostics'
+      },
+      {
+        '<leader>xd',
+        '<cmd>Trouble document_diagnostics<cr>',
+        desc =
+        'Trouble Document Diagnostics'
+      },
+      {
+        '<leader>xl',
+        '<cmd>Trouble loclist<cr>',
+        desc =
+        'Trouble Loclist'
+      },
+      {
+        '<leader>xq',
+        '<cmd>Trouble quickfix<cr>',
+        desc =
+        'Trouble Quickfix'
+      },
+      { '<leader>xn', function() require("trouble").next({ skip_groups = true, jump = true }) end,     desc = 'Next' },
       { '<leader>xp', function() require("trouble").previous({ skip_groups = true, jump = true }) end, desc = 'Previous' },
     },
     config = true,
@@ -258,11 +344,11 @@ return {
     event = { 'BufReadPost', 'BufNewFile' },
     -- stylua: ignore
     keys = {
-      { '<leader>xt', '<cmd>TodoTrouble<cr>', desc = 'Touble Todos' },
-      { '<leader>xT', '<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>', desc = 'Trouble Todo/Fix/Fixme' },
-      { '<leader>st', '<cmd>TodoTelescope<cr>', desc = 'Find todos' },
-      { ']t', function() require('todo-comments').jump_next() end, desc = 'Next todo comment' },
-      { '[t', function() require('todo-comments').jump_prev() end, desc = 'Previous todo comment' },
+      { '<leader>xt', '<cmd>TodoTrouble<cr>',                              desc = 'Touble Todos' },
+      { '<leader>xT', '<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>',      desc = 'Trouble Todo/Fix/Fixme' },
+      { '<leader>st', '<cmd>TodoTelescope<cr>',                            desc = 'Find todos' },
+      { ']t',         function() require('todo-comments').jump_next() end, desc = 'Next todo comment' },
+      { '[t',         function() require('todo-comments').jump_prev() end, desc = 'Previous todo comment' },
     },
     config = true,
   },
