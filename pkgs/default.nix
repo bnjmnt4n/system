@@ -3,6 +3,7 @@ inputs: system: final: prev:
   firefox-darwin = prev.callPackage ./firefox-darwin.nix { };
   hammerspoon = prev.callPackage ./hammerspoon.nix { };
   vlc-darwin = prev.callPackage ./vlc-darwin.nix { };
+  zed = prev.callPackage ./zed.nix { };
 
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;

@@ -28,7 +28,6 @@
     casks = [
       "google-chrome"
       "podman-desktop"
-      "zed"
     ];
   };
 
@@ -37,6 +36,7 @@
     pkgs.rectangle
     pkgs.vlc-darwin
     pkgs.wezterm
+    # pkgs.zed
     pkgs.zoom-us
   ];
 
