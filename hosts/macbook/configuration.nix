@@ -28,7 +28,6 @@
     casks = [
       "google-chrome"
       "podman-desktop"
-      "vlc"
       "zed"
     ];
   };
@@ -36,6 +35,7 @@
   environment.systemPackages = [
     pkgs.hammerspoon
     pkgs.rectangle
+    pkgs.vlc-darwin
     pkgs.wezterm
     pkgs.zoom-us
   ];
