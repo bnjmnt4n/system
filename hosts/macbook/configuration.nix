@@ -34,6 +34,7 @@
   };
 
   environment.systemPackages = [
+    pkgs.hammerspoon
     pkgs.rectangle
     pkgs.wezterm
     pkgs.zoom-us
