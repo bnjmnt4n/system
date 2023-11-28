@@ -21,6 +21,7 @@
           vimium
         ];
         settings = {
+          "app.update.auto" = false;
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "";
           "browser.urlbar.suggest.searches" = false;
@@ -57,13 +58,13 @@
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Code)" = {
-              urls = [{ template = "https://github.com/search?q={searchTerms}"; }];
+              urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
               definedAliases = [ "@ghc" ];
               iconUpdateUrl = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Repositories)" = {
-              urls = [{ template = "https://github.com/search?q={searchTerms}"; }];
+              urls = [{ template = "https://github.com/search?q={searchTerms}&type=repositories"; }];
               definedAliases = [ "@ghr" ];
               iconUpdateUrl = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
@@ -132,8 +133,8 @@
           order = [
             "DuckDuckGo"
             "Google"
-            "Wikipedia (en)"
             "YouTube"
+            "Wikipedia (en)"
             "GitHub (Code)"
             "GitHub (Repositories)"
             "Twitter"
@@ -143,7 +144,7 @@
             "NixOS Packages"
             "NixOS Options"
             "Nixpkgs PRs"
-            "home-manager Options"
+            "Home Manager Options"
             "npm"
             "bundlephobia"
             "caniuse"
