@@ -1,5 +1,6 @@
 inputs: system: final: prev:
 {
+  chromium-darwin = prev.callPackage ./chromium-darwin.nix { };
   firefox-darwin = prev.callPackage ./firefox-darwin.nix { };
   hammerspoon = prev.callPackage ./hammerspoon.nix { };
   vlc-darwin = prev.callPackage ./vlc-darwin.nix { };
