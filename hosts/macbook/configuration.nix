@@ -19,12 +19,7 @@
 
   homebrew = {
     enable = true;
-    # global.brewfile = true;
-    # onActivation = {
-    #   autoUpdate = true;
-    #   upgrade = true;
-    #   cleanup = "zap";
-    # };
+    global.brewfile = true;
     casks = [
       "podman-desktop"
     ];
@@ -55,10 +50,10 @@
     dock = {
       autohide = true;
       show-recents = false;
-      tilesize = 48;
+      tilesize = 72;
       showhidden = true;
+      mru-spaces = false;
     };
-    # TODO: figure out system configuration for showing battery percentage in menu bar.
   };
 
   fonts = {
