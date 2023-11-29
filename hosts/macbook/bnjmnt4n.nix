@@ -5,6 +5,8 @@ let
 in
 {
   imports = [
+    ../../home/karabiner-elements
+
     ../../home/base.nix
 
     ../../home/shell.nix

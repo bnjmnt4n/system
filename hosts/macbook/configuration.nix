@@ -42,7 +42,6 @@
 
   services.nix-daemon.enable = true;
 
-  # TODO: add configuration.
   services.karabiner-elements.enable = true;
 
   # Use TouchID for `sudo`.
