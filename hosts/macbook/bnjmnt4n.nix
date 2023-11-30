@@ -6,6 +6,7 @@ in
 {
   imports = [
     ../../home/karabiner-elements
+    ../../home/hammerspoon
 
     ../../home/base.nix
 
