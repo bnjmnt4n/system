@@ -28,7 +28,6 @@
   environment.systemPackages = [
     pkgs.chromium-darwin
     pkgs.hammerspoon
-    pkgs.rectangle
     pkgs.vlc-darwin
     pkgs.wezterm
     # pkgs.zed
