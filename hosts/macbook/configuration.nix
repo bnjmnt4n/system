@@ -27,6 +27,7 @@
 
   environment.systemPackages = [
     pkgs.chromium-darwin
+    pkgs.firefox-darwin
     pkgs.hammerspoon
     pkgs.vlc-darwin
     pkgs.wezterm

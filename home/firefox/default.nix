@@ -3,7 +3,11 @@
 {
   programs.firefox = {
     enable = true;
-    package = if pkgs.stdenv.hostPlatform.system == "aarch64-darwin" then pkgs.firefox-darwin else pkgs.firefox;
+    package =
+      if pkgs.stdenv.hostPlatform.system == "aarch64-darwin"
+      # Installed in `environment.systemPackages` for Darwin.
+      then pkgs.emptyDirectory
+      else pkgs.firefox;
 
     profiles = {
       default = {
