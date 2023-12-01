@@ -1,4 +1,4 @@
-{ self, nixpkgs, agenix, home-manager, darwin, nix-index-database, ... }@inputs:
+{ self, nixpkgs, agenix, home-manager, darwin, nix-index-database, mac-app-util, ... }@inputs:
 
 let
   homeStateVersion = "20.09";
@@ -74,6 +74,7 @@ rec {
       modules = [
         home-manager.darwinModules.home-manager
         nix-index-database.darwinModules.nix-index
+        mac-app-util.darwinModules.default
         {
           # Before changing this value read the documentation for this option
           # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).

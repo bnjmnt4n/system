@@ -16,6 +16,7 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    mac-app-util.url = "github:hraban/mac-app-util";
     # TODO: remove when https://github.com/NixOS/nixpkgs/pull/194908 is merged.
     firefox-darwin = {
       url = "github:bandithedoge/nixpkgs-firefox-darwin";
