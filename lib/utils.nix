@@ -9,7 +9,11 @@ rec {
     inputs.neovim-nightly-overlay.overlay
     inputs.nur.overlay
     (import ../pkgs inputs system)
-  ];
+  ] ++ (
+    if system == "aarch64-darwin"
+    then [ inputs.firefox-darwin.overlay ]
+    else [ ]
+  );
 
   makePkgs = system: import nixpkgs {
     inherit system;

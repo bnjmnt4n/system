@@ -80,6 +80,26 @@
         "type": "github"
       }
     },
+    "firefox-darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1701391666,
+        "narHash": "sha256-Qve/aRdSulocpZukHFZKgOtB/skv+jtCabUBnW7HjPo=",
+        "owner": "bandithedoge",
+        "repo": "nixpkgs-firefox-darwin",
+        "rev": "af063b31ff8d8b950dcbd28aa9d2b7edf93b5bd1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bandithedoge",
+        "repo": "nixpkgs-firefox-darwin",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -387,6 +407,7 @@
         "agenix": "agenix",
         "canvas-downloader": "canvas-downloader",
         "darwin": "darwin_2",
+        "firefox-darwin": "firefox-darwin",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager_2",
         "lazy-nvim": "lazy-nvim",
