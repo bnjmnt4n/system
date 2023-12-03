@@ -19,7 +19,13 @@
 
   homebrew = {
     enable = true;
+    onActivation = {
+      autoUpdate = false;
+      cleanup = "zap";
+      upgrade = true;
+    };
     global.brewfile = true;
+    # TODO: Replace with Nix-packaged Podman
     casks = [
       "podman-desktop"
     ];
@@ -30,6 +36,8 @@
     pkgs.firefox-bin
     pkgs.hammerspoon
     pkgs.vlc-darwin
+    # pkgs.podman
+    # pkgs.podman-compose
     pkgs.wezterm
     # pkgs.zed
     pkgs.zoom-us
