@@ -14,6 +14,13 @@ in
   '';
 
   programs.nix-index.enable = true;
+  programs.ripgrep = {
+    enable = true;
+    arguments = [
+      # Search case-insensitively if pattern is all lowercase.
+      "--smart-case"
+    ];
+  };
 
   home.packages = with pkgs; [
     # System
@@ -29,7 +36,6 @@ in
     htop
     jq
     less
-    ripgrep
     rsync
     tree
     wget
@@ -51,6 +57,9 @@ in
     unzip
     # unrar
     # xz
+
+    # Default language servers
+    nodePackages.vscode-langservers-extracted
 
     # NUS
     socprint

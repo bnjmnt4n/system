@@ -85,14 +85,6 @@ map('v', '<a-a>', '<c-a>')
 map('n', '<a-x>', '<c-x>')
 map('v', '<a-x>', '<c-x>')
 
--- Clear white space on empty lines and end of line
-map(
-  'n',
-  '<F6>',
-  [[:let _s=@/ <bar> :%s/\s\+$//e <bar> :let @/=_s <Bar> :nohl <Bar> :unlet _s <cr>]],
-  { silent = true, desc = 'Clear trailing whitespace' }
-)
-
 -- Leader shortcuts
 
 -- Buffers
@@ -102,8 +94,6 @@ map('n', '<leader>bb', '<cmd>e #<cr>', { desc = 'Switch to other buffer' })
 
 -- Code
 map('n', '<leader>cd', [[:cd %:p:h<cr>:pwd<cr>]], { desc = 'Change directory' })
-map('n', '<leader>cf', '<cmd>lua vim.lsp.buf.format()<cr>', { desc = 'Format' })
-map('v', '<leader>cf', 'gq', { desc = 'Format range' })
 
 -- Files
 map('n', '<leader>fn', '<cmd>enew<cr>', { desc = 'New file' })
@@ -142,7 +132,6 @@ end
 -- stylua: ignore start
 map('n', '<leader>ts', function() toggle 'spell' end, { desc = 'Toggle spelling' })
 map('n', '<leader>tw', function() toggle 'wrap' end, { desc = 'Toggle word wrap' })
-map('n', '<leader>th', function() require('lsp-inlayhints').toggle() end, { desc = 'Toggle LSP inlay hints' })
 -- stylua: ignore end
 
 map('n', '<leader>tl', function()
@@ -150,28 +139,41 @@ map('n', '<leader>tl', function()
   toggle 'number'
 end, { desc = 'Toggle line numbers' })
 
-local diagnostics_enabled = true
+map('n', '<leader>th', function()
+  local Util = require 'lazy.core.util'
+  local bufnr = 0
+  local enabled = not vim.lsp.inlay_hint.is_enabled(bufnr)
+  vim.lsp.inlay_hint.enable(bufnr, enabled)
+  if enabled then
+    Util.info('Enabled inlay hints', { title = 'Inlay hints' })
+  else
+    Util.warn('Disabled inlay hints', { title = 'Inlay hints' })
+  end
+end, { desc = 'Toggle LSP inlay hints' })
+
+local diagnostic_lines_enabled = false
 map('n', '<leader>tg', function()
   local Util = require 'lazy.core.util'
-  diagnostics_enabled = not diagnostics_enabled
-  if diagnostics_enabled then
-    vim.diagnostic.enable()
-    Util.info('Enabled diagnostics', { title = 'Diagnostics' })
+  diagnostic_lines_enabled = not diagnostic_lines_enabled
+  vim.diagnostic.config {
+    virtual_lines = diagnostic_lines_enabled,
+    virtual_text = not diagnostic_lines_enabled,
+  }
+  if diagnostic_lines_enabled then
+    Util.info('Enabled diagnostic lines', { title = 'Diagnostics' })
   else
-    vim.diagnostic.disable()
-    Util.warn('Disabled diagnostics', { title = 'Diagnostics' })
+    Util.warn('Disabled diagnostic lines', { title = 'Diagnostics' })
   end
-end, { desc = 'Toggle diagnostics' })
+end, { desc = 'Toggle diagnostic lines' })
 
 local conceallevel = vim.o.conceallevel > 0 and vim.o.conceallevel or 3
 map('n', '<leader>to', function()
   toggle('conceallevel', false, { 0, conceallevel })
 end, { desc = 'Toggle conceal' })
 
--- Highlights under cursor
-if vim.fn.has 'nvim-0.9.0' == 1 then
-  map('n', '<leader>ti', vim.show_pos, { desc = 'Inspect position' })
-end
+-- Inspect highlights/treesitter nodes
+map('n', '<leader>ti', vim.show_pos, { desc = 'Inspect position' })
+map('n', '<leader>op', vim.treesitter.inspect_tree, { desc = 'Inspect tree' })
 
 -- Quit
 map('n', '<leader>qq', '<cmd>qa<cr>', { desc = 'Quit all' })

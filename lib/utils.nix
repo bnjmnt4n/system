@@ -2,6 +2,7 @@
 
 let
   homeStateVersion = "20.09";
+  optional = condition: item: if condition then [ item ] else [ ];
 in
 rec {
   makeOverlays = system: [
@@ -9,11 +10,7 @@ rec {
     inputs.neovim-nightly-overlay.overlay
     inputs.nur.overlay
     (import ../pkgs inputs system)
-  ] ++ (
-    if system == "aarch64-darwin"
-    then [ inputs.firefox-darwin.overlay ]
-    else [ ]
-  );
+  ] ++ (optional (system == "aarch64-darwin") inputs.firefox-darwin.overlay);
 
   makePkgs = system: import nixpkgs {
     inherit system;

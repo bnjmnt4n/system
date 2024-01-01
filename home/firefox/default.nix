@@ -9,6 +9,11 @@
       then pkgs.emptyDirectory
       else pkgs.firefox;
 
+    policies = {
+      EnterprisePoliciesEnabled = true;
+      DisableAppUpdate = true;
+    };
+
     profiles = {
       default = {
         isDefault = true;
@@ -29,6 +34,7 @@
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "";
           "browser.urlbar.suggest.searches" = false;
+          "browser.compactmode.show" = true;
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
           "experiments.supported" = false;
@@ -56,45 +62,45 @@
             "eBay".metaData.hidden = true;
 
             "YouTube" = {
-              urls = [{ template = "https//www.youtube.com/results?search_query={searchTerms}"; }];
+              urls = [{ template = "https://www.youtube.com/results?search_query={searchTerms}"; }];
               definedAliases = [ "@yt" ];
-              iconUpdateUrl = "https://www.youtube.com/favicon.ico";
+              iconUpdateURL = "https://www.youtube.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Code)" = {
               urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
               definedAliases = [ "@ghc" ];
-              iconUpdateUrl = "https://github.com/favicon.ico";
+              iconUpdateURL = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Repositories)" = {
               urls = [{ template = "https://github.com/search?q={searchTerms}&type=repositories"; }];
               definedAliases = [ "@ghr" ];
-              iconUpdateUrl = "https://github.com/favicon.ico";
+              iconUpdateURL = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Twitter" = {
               urls = [{ template = "https://twitter.com/search?q={searchTerms}"; }];
               definedAliases = [ "@tw" ];
-              iconUpdateUrl = "https://abs.twimg.com/favicons/favicon.ico";
+              iconUpdateURL = "https://abs.twimg.com/favicons/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Genius" = {
               urls = [{ template = "https://genius.com/search?q={searchTerms}"; }];
               definedAliases = [ "@gen" ];
-              iconUpdateUrl = "https://assets.genius.com/images/favicon.ico";
+              iconUpdateURL = "https://assets.genius.com/images/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Stack Overflow" = {
               urls = [{ template = "https://stackoverflow.com/search?q={searchTerms}"; }];
               definedAliases = [ "@so" ];
-              iconUpdateUrl = "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico";
+              iconUpdateURL = "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "NUSMods Modules" = {
               urls = [{ template = "https://nusmods.com/modules?q={searchTerms}"; }];
               definedAliases = [ "@nm" ];
-              iconUpdateUrl = "https://nusmods.com/favicon-32x32.png";
+              iconUpdateURL = "https://nusmods.com/favicon-32x32.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "NixOS Packages" = {
@@ -124,13 +130,13 @@
             "bundlephobia" = {
               urls = [{ template = "https://bundlephobia.com/package/{searchTerms}"; }];
               definedAliases = [ "@bp" ];
-              iconUpdateUrl = "https://bundlephobia.com/favicon-32x32.png";
+              iconUpdateURL = "https://bundlephobia.com/favicon-32x32.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "caniuse" = {
               urls = [{ template = "http://caniuse.com/?search={searchTerms}"; }];
               definedAliases = [ "@cani" ];
-              iconUpdateUrl = "https://caniuse.com/img/favicon-16.png";
+              iconUpdateURL = "https://caniuse.com/img/favicon-16.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
           };

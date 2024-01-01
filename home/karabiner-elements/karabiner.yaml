@@ -107,14 +107,15 @@ profiles:
           key_code: f4
         to:
           - apple_vendor_keyboard_key_code: spotlight
+      # Keyboard backlight
       - from:
           key_code: f5
         to:
-          - consumer_key_code: dictation
+          - apple_vendor_top_case_key_code: illumination_down
       - from:
           key_code: f6
         to:
-          - key_code: f6
+          - apple_vendor_top_case_key_code: illumination_up
       - from:
           key_code: f7
         to:

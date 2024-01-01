@@ -1,7 +1,33 @@
 { config, pkgs, ... }:
 
+let
+  shellAliases = {
+    g = "git";
+
+    ga = "git a";
+    gc = "git c";
+    gf = "git f";
+    gp = "git p";
+    gs = "git status";
+    gz = "git stash list";
+    gl = "git l";
+
+    gco = "git co";
+    gcom = "git com";
+    gcoa = "git coa";
+    gam = "git amend";
+    gca = "git ca";
+    gcan = "git can";
+    gcar = "git car";
+    gcarn = "git carn";
+    greb = "git reb";
+    ggo = "git go";
+    ggn = "git gonew";
+    gbr = "git branches";
+    gsh = "git show";
+  };
+in
 {
-  # Version control for dummies.
   programs.git = {
     enable = true;
     package = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.git else pkgs.gitFull;
@@ -82,6 +108,7 @@
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
       pull.rebase = true;
+      rebase.updateRefs = true;
 
       "url \"git@github.com:\"" = {
         insteadOf = "gh:";
@@ -100,6 +127,6 @@
   ];
 
   # Shell aliases.
-  programs.fish.shellAliases.g = "git";
-  programs.bash.shellAliases.g = "git";
+  programs.fish.shellAliases = shellAliases;
+  programs.bash.shellAliases = shellAliases;
 }

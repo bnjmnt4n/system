@@ -25,21 +25,23 @@
       upgrade = true;
     };
     global.brewfile = true;
-    # TODO: Replace with Nix-packaged Podman
     casks = [
-      "podman-desktop"
+      "google-chrome"
     ];
   };
 
   environment.systemPackages = [
-    pkgs.chromium-darwin
+    pkgs.dark-notify
     pkgs.firefox-bin
     pkgs.hammerspoon
+    pkgs.monitorcontrol
+    pkgs.neovide-darwin
+    pkgs.podman
+    pkgs.podman-compose
+    pkgs.qemu # Required for Podman.
+    pkgs.spotify
     pkgs.vlc-darwin
-    # pkgs.podman
-    # pkgs.podman-compose
     pkgs.wezterm
-    # pkgs.zed
     pkgs.zoom-us
   ];
 
@@ -69,6 +71,7 @@
     fonts = [
       (pkgs.nerdfonts.override { fonts = [ "Iosevka" ]; })
       pkgs.inter
+      pkgs.iosevka
     ];
   };
 }

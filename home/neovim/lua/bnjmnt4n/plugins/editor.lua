@@ -6,9 +6,6 @@ return {
   {
     'tpope/vim-fugitive',
     event = 'VeryLazy',
-    dependencies = {
-      'tpope/vim-rhubarb',
-    },
     keys = {
       { '<leader>gG', '<cmd>Git<cr>', desc = 'Fugitive' },
       { '<leader>ga', '<cmd>Git add %:p<cr><cr>', desc = 'git add current file' },
@@ -19,8 +16,19 @@ return {
       { '<leader>gl', ':silent! Gclog<cr>:bot copen<cr>', desc = 'git log', silent = false },
       { '<leader>gm', ':GMove<space>', desc = 'git move', silent = false },
       { '<leader>go', ':Git checkout<space>', desc = 'git checkout', silent = false },
-      { '<leader>gy', ':GBrowse!<cr>', desc = 'Copy link to clipboard' },
-      { '<leader>gy', ':GBrowse!<cr>', desc = 'Copy link to clipboard', mode = 'v' },
+    },
+  },
+
+  -- Git links
+  {
+    'linrongbin16/gitlinker.nvim',
+    cmd = 'GitLink',
+    keys = {
+      { '<leader>gy', '<cmd>GitLink<cr>', desc = 'Copy link to clipboard', mode = { 'n', 'v' } },
+      { '<leader>gY', '<cmd>GitLink!<cr>', desc = 'Open link in browser', mode = { 'n', 'v' } },
+    },
+    opts = {
+      message = false,
     },
   },
 
@@ -44,29 +52,116 @@ return {
     },
   },
 
+  -- Code formatting
+  {
+    'stevearc/conform.nvim',
+    event = { 'LspAttach', 'BufWritePre' },
+    cmd = 'ConformInfo',
+    keys = {
+      {
+        '<leader>cf',
+        function()
+          require('conform').format { async = true, lsp_fallback = true }
+        end,
+        mode = '',
+        desc = 'Format',
+      },
+      {
+        '<leader>tf',
+        function()
+          local Util = require 'lazy.core.util'
+          local disabled = not (vim.g.disable_autoformat == true)
+          vim.g.disable_autoformat = disabled
+          if disabled then
+            Util.info('Disabled autoformat', { title = 'Autoformat' })
+          else
+            Util.info('Enabled autoformat', { title = 'Autoformat' })
+          end
+        end,
+        desc = 'Toggle autoformat',
+      },
+      {
+        '<leader>tf',
+        function()
+          local Util = require 'lazy.core.util'
+          local disabled = not (vim.b.disable_autoformat == true)
+          vim.b.disable_autoformat = disabled
+          if disabled then
+            Util.info('Disabled autoformat (buffer)', { title = 'Autoformat' })
+          else
+            Util.info('Enabled autoformat (buffer)', { title = 'Autoformat' })
+          end
+        end,
+        desc = 'Toggle autoformat (buffer)',
+      },
+    },
+    opts = {
+      notify_on_error = false,
+      formatters_by_ft = {
+        lua = { 'stylua' },
+        javascript = { { 'prettierd', 'prettier' } },
+        javascriptreact = { { 'prettierd', 'prettier' } },
+        typescript = { { 'prettierd', 'prettier' } },
+        typescriptreact = { { 'prettierd', 'prettier' } },
+      },
+      format_on_save = function(bufnr)
+        local extra_lang_args = {
+          javascript = { lsp_fallback = 'always', name = 'eslint' },
+          typescript = { lsp_fallback = 'always', name = 'eslint' },
+          javascriptreact = { lsp_fallback = 'always', name = 'eslint' },
+          typescriptreact = { lsp_fallback = 'always', name = 'eslint' },
+        }
+
+        -- Disable with a global or buffer-local variable
+        if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
+
+        local default_args = {
+          timeout_ms = 500,
+          lsp_fallback = true,
+        }
+        local extra_args = extra_lang_args[vim.bo[bufnr].filetype] or {}
+        return vim.tbl_deep_extend('force', default_args, extra_args)
+      end,
+    },
+    init = function()
+      -- Use conform for gq.
+      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+      -- :Format user command.
+      vim.api.nvim_create_user_command('Format', function(args)
+        local range = nil
+        if args.count ~= -1 then
+          local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
+          range = {
+            start = { args.line1, 0 },
+            ['end'] = { args.line2, end_line:len() },
+          }
+        end
+        require('conform').format { async = true, lsp_fallback = true, range = range }
+      end, { range = true, desc = 'Format' })
+    end,
+  },
+
   -- Fuzzy finder
-  {
-    'nvim-telescope/telescope-file-browser.nvim',
-    lazy = true,
-  },
-  {
-    'nvim-telescope/telescope-ui-select.nvim',
-    lazy = true,
-  },
-  {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    lazy = true,
-  },
   {
     'nvim-telescope/telescope.nvim',
     cmd = 'Telescope',
+    dependencies = {
+      { 'nvim-telescope/telescope-file-browser.nvim' },
+      { 'nvim-telescope/telescope-ui-select.nvim' },
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        dir = vim.g.telescope_fzf_native_path,
+      },
+    },
     -- stylua: ignore
     keys = {
       {
         '<leader><space>',
         function() require('telescope.builtin').find_files() end,
-        desc =
-        'Find files in folder'
+        desc = 'Find files in folder'
       },
       {
         '<leader>.',
@@ -82,30 +177,24 @@ return {
       {
         '<leader>/',
         function() require('telescope.builtin').live_grep() end,
-        desc =
-        'Search in project'
+        desc = 'Search in project'
       },
       {
         "<leader>'",
         function() require('telescope.builtin').resume() end,
-        desc =
-        'Resume previous search'
+        desc = 'Resume previous search'
       },
       { '<leader>bi', function() require('telescope.builtin').buffers() end,  desc = 'Find buffer' },
 
-      -- TODO: keep here???
-      { '<leader>ca', vim.lsp.buf.code_action,                                desc = 'Code actions' },
       {
         '<leader>cb',
         function() require('telescope.builtin').lsp_document_symbols() end,
-        desc =
-        'Document symbols'
+        desc = 'Document symbols'
       },
       {
         '<leader>cx',
         function() require('telescope.builtin').lsp_workspace_diagnostics() end,
-        desc =
-        'Workspace diagnostics'
+        desc = 'Workspace diagnostics'
       },
       {
         '<leader>ff',
@@ -171,12 +260,6 @@ return {
       require('telescope').load_extension 'fzf'
       require('telescope').load_extension 'file_browser'
       require('telescope').load_extension 'ui-select'
-
-      -- https://github.com/nvim-telescope/telescope.nvim/issues/699
-      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufNew', 'BufWinEnter' }, {
-        group = vim.api.nvim_create_augroup('ts_fold_workaround', { clear = true }),
-        command = 'set foldexpr=nvim_treesitter#foldexpr()',
-      })
     end,
   },
 
@@ -207,12 +290,15 @@ return {
     event = { 'BufReadPre', 'BufNewFile' },
     opts = {
       signs = {
-        add = { hl = 'GitGutterAdd', text = '+' },
-        change = { hl = 'GitGutterChange', text = '~' },
-        delete = { hl = 'GitGutterDelete', text = '_' },
-        topdelete = { hl = 'GitGutterDelete', text = '‾' },
-        changedelete = { hl = 'GitGutterChange', text = '~' },
+        add = { text = '▎' },
+        change = { text = '▎' },
+        delete = { text = '▎' },
+        topdelete = { text = '󱨉' },
+        changedelete = { text = '▎' },
+        untracked = { text = '▎' },
       },
+      signcolumn = true,
+      numhl = true,
       current_line_blame = true,
 
       on_attach = function(bufnr)
@@ -248,8 +334,14 @@ return {
         map('n', '[h', gs.prev_hunk, { desc = 'Previous hunk' })
 
         -- Actions
-        map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<cr>', { desc = 'Stage hunk' })
-        map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<cr>', { desc = 'Reset hunk' })
+        map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage hunk' })
+        map('n', '<leader>hr', gs.reset_hunk, { desc = 'Reset hunk' })
+        map('v', '<leader>hs', function()
+          gs.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'Stage hunk' })
+        map('v', '<leader>hr', function()
+          gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'Reset hunk' })
         map('n', '<leader>hS', gs.stage_buffer, { desc = 'Stage buffer' })
         map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'Undo stage hunk' })
         map('n', '<leader>hR', gs.reset_buffer, { desc = 'Reset buffer' })
@@ -265,7 +357,7 @@ return {
         map('n', '<leader>td', gs.toggle_deleted, { desc = 'Toggle deleted' })
 
         -- Text object
-        map({ 'o', 'x' }, 'ih', ':<c-u>Gitsigns select_hunk<cr>', { desc = 'Select hunk' })
+        map({ 'o', 'x' }, 'ih', ':<c-u>Gitsigns select_hunk<cr>', { desc = 'Hunk' })
       end,
     },
   },
@@ -274,10 +366,10 @@ return {
   {
     'TimUntersberger/neogit',
     cmd = 'Neogit',
+    dependencies = 'sindrets/diffview.nvim',
     keys = {
       { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Neogit' },
     },
-    dependencies = { 'sindrets/diffview.nvim' },
     opts = {
       disable_commit_confirmation = true,
       integrations = {
@@ -300,6 +392,22 @@ return {
     },
   },
 
+  -- Git conflict markers
+  {
+    'akinsho/git-conflict.nvim',
+    event = 'BufReadPost',
+    opts = {
+      default_mappings = {
+        ours = '<leader>hco',
+        theirs = '<leader>hct',
+        none = '<leader>hcn',
+        both = '<leader>hcb',
+        next = ']x',
+        prev = '[x',
+      },
+    },
+  },
+
   -- Pretty lists
   {
     'folke/trouble.nvim',
@@ -307,30 +415,10 @@ return {
     -- stylua: ignore
     keys = {
       { '<leader>xx', '<cmd>Trouble<cr>',                                                              desc = 'Trouble' },
-      {
-        '<leader>xw',
-        '<cmd>Trouble workspace_diagnostics<cr>',
-        desc =
-        'Trouble Workspace Diagnostics'
-      },
-      {
-        '<leader>xd',
-        '<cmd>Trouble document_diagnostics<cr>',
-        desc =
-        'Trouble Document Diagnostics'
-      },
-      {
-        '<leader>xl',
-        '<cmd>Trouble loclist<cr>',
-        desc =
-        'Trouble Loclist'
-      },
-      {
-        '<leader>xq',
-        '<cmd>Trouble quickfix<cr>',
-        desc =
-        'Trouble Quickfix'
-      },
+      { '<leader>xw', '<cmd>Trouble workspace_diagnostics<cr>',                                        desc = 'Trouble Workspace Diagnostics' },
+      { '<leader>xd', '<cmd>Trouble document_diagnostics<cr>',                                         desc = 'Trouble Document Diagnostics' },
+      { '<leader>xl', '<cmd>Trouble loclist<cr>',                                                      desc = 'Trouble Loclist' },
+      { '<leader>xq', '<cmd>Trouble quickfix<cr>',                                                     desc = 'Trouble Quickfix' },
       { '<leader>xn', function() require("trouble").next({ skip_groups = true, jump = true }) end,     desc = 'Next' },
       { '<leader>xp', function() require("trouble").previous({ skip_groups = true, jump = true }) end, desc = 'Previous' },
     },

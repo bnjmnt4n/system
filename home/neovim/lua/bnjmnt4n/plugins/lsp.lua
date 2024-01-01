@@ -1,87 +1,29 @@
 -- LSP
 
 -- TODO: look for inspiration in the following configurations
--- - https://phelipetls.github.io/posts/configuring-eslint-to-work-with-neovim-lsp/
--- - https://elianiva.my.id/post/my-nvim-lsp-setup
 -- - https://github.com/lukas-reineke/dotfiles/tree/master/vim/lua/lsp
 -- - https://github.com/lucax88x/configs/tree/master/dotfiles/.config/nvim/lua/lt/lsp
 
-local lsp_formatting_augroup = vim.api.nvim_create_augroup('LspFormatting', {})
-
-local on_attach = function(client, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-  vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-    virtual_text = true,
-    signs = true,
-    update_in_insert = true,
-  })
-
-  local overridden_hover = vim.lsp.with(vim.lsp.handlers.hover, { border = 'single' })
-  ---@diagnostic disable-next-line: duplicate-set-field
-  vim.lsp.handlers['textDocument/hover'] = function(...)
-    local buf = overridden_hover(...)
-    -- TODO: is this correct?
-    if buf then
-      vim.keymap.set('n', 'K', '<cmd>wincmd p<cr>', { buffer = buf, noremap = true, silent = true })
-    end
-  end
-  local overridden_signature_help = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'single' })
-  ---@diagnostic disable-next-line: duplicate-set-field
-  vim.lsp.handlers['textDocument/signatureHelp'] = function(...)
-    local buf = overridden_signature_help(...)
-    -- TODO: is this correct?
-    if buf then
-      vim.keymap.set('n', 'K', '<cmd>wincmd p<cr>', { buffer = buf, noremap = true, silent = true })
-    end
-  end
-
-  -- Format on save: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Formatting-on-save
-  if client.supports_method 'textDocument/formatting' then
-    vim.api.nvim_clear_autocmds { group = lsp_formatting_augroup, buffer = bufnr }
-    vim.api.nvim_create_autocmd('BufWritePre', {
-      group = lsp_formatting_augroup,
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.buf.format {
-          bufnr = bufnr,
-          filter = function(cl)
-            return cl.name == 'null-ls' or cl.name == 'eslint'
-          end,
-        }
-      end,
-    })
-  end
-
-  local function map(mode, lhs, rhs, opts)
-    opts = opts or {}
-    opts.buffer = bufnr
-    vim.keymap.set(mode, lhs, rhs, opts)
-  end
-
-  map('n', 'gD', vim.lsp.buf.declaration, { desc = 'Go to declaration' })
-  map('n', 'gd', vim.lsp.buf.definition, { desc = 'Go to definition' })
-  map('n', 'gi', vim.lsp.buf.implementation, { desc = 'Go to implementation' })
-  map('n', 'gr', vim.lsp.buf.references, { desc = 'Go to references', noremap = true })
-  map('n', 'K', vim.lsp.buf.hover, { desc = 'Hover' })
-  map('n', '<c-k>', vim.lsp.buf.signature_help, { desc = 'Signature help' })
-  -- TODO: confirm keybindings?
-  map('n', '<leader>D', vim.lsp.buf.type_definition, { desc = 'Go to type definition' })
-  map('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show line diagnostics' })
-  map('n', '<leader>cl', vim.diagnostic.setloclist, { desc = 'Set location list' })
-
-  map('n', '[d', function()
-    vim.diagnostic.goto_prev { popup_opts = { border = 'single' } }
-  end, { desc = 'Previous diagnostic' })
-  map('n', ']d', function()
-    vim.diagnostic.goto_next { popup_opts = { border = 'single' } }
-  end, { desc = 'Next diagnostic' })
-end
+local on_attach = require('bnjmnt4n.lsp').on_attach
 
 return {
+  -- LSP configuration
   {
     'neovim/nvim-lspconfig',
-    event = { 'BufReadPre', 'BufNewFile' },
+    dependencies = {
+      -- Delay before displaying diagnostics
+      {
+        'yorickpeterse/nvim-dd',
+        main = 'dd',
+        config = true,
+      },
+
+      -- Diagnostic lines
+      {
+        'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
+        config = true,
+      },
+    },
     keys = {
       { '<leader>li', '<cmd>LspInfo<cr>', desc = 'LSP information' },
       { '<leader>lr', '<cmd>LspRestart<cr>', desc = 'Restart LSP servers' },
@@ -111,21 +53,6 @@ return {
         }
       end
 
-      -- Inlay hints
-      local inlayhints_augroup = vim.api.nvim_create_augroup('LspAttachInlayHints', {})
-      vim.api.nvim_create_autocmd('LspAttach', {
-        group = inlayhints_augroup,
-        callback = function(args)
-          if not (args.data and args.data.client_id) then
-            return
-          end
-
-          local bufnr = args.buf
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          require('lsp-inlayhints').on_attach(client, bufnr, false)
-        end,
-      })
-
       -- Lua
       local runtime_path = vim.split(package.path, ';')
       table.insert(runtime_path, 'lua/?.lua')
@@ -142,17 +69,27 @@ return {
               path = runtime_path,
             },
             diagnostics = {
-              globals = { 'vim' },
+              globals = {
+                'vim', -- Neovim
+                'hs', -- Hammerspoon
+                -- LuaSnip
+                's',
+                'fmt',
+                'c',
+                'd',
+                'i',
+                'l',
+                'r',
+                'sn',
+                't',
+              },
             },
             workspace = {
               library = vim.api.nvim_get_runtime_file('', true),
+              checkThirdParty = false,
             },
-            format = {
-              enable = true,
-            },
-            telemetry = {
-              enable = false,
-            },
+            format = { enable = false },
+            telemetry = { enable = false },
           },
         },
       }
@@ -165,11 +102,26 @@ return {
           tailwindCSS = {
             experimental = {
               classRegex = {
-                { 'classNames\\(([^)]*)\\)', '"([^"]*)"' },
+                { 'classNames\\(([^)]*)\\)', 'cva\\(([^)]*)\\)', '"([^"]*)"' },
               },
             },
           },
         },
+      }
+
+      -- JSON
+      nvim_lsp.jsonls.setup {
+        on_attach = on_attach,
+        capabilities = capabilities,
+        settings = {
+          json = {
+            validate = { enable = true },
+            format = { enable = true },
+          },
+        },
+        on_new_config = function(config)
+          config.settings.json.schemas = require('schemastore').json.schemas()
+        end,
       }
 
       -- Go
@@ -200,26 +152,14 @@ return {
   -- LSP status
   {
     'j-hui/fidget.nvim',
-    branch = 'legacy',
-    config = function()
-      require('fidget').setup {
-        window = {
-          relative = 'editor',
-        },
-      }
-      vim.cmd [[
-        highlight link FidgetTitle Comment
-        highlight link FidgetTask Comment
-      ]]
-    end,
-  },
-
-  -- Inlay hints
-  {
-    'lvimuser/lsp-inlayhints.nvim',
-    branch = 'anticonceal',
-    event = { 'BufReadPre', 'BufNewFile' },
-    config = true,
+    event = 'LspAttach',
+    opts = {
+      progress = {
+        poll_rate = 0.5,
+        ignore_done_already = true,
+        ignore_empty_message = true,
+      },
+    },
   },
 
   -- Incremental rename
@@ -238,117 +178,72 @@ return {
     },
   },
 
-  -- Nvim-based language server + diagnostics
+  -- Code actions preview
   {
-    'jose-elias-alvarez/null-ls.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
-    opts = function()
-      local null_ls = require 'null-ls'
-      return {
-        on_attach = on_attach,
-        sources = {
-          null_ls.builtins.formatting.stylua,
-          require 'typescript.extensions.null-ls.code-actions',
-        },
-      }
-    end,
+    'aznhe21/actions-preview.nvim',
+    -- stylua: ignore
+    keys = {
+      { '<leader>ca', function() require('actions-preview').code_actions() end, desc = 'Code actions' },
+    },
+    opts = {
+      telescope = {
+        make_value = nil,
+        make_make_display = nil,
+      },
+    },
   },
 
   -- TypeScript
   {
-    'jose-elias-alvarez/typescript.nvim',
+    'pmizio/typescript-tools.nvim',
     ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-    opts = function()
-      return {
-        disable_commands = false,
-        debug = false,
-        go_to_source_definition = {
-          fallback = true,
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    opts = {
+      on_attach = on_attach,
+      settings = {
+        expose_as_code_action = 'all',
+        tsserver_file_preferences = {
+          includeInlayParameterNameHints = 'all',
+          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
         },
-        server = {
-          on_attach = function(client, bufnr)
-            if client.config.flags then
-              client.config.flags.allow_incremental_sync = true
-            end
-            -- Prevent formatting with `tsserver` so `null-ls` can do the formatting
-            client.server_capabilities.documentFormattingProvider = false
-
-            on_attach(client, bufnr)
-          end,
-          capabilities = require('cmp_nvim_lsp').default_capabilities(),
-          settings = {
-            typescript = {
-              inlayHints = {
-                includeInlayParameterNameHints = 'all',
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
-              },
-            },
-            javascript = {
-              inlayHints = {
-                includeInlayParameterNameHints = 'all',
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
-              },
-            },
-          },
-        },
-      }
-    end,
+      },
+    },
   },
 
   -- Better Rust tools
   {
     'simrat39/rust-tools.nvim',
     ft = 'rust',
-    opts = {
-      tools = {
-        autoSetHints = true,
-        runnables = {
-          use_telescope = true,
+    opts = function()
+      return {
+        tools = {
+          executor = require('rust-tools.executors').toggleterm,
+          inlay_hints = {
+            auto = false,
+          },
+          hover_actions = {
+            border = 'rounded',
+          },
         },
-        inlay_hints = {
-          auto = false,
+        server = {
+          on_attach = function(client, bufnr)
+            on_attach(client, bufnr)
+            vim.keymap.set('n', 'K', '<cmd>RustHoverActions<cr>', { buffer = bufnr, silent = true })
+          end,
         },
-      },
-      server = {
-        on_attach = function(client, bufnr)
-          on_attach(client, bufnr)
-          vim.keymap.set('n', 'K', '<cmd>RustHoverActions<cr>', { buffer = bufnr, noremap = true, silent = true })
-        end,
-      },
-    },
+      }
+    end,
   },
 
-  -- Java
   {
-    'mfussenegger/nvim-jdtls',
-    ft = 'java',
-    config = function()
-      SetupJdtls = function()
-        require('jdtls').start_or_attach {
-          cmd = { 'jdt-language-server' },
-          on_attach = on_attach,
-          capabilities = require('cmp_nvim_lsp').default_capabilities(),
-        }
-      end
-
-      local java_lsp_augroup = vim.api.nvim_create_augroup('JavaLspSetup', { clear = true })
-      vim.api.nvim_create_autocmd('FileType', {
-        group = java_lsp_augroup,
-        pattern = 'java',
-        callback = SetupJdtls,
-      })
-    end,
+    'b0o/SchemaStore.nvim',
+    -- Loaded by jsonls when needed.
+    lazy = true,
   },
 }

@@ -64,7 +64,7 @@ in
     ../../home/wezterm.nix
     ../../home/bat.nix
     ../../home/firefox
-    # ../../home/difftastic.nix # ../../home/delta.nix
+    ../../home/difftastic.nix # ../../home/delta.nix
     ../../home/tmux.nix
 
     ../../home/neovim
@@ -90,6 +90,9 @@ in
         lib.strings.concatMapStringsSep " " createAppTile [
           "${pkgs.firefox-bin}/Applications/Firefox.app/"
           "${pkgs.wezterm}/Applications/WezTerm.app/"
+          "${pkgs.spotify}/Applications/Spotify.app/"
+          "/Applications/Google Chrome.app/"
+          "/System/Cryptexes/App/System/Applications/Safari.app"
         ]
       }
     $DRY_RUN_CMD defaults write com.apple.dock persistent-others -array ${

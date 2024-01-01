@@ -3,7 +3,12 @@
 {
   programs.tmux = {
     enable = true;
+    terminal = "tmux-256color";
     extraConfig = ''
+      # TODO: Remove when new version of Tmux >3.3a is released.
+      # SEE https://github.com/neovim/neovim/issues/17070#issuecomment-1858561823.
+      set -g allow-passthrough on
+      set -as terminal-features ',xterm-256color:RGB'
       set -g mouse on
 
       # Modus Themes for Tmux

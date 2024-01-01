@@ -1,9 +1,11 @@
 inputs: system: final: prev:
 {
-  chromium-darwin = prev.callPackage ./chromium-darwin.nix { };
   hammerspoon = prev.callPackage ./hammerspoon.nix { };
+  neovide-darwin = prev.callPackage ./neovide-darwin.nix { };
   vlc-darwin = prev.callPackage ./vlc-darwin.nix { };
-  zed = prev.callPackage ./zed.nix { };
+  dark-notify = prev.callPackage ./dark-notify.nix {
+    src = inputs.dark-notify;
+  };
 
   canvas-downloader = prev.callPackage ./canvas-downloader.nix {
     src = inputs.canvas-downloader;

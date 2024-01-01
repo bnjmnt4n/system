@@ -8,8 +8,8 @@ A Nix installation with flakes support is required.
 
 ```sh
 # Install Nix if not installed
-$ sh <(curl -L https://nixos.org/nix/install) --no-daemon # WSL
 $ sh <(curl -L https://nixos.org/nix/install) # Linux/Mac
+$ sh <(curl -L https://nixos.org/nix/install) --daemon # WSL
 
 # Setup Nix flakes support
 $ mkdir -p ~/.config/nix

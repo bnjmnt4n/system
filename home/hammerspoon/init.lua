@@ -9,10 +9,11 @@ hs.window.animationDuration = 0
 -- Application shortcuts
 
 utils.bindHotkeys(hyper, {
+  b = { 'org.mozilla.firefox', '@firefox@' },
   f = { 'com.apple.finder', 'Finder' },
+  m = { 'com.spotify.client', '@spotify@' },
   t = { 'com.github.wez.wezterm', '@wezterm@' },
   ['return'] = { 'com.github.wez.wezterm', '@wezterm@' },
-  b = { 'org.mozilla.firefox', '@firefox@' },
 }, function(app)
   utils.cycleApplicationWindows(app[1], app[2])
 end)
