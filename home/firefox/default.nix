@@ -31,16 +31,20 @@
         ];
         settings = {
           "app.update.auto" = false;
+          "browser.startup.page" = 3; # Restore previous tabs
           "browser.ctrlTab.recentlyUsedOrder" = false;
           "browser.search.hiddenOneOffs" = "";
           "browser.urlbar.suggest.searches" = false;
-          "browser.compactmode.show" = true;
+          "browser.uidensity" = 1; # Compact density
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
           "experiments.supported" = false;
           "extensions.pocket.enabled" = false;
-          "middlemouse.paste" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
+          # Reduce File IO / SSD abuse.
+          # This forces it to write every 1 minute, rather than 15 seconds.
+          "browser.sessionstore.interval" = "60000";
 
           # TODO: Make Linux only
           # Hardware acceleration related settings.
@@ -70,6 +74,12 @@
             "GitHub (Code)" = {
               urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
               definedAliases = [ "@ghc" ];
+              iconUpdateURL = "https://github.com/favicon.ico";
+              updateInterval = 24 * 60 * 60 * 1000;
+            };
+            "GitHub (Issues)" = {
+              urls = [{ template = "https://github.com/search?q={searchTerms}&type=issues"; }];
+              definedAliases = [ "@ghi" ];
               iconUpdateURL = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
@@ -146,6 +156,7 @@
             "YouTube"
             "Wikipedia (en)"
             "GitHub (Code)"
+            "GitHub (Issues)"
             "GitHub (Repositories)"
             "Twitter"
             "Genius"
