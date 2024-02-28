@@ -68,4 +68,9 @@ in
     # NUS
     socprint
   ];
+
+  home.sessionVariables = {
+    # Difftastic: Allow more errors before switching to textual diff.
+    DFT_PARSE_ERROR_LIMIT = 10;
+  };
 }

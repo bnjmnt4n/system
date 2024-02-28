@@ -37,7 +37,7 @@
       flake = false;
     };
     jujutsu = {
-      url = "github:bnjmnt4n/jj/ssh-openssh";
+      url = "github:bnjmnt4n/jj/ssh-openssh-main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     canvas-downloader = {

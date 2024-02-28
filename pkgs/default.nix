@@ -3,7 +3,6 @@ inputs: system: final: prev:
   clop = prev.callPackage ./clop.nix { };
   cleanshot = prev.callPackage ./cleanshot.nix { };
   hammerspoon = prev.callPackage ./hammerspoon.nix { };
-  vlc-darwin = prev.callPackage ./vlc-darwin.nix { };
   secretive = prev.callPackage ./secretive.nix { };
   zed = prev.callPackage ./zed.nix { };
   dark-notify = prev.callPackage ./dark-notify.nix {

@@ -78,7 +78,7 @@ in
 
     if [ $(git -C $LAZY_DIR rev-parse HEAD) != "${inputs.lazy-nvim.rev}" ]; then
       echo "Updating lazy.nvim"
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR fetch --filter=blob:none https://github.com/folke/lazy.nvim.git
+      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR fetch --no-tags --filter=blob:none https://github.com/folke/lazy.nvim.git
       PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR checkout ${inputs.lazy-nvim.rev}
     else
       $VERBOSE_ECHO "lazy.nvim is up to date, skipping"

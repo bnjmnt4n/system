@@ -38,7 +38,7 @@
     pkgs.firefox-bin
     pkgs.monitorcontrol
     pkgs.spotify
-    pkgs.vlc-darwin
+    pkgs.vlc-bin
     pkgs.wezterm
   ];
 
