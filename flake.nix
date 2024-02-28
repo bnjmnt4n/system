@@ -17,7 +17,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     mac-app-util.url = "github:hraban/mac-app-util";
-    # TODO: remove when https://github.com/NixOS/nixpkgs/pull/194908 is merged.
     firefox-darwin = {
       url = "github:bandithedoge/nixpkgs-firefox-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -36,6 +35,10 @@
     telescope-fzf-native = {
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
+    };
+    jujutsu = {
+      url = "github:bnjmnt4n/jj/ssh-openssh";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     canvas-downloader = {
       url = "github:k-walter/canvas-downloader";
@@ -111,6 +114,8 @@
         scripts = import ./lib/scripts.nix { inherit pkgs inputs; };
       in
       {
+        # TODO: check for correctness.
+        packages = import ./pkgs inputs system {} inputs.nixpkgs.legacyPackages.${system};
         devShell = pkgs.mkShell {
           buildInputs = [
             scripts.switchHome

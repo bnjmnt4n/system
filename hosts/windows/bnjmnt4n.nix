@@ -14,7 +14,6 @@ in
     ../../home/gpg.nix
 
     ../../home/bat.nix
-    ../../home/difftastic.nix # ../../home/delta.nix
     ../../home/tmux.nix
 
     ../../home/helix.nix

@@ -10,7 +10,6 @@
     ../../home/gpg.nix
 
     ../../home/bat.nix
-    ../../home/delta.nix
     ../../home/tmux.nix
 
     ../../home/neovim

@@ -5,15 +5,44 @@
     enable = true;
     terminal = "tmux-256color";
     extraConfig = ''
-      # TODO: Remove when new version of Tmux >3.3a is released.
-      # SEE https://github.com/neovim/neovim/issues/17070#issuecomment-1858561823.
-      set -g allow-passthrough on
       set -as terminal-features ',xterm-256color:RGB'
       set -g mouse on
 
+      # Set prefix key to `C-a`
+      unbind C-b
+      set -g prefix C-a
+      bind-key C-a send-prefix
+
+      # Split panes using `|` and `-`
+      bind | split-window -h
+      bind - split-window -v
+
+      # Add vim keys for switching panes
+      bind-key h select-pane -L
+      bind-key j select-pane -D
+      bind-key k select-pane -U
+      bind-key l select-pane -R
+
+      # Add vim keys for copy mode
+      setw -g mode-keys vi
+      unbind p
+      bind p paste-buffer
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
+      # Start tabs and panes at index 1
+      set -g base-index 1
+      setw -g pane-base-index 1
+
+      # Renumber windows when a window is closed
+      set -g renumber-windows on
+
+      # Automatically set window title according to the running program
+      set-window-option -g automatic-rename on
+      set-option -g set-titles on
+
       # Modus Themes for Tmux
       # Auto generated with https://github.com/miikanissi/modus-themes.nvim/blob/master/lua/modus-themes/extras/tmux.lua
-
       set-option -g status-position "bottom"
       set-option -g status-style bg=#c8c8c8,fg=#0a0a0a
       set-option -g status-left '#[bg=#c8c8c8,fg=#0a0a0a,bold]#{?client_prefix,,  tmux  }#[bg=#3548cf,fg=#f2f2f2,bold]#{?client_prefix,  tmux  ,}'

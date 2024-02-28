@@ -9,6 +9,7 @@ rec {
     inputs.agenix.overlays.default
     inputs.neovim-nightly-overlay.overlay
     inputs.nur.overlay
+    inputs.jujutsu.overlays.default
     (import ../pkgs inputs system)
   ] ++ (optional (system == "aarch64-darwin") inputs.firefox-darwin.overlay);
 
@@ -96,6 +97,8 @@ rec {
             home-manager.users.${user} = args: {
               imports = [
                 (../hosts + "/${hostname}/${user}.nix")
+                agenix.homeManagerModules.default
+                mac-app-util.homeManagerModules.default
               ];
 
               home = {
@@ -118,6 +121,7 @@ rec {
       inherit pkgs;
       modules = [
         nix-index-database.hmModules.nix-index
+        agenix.homeManagerModules.default
         {
           nixpkgs = {
             overlays = makeOverlays system;

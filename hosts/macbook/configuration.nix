@@ -26,23 +26,20 @@
     };
     global.brewfile = true;
     casks = [
+      "aldente"
+      "betterdisplay"
+      "docker"
+      "figma"
       "google-chrome"
     ];
   };
 
   environment.systemPackages = [
-    pkgs.dark-notify
     pkgs.firefox-bin
-    pkgs.hammerspoon
     pkgs.monitorcontrol
-    pkgs.neovide-darwin
-    pkgs.podman
-    pkgs.podman-compose
-    pkgs.qemu # Required for Podman.
     pkgs.spotify
     pkgs.vlc-darwin
     pkgs.wezterm
-    pkgs.zoom-us
   ];
 
   services.nix-daemon.enable = true;
@@ -63,6 +60,14 @@
       tilesize = 72;
       showhidden = true;
       mru-spaces = false;
+      persistent-apps = [
+        "${pkgs.firefox-bin}/Applications/Firefox.app/"
+        "${pkgs.wezterm}/Applications/WezTerm.app/"
+        "${pkgs.zed}/Applications/${pkgs.zed.sourceRoot}/"
+        "${pkgs.spotify}/Applications/Spotify.app/"
+        "/Applications/Google Chrome.app/"
+        "/System/Cryptexes/App/System/Applications/Safari.app"
+      ];
     };
   };
 

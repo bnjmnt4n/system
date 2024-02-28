@@ -129,12 +129,14 @@ in
     '';
   };
 
+  home.packages = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin)
+    [ pkgs.dark-notify ];
+
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
   xdg.configFile."nvim/lua".source = ./lua;
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
   xdg.configFile."nvim/luasnippets".source = ./luasnippets;
 
   # Shell aliases.
-  programs.fish.shellAliases.v = "nvim";
-  programs.bash.shellAliases.v = "nvim";
+  home.shellAliases.v = "nvim";
 }

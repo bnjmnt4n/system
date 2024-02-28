@@ -59,6 +59,9 @@ map('i', ',', ',<c-g>u')
 map('i', '.', '.<c-g>u')
 map('i', ';', ';<c-g>u')
 
+-- Execute last macro
+map('n', 'Q', '@@')
+
 -- Save file
 map({ 'i', 'v', 'n', 's' }, '<c-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
 

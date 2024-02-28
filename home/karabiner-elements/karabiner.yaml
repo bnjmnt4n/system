@@ -1,7 +1,7 @@
 global:
   ask_for_confirmation_before_quitting: true
   check_for_updates_on_startup: false
-  show_in_menu_bar: false
+  show_in_menu_bar: true
   show_profile_name_in_menu_bar: false
   unsafe_ui: false
 
@@ -35,7 +35,17 @@ profiles:
               to_if_alone:
                 - key_code: escape
               type: basic
-        - description: Fn -> Hyper (Left_Shift + Left_Option + Left_Control + Left_Command)
+        - description: Escape -> Caps_Lock
+          manipulators:
+            - from:
+                key_code: escape
+                modifiers:
+                  optional:
+                    - any
+              to:
+                - key_code: caps_lock
+              type: basic
+        - description: Fn -> Hyper (Left_Shift + Left_Control + Left_Option + Left_Command)
           manipulators:
             - from:
                 key_code: fn
@@ -45,9 +55,9 @@ profiles:
               to:
                 - key_code: left_shift
                   modifiers:
-                    - left_command
                     - left_control
                     - left_option
+                    - left_command
               to_if_alone:
                 - key_code: spacebar
                   modifiers:
@@ -61,11 +71,89 @@ profiles:
                 modifiers:
                   mandatory:
                     - left_shift
-                    - left_gui
-                    - left_alt
+                    - left_command
+                    - left_option
                     - left_control
               to:
                 - key_code: delete_forward
+              type: basic
+        - description: Hyper + Enter -> Open WezTerm
+          manipulators:
+            - from:
+                key_code: return_or_enter
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a @wezterm@"
+              type: basic
+        - description: Hyper + b -> Open Browser (Firefox)
+          manipulators:
+            - from:
+                key_code: b
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a @firefox@"
+              type: basic
+        - description: Hyper + c -> Open Code Editor (Zed)
+          manipulators:
+            - from:
+                key_code: c
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a @zed@"
+              type: basic
+        - description: Hyper + f -> Open Finder
+          manipulators:
+            - from:
+                key_code: f
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a Finder.app"
+              type: basic
+        - description: Hyper + m -> Open Music Player (Spotify)
+          manipulators:
+            - from:
+                key_code: m
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a @spotify@"
+              type: basic
+        - description: Hyper + t -> Open Terminal (WezTerm)
+          manipulators:
+            - from:
+                key_code: t
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: "open -a @wezterm@"
               type: basic
     devices:
       - disable_built_in_keyboard_if_exists: false

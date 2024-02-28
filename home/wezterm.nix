@@ -38,7 +38,7 @@
         }),
         font_size = 20.0,
         color_scheme = scheme_for_appearance(get_appearance()),
-        hide_tab_bar_if_only_one_tab = true,
+        enable_tab_bar = false,
         check_for_updates = false,
       }
     '';

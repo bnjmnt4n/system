@@ -1,32 +1,5 @@
 { config, pkgs, ... }:
 
-let
-  shellAliases = {
-    g = "git";
-
-    ga = "git a";
-    gc = "git c";
-    gf = "git f";
-    gp = "git p";
-    gs = "git status";
-    gz = "git stash list";
-    gl = "git l";
-
-    gco = "git co";
-    gcom = "git com";
-    gcoa = "git coa";
-    gam = "git amend";
-    gca = "git ca";
-    gcan = "git can";
-    gcar = "git car";
-    gcarn = "git carn";
-    greb = "git reb";
-    ggo = "git go";
-    ggn = "git gonew";
-    gbr = "git branches";
-    gsh = "git show";
-  };
-in
 {
   programs.git = {
     enable = true;
@@ -55,7 +28,7 @@ in
       di = "!d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d";
 
       # Pull in remote changes for the current repository and all its submodules.
-      p = "pull --recurse-submodules";
+      pl = "pull --recurse-submodules";
 
       # Clone a repository including all submodules.
       c = "clone --recursive";
@@ -71,13 +44,19 @@ in
       # List aliases.
       aliases = "config --get-regexp alias";
 
+      # Push.
+      p = "push";
+      fp = "push --force-with-lease";
+
+      # Blame, following history across renames.
+      bl = "blame -w -C -C -C";
+
       # Commit.
       co = "commit";
       com = "commit -m";
       coa = "!git add -A && git commit -av";
 
       # Amend commit.
-      amend = "commit --amend --reuse-message=HEAD";
       ca = "commit --amend";
       can = "commit --amend --no-edit";
       car = "commit --amend --reset-author";
@@ -86,6 +65,11 @@ in
       # Switch to a branch.
       go = "checkout";
       gonew = "checkout -b";
+      br = "branch";
+
+      # Stash.
+      z = "stash";
+      zz = "stash list";
 
       # Credit an author on the latest commit.
       credit = ''!f() { git commit --amend --author "$1 <$2>" -C HEAD; }; f'';
@@ -102,16 +86,40 @@ in
 
       # Show the user email for the current repository.
       whoami = "config user.email";
+
+      # Difftastic.
+      dft = "!f() { GIT_EXTERNAL_DIFF=${pkgs.difftastic}/bin/difft git diff $@; }; f";
+      dfts = "!f() { GIT_EXTERNAL_DIFF=${pkgs.difftastic}/bin/difft git show $@; }; f";
+      dftl = "!f() { GIT_EXTERNAL_DIFF=${pkgs.difftastic}/bin/difft git log -p --ext-diff $@; }; f";
     };
 
     extraConfig = {
       init.defaultBranch = "main";
-      push.autoSetupRemote = true;
-      pull.rebase = true;
-      rebase.updateRefs = true;
+      push = {
+        autoSetupRemote = true;
+        followTags = true;
+      };
+      pull.rebase = "interactive";
+      rebase = {
+        updateRefs = true;
+        autoSquash = true;
+        autoStash = true;
+      };
+      rerere.enabled = true;
+      diff.algorithm = "histogram";
+      merge.conflictStyle = "zdiff3";
+
+      fetch = {
+        prune = true;
+        pruneTags = true;
+      };
+      branch.sort = "-committerdate";
+      tag.sort = "-taggerdate";
+      transfer.fsckObjects = true;
 
       "url \"git@github.com:\"" = {
         insteadOf = "gh:";
+        # insteadOf = "https://github.com/";
       };
       "url \"git@gist.github.com:\"" = {
         insteadOf = "gist:";
@@ -121,12 +129,43 @@ in
 
   programs.gh.enable = true;
   home.packages = [
-    pkgs.gh
-    pkgs.git-branchless
     pkgs.lazygit
   ];
 
   # Shell aliases.
-  programs.fish.shellAliases = shellAliases;
-  programs.bash.shellAliases = shellAliases;
+  home.shellAliases = {
+    g = "git";
+
+    ga = "git a";
+    gc = "git c";
+    gf = "git f";
+    gp = "git p";
+    gfp = "git fp";
+    gpl = "git pl";
+    gs = "git s";
+    gz = "git z";
+    gzz = "git zz";
+    gl = "git l";
+
+    gco = "git co";
+    gcom = "git com";
+    gcoa = "git coa";
+    gam = "git amend";
+    gca = "git ca";
+    gcan = "git can";
+    gcar = "git car";
+    gcarn = "git carn";
+    greb = "git reb";
+    ggo = "git go";
+    ggn = "git gonew";
+    gbr = "git br";
+    gsh = "git show";
+  };
+
+  programs.git.delta = {
+    enable = true;
+    options = {
+      syntax-theme = "GitHub";
+    };
+  };
 }

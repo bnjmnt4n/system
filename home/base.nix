@@ -41,6 +41,10 @@ in
     wget
     xdg-utils
 
+    # Diff tools
+    delta
+    difftastic
+
     # Code tools
     # ast-grep
     # comby

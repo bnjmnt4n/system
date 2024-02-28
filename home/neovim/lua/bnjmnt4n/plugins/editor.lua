@@ -32,6 +32,9 @@ return {
     },
   },
 
+  -- Jujutsu description highlighting
+  'avm99963/vim-jjdescription',
+
   -- Symbol outlines
   {
     'stevearc/aerial.nvim',

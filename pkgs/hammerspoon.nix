@@ -1,25 +1,28 @@
-{ lib, stdenv, fetchzip }:
+{ lib, stdenvNoCC, fetchurl, unzip }:
 
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation rec {
   pname = "Hammerspoon";
   version = "0.9.100";
 
-  src = fetchzip {
+  src = fetchurl {
     url = "https://github.com/Hammerspoon/hammerspoon/releases/download/${version}/Hammerspoon-${version}.zip";
-    sha256 = "Q14NBizKz7LysEFUTjUHCUnVd6+qEYPSgWwrOGeT9Q0=";
+    sha256 = "sha256-bc/IB8fOxpLK87GMNsweo69rn0Jpm03yd3NECOTgc5k=";
   };
 
+  sourceRoot = "Hammerspoon.app";
+
+  nativeBuildInputs = [ unzip ];
+
   installPhase = ''
-    mkdir -p $out/Applications/Hammerspoon.app
+    mkdir -p "$out/Applications/${sourceRoot}"
     mkdir -p $out/bin
-    mv ./* $out/Applications/Hammerspoon.app
-    chmod +x "$out/Applications/Hammerspoon.app/Contents/MacOS/Hammerspoon"
-    ln -fs $out/Applications/Hammerspoon.app/Contents/Frameworks/hs/hs $out/bin/hs
+    cp -R . "$out/Applications/${sourceRoot}"
+    ln -fs "$out/Applications/${sourceRoot}/Contents/Frameworks/hs/hs" "$out/bin/hs"
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Staggeringly powerful macOS desktop automation with Lua.";
     homepage = "https://www.hammerspoon.org";
-    platforms = platforms.darwin;
+    platforms = lib.platforms.darwin;
   };
 }

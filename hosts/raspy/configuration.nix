@@ -8,8 +8,6 @@
 
     ../../nixos/interception-tools.nix
     ../../nixos/tailscale.nix
-
-    ../shared/secrets.nix
   ];
 
   fileSystems = {
@@ -106,6 +104,10 @@
   # services.blueman.enable = true;
 
   services.udev.packages = [ pkgs.android-udev-rules ];
+
+  age.secrets.wireguard-private-key = {
+    file = ../../secrets/wireguard-private-key.age;
+  };
 
   # Default user account. Remember to set a password via `passwd`.
   users.users.bnjmnt4n = {

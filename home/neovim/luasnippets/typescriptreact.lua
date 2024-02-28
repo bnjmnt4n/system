@@ -15,7 +15,7 @@ end
 
 local manual = {
   s({ trig = 'uc', name = 'use client directive' }, { t '"use client";' }),
-  s({ trig = 'use', name = 'use server directive' }, { t '"use server";' }),
+  s({ trig = 'usr', name = 'use server directive' }, { t '"use server";' }),
   s({ trig = 'imr', name = 'import react' }, t "import React from 'react';"),
   s({ trig = 'cn', name = 'classname prop' }, {
     fmt('className={}', {
@@ -134,7 +134,7 @@ local manual = {
       [[
         const {}Ref = useRef({});
       ]],
-      { i(1), i(2), Type = i 'a' }
+      { i(1), i(2) }
     )
   ),
   s(

@@ -1,7 +1,7 @@
 return {
-  -- Language pack (includes vim-sleuth, which sets shiftwidth and tabstop automatically)
+  -- Sets shiftwidth and tabstop automatically
   {
-    'sheerun/vim-polyglot',
+    'tpope/vim-sleuth',
     event = 'BufReadPre',
   },
 
@@ -437,7 +437,10 @@ return {
           dismiss = '<c-c>',
         },
       },
-      filetypes = { markdown = true },
+      filetypes = {
+        markdown = true,
+        ledger = false,
+      },
       copilot_node_command = vim.g.node_binary_path,
     },
     -- Based on https://github.com/MariaSolOs/dotfiles/blob/5d961a1751fbd8f50b0cef4d51e9df3eb8a32687/.config/nvim/lua/plugins/copilot.lua.
