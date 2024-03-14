@@ -7,25 +7,24 @@ in
 {
   imports = [
     # Mac apps
-    ../../home/karabiner-elements
-    ../../home/rectangle.nix
-    ../../home/cleanshot.nix
-    ../../home/clop.nix
-    ../../home/secretive.nix
+    ../../home/darwin/karabiner-elements
+    ../../home/darwin/rectangle.nix
+    ../../home/darwin/cleanshot.nix
+    ../../home/darwin/clop.nix
+    ../../home/darwin/secretive.nix
 
-    ../../home/base.nix
+    ../../home/shared/base.nix
 
-    ../../home/shell.nix
-    ../../home/git.nix
-    ../../home/jujutsu.nix
-    ../../home/gpg.nix
+    ../../home/shared/shell.nix
+    ../../home/shared/bat.nix
+    ../../home/shared/git.nix
+    ../../home/shared/jujutsu.nix
+    ../../home/shared/gpg.nix
+    ../../home/shared/tmux.nix
+    ../../home/shared/neovim
 
-    ../../home/wezterm.nix
-    ../../home/bat.nix
-    ../../home/firefox
-    ../../home/tmux.nix
-
-    ../../home/neovim
+    ../../home/shared/wezterm.nix
+    ../../home/shared/firefox
   ];
 
   home.sessionVariables = {

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 
 let
-  scripts = import ../../lib/scripts.nix { inherit pkgs; };
+  scripts = import ../../../lib/scripts.nix { inherit pkgs; };
   yaml = pkgs.substituteAll {
     src = ./karabiner.yaml;
     firefox = "${pkgs.firefox-bin}/Applications/Firefox.app";

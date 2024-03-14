@@ -17,11 +17,6 @@
     ../../home/chromium.nix
     ../../home/firefox
     ../../home/gtk.nix
-    # ../../home/mpv.nix
-    # ../../home/spotify.nix
-
-    ../../home/i3.nix
-    ../../home/polybar.nix
   ];
 
   home.packages = with pkgs; [
