@@ -16,6 +16,7 @@ inputs: system: final: prev:
   dark-notify = prev.callPackage ./darwin/dark-notify.nix {
     src = inputs.dark-notify;
   };
+  gg = prev.callPackage ./darwin/gg.nix { };
   secretive = prev.callPackage ./darwin/secretive.nix { };
   zed = prev.callPackage ./darwin/zed.nix { };
   # Add access to x86 packages if system is running Apple Silicon.

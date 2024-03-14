@@ -34,6 +34,7 @@ in
 
   home.packages = [
     pkgs.canvas-downloader
+    pkgs.gg
     pkgs.restic
     pkgs.socprint
     pkgs.zoom-us
@@ -51,6 +52,7 @@ in
   };
 
   # Shell aliases.
+  programs.fish.shellAliases.gg = "gg &; disown";
   programs.fish.shellAliases.setup-restic-env =
     "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${scripts.setupResticEnvNew}";
   home.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
