@@ -18,7 +18,8 @@ in
     ../../home/shared/shell.nix
     ../../home/shared/bat.nix
     ../../home/shared/git.nix
-    ../../home/shared/jujutsu.nix
+    ../../home/shared/helix.nix
+    ../../home/shared/jujutsu
     ../../home/shared/gpg.nix
     ../../home/shared/tmux.nix
     ../../home/shared/neovim
@@ -33,11 +34,10 @@ in
   };
 
   home.packages = [
-    pkgs.canvas-downloader
     pkgs.gg
+    pkgs.jetbrains.idea-community
     pkgs.restic
-    pkgs.socprint
-    pkgs.zoom-us
+    # pkgs.zed-editor
     pkgs.zed
   ];
 

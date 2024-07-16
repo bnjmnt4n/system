@@ -1,12 +1,8 @@
 inputs: system: final: prev:
 {
-  canvas-downloader = prev.callPackage ./shared/canvas-downloader.nix {
-    src = inputs.canvas-downloader;
-    inherit (prev.darwin.apple_sdk.frameworks) Security;
-  };
-  socprint = prev.callPackage ./shared/socprint.nix {
-    src = inputs.socprint;
-  };
+  # Add access to x86 packages if system is running Apple Silicon.
+  nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
+
   telescope-fzf-native = prev.callPackage ./shared/telescope-fzf-native.nix {
     src = inputs.telescope-fzf-native;
   };
@@ -18,9 +14,10 @@ inputs: system: final: prev:
   };
   gg = prev.callPackage ./darwin/gg.nix { };
   secretive = prev.callPackage ./darwin/secretive.nix { };
+  # TODO: Switch to https://github.com/NixOS/nixpkgs/pull/284010
   zed = prev.callPackage ./darwin/zed.nix { };
   # Add access to x86 packages if system is running Apple Silicon.
-  pkgs-x86 = prev.lib.mkIf (prev.stdenv.system == "aarch64-darwin") import inputs.nixpkgs {
+  pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
     system = "x86_64-darwin";
     config.allowUnfree = true;
   };

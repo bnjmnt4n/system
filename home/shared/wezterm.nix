@@ -33,13 +33,23 @@
 
       return {
         font = wezterm.font_with_fallback({
-          'Iosevka',
+          'Iosevka Term',
           { family = 'Symbols Nerd Font Mono', scale = 0.75 },
         }),
         font_size = 20.0,
         color_scheme = scheme_for_appearance(get_appearance()),
         enable_tab_bar = false,
         check_for_updates = false,
+        keys = {
+          {
+            key = 'E',
+            mods = 'CMD|SHIFT',
+            action = wezterm.action_callback(function(window, pane)
+              local ansi = window:get_selection_escapes_for_pane(pane)
+              window:copy_to_clipboard(ansi)
+            end),
+          },
+        },
       }
     '';
   };

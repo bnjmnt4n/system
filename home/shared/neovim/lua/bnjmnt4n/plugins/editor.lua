@@ -2,6 +2,23 @@ return {
   -- Directory viewer
   'justinmk/vim-dirvish',
 
+  -- File explorer
+  {
+    'stevearc/oil.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('oil').setup {
+        default_file_explorer = false,
+        view_options = {
+          show_hidden = true,
+        },
+      }
+
+      -- Open parent directory in current window
+      vim.keymap.set('n', '<space>-', '<cmd>Oil<cr>', { desc = 'Open parent directory in Oil' })
+    end,
+  },
+
   -- Git commands
   {
     'tpope/vim-fugitive',
@@ -101,6 +118,8 @@ return {
     opts = {
       notify_on_error = false,
       formatters_by_ft = {
+        c = {},
+        cpp = {},
         lua = { 'stylua' },
         javascript = { { 'prettierd', 'prettier' } },
         javascriptreact = { { 'prettierd', 'prettier' } },
@@ -109,6 +128,8 @@ return {
       },
       format_on_save = function(bufnr)
         local extra_lang_args = {
+          c = { lsp_fallback = 'always', name = 'clangd' },
+          cpp = { lsp_fallback = 'always', name = 'clangd' },
           javascript = { lsp_fallback = 'always', name = 'eslint' },
           typescript = { lsp_fallback = 'always', name = 'eslint' },
           javascriptreact = { lsp_fallback = 'always', name = 'eslint' },

@@ -25,12 +25,18 @@
       upgrade = true;
     };
     global.brewfile = true;
+    # Safari Technology Preview lives in cask-versions
+    taps = [
+      "homebrew/homebrew-cask-versions"
+    ];
     casks = [
       "aldente"
       "betterdisplay"
       "docker"
       "figma"
+      "mullvadvpn"
       "google-chrome"
+      "safari-technology-preview"
     ];
   };
 
@@ -71,12 +77,10 @@
     };
   };
 
-  fonts = {
-    fontDir.enable = true;
-    fonts = [
-      (pkgs.nerdfonts.override { fonts = [ "Iosevka" ]; })
-      pkgs.inter
-      pkgs.iosevka
-    ];
-  };
+  fonts.packages = [
+    (pkgs.nerdfonts.override { fonts = [ "Iosevka" ]; })
+    pkgs.inter
+    pkgs.iosevka-bin
+    (pkgs.iosevka-bin.override { variant = "SGr-IosevkaTerm"; })
+  ];
 }

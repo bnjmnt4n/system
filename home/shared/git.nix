@@ -13,6 +13,13 @@
       signByDefault = true;
     };
 
+    ignores = [
+      ".DS_Store"
+      ".jj"
+      "*~"
+      "*.swp"
+    ];
+
     # Based on https://github.com/mathiasbynens/dotfiles/blob/0cd43d175a25c0e13e1e06ab31ccfd9f0169cf73/.gitconfig.
     aliases = {
       # View abbreviated SHA, description, and history graph of the latest 20 commits.
@@ -128,9 +135,6 @@
   };
 
   programs.gh.enable = true;
-  home.packages = [
-    pkgs.lazygit
-  ];
 
   # Shell aliases.
   home.shellAliases = {

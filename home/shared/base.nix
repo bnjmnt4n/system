@@ -34,9 +34,11 @@ in
     file
     fzf
     htop
+    hyperfine
     jq
     less
     rsync
+    samply
     tree
     wget
     xdg-utils
@@ -47,12 +49,13 @@ in
 
     # Code tools
     # ast-grep
+    codespell
     # comby
     tokei
 
     # Nix tools
+    nixd
     nixpkgs-fmt
-    rnix-lsp
     scripts.nixFlakeInit
     scripts.nixFlakeSync
 
@@ -64,9 +67,6 @@ in
 
     # Default language servers
     nodePackages.vscode-langservers-extracted
-
-    # NUS
-    socprint
   ];
 
   home.sessionVariables = {

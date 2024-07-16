@@ -40,7 +40,6 @@ in
   home.file.".hushlogin".text = "";
 
   home.packages = with pkgs; [
-    canvas-downloader
     hledger
     restic
     scripts.setupResticEnv

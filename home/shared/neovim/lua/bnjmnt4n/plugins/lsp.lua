@@ -41,10 +41,18 @@ return {
       local nvim_lsp = require 'lspconfig'
 
       -- nvim-cmp supports additional completion capabilities
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local default_capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local capabilities = vim.tbl_deep_extend('force', default_capabilities, {
+        workspace = {
+          -- Disabling till https://github.com/neovim/neovim/issues/26520 is fixed.
+          didChangeWatchedFiles = {
+            dynamicRegistration = false,
+          },
+        },
+      })
 
       -- Enable the following language servers
-      local servers = { 'astro', 'clangd', 'cssls', 'eslint', 'html', 'ocamllsp', 'pyright', 'rnix', 'zls' }
+      local servers = { 'astro', 'clangd', 'cssls', 'eslint', 'html', 'nixd', 'ocamllsp', 'pyright', 'zls' }
 
       for _, lsp in ipairs(servers) do
         nvim_lsp[lsp].setup {

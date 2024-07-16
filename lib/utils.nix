@@ -7,7 +7,7 @@ in
 rec {
   makeOverlays = system: [
     inputs.agenix.overlays.default
-    inputs.neovim-nightly-overlay.overlay
+    inputs.neovim-nightly-overlay.overlays.default
     inputs.nur.overlay
     inputs.jujutsu.overlays.default
     (import ../pkgs inputs system)

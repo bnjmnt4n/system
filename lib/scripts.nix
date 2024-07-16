@@ -14,7 +14,7 @@
 
   switchHome = pkgs.writeShellScriptBin "swh" ''
     set -euo pipefail
-    export PATH=${with pkgs; lib.makeBinPath [ coreutils gitMinimal jq nixUnstable ]}
+    export PATH=${with pkgs; lib.makeBinPath [ coreutils gitMinimal jq nix ]}
     usr="''${1:-$USER}"
     hst=$(uname -n)
     attr="''${usr}@''${hst}"

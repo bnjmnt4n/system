@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
     darwin = {
       url = "github:LnL7/nix-darwin";
@@ -36,18 +37,7 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
-    jujutsu = {
-      url = "github:bnjmnt4n/jj/ssh-openssh";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    canvas-downloader = {
-      url = "github:k-walter/canvas-downloader";
-      flake = false;
-    };
-    socprint = {
-      url = "github:dlqs/SOCprint";
-      flake = false;
-    };
+    jujutsu.url = "github:martinvonz/jj";
   };
 
   outputs = { self, flake-utils, nixos-hardware, ... }@inputs:

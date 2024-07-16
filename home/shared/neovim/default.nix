@@ -1,12 +1,6 @@
 { config, lib, pkgs, inputs, ... }:
 
 let
-  customNeovim =
-    if pkgs.stdenv.hostPlatform.system == "aarch64-linux"
-    then
-      pkgs.neovim-nightly.override { lua = pkgs.luajit; }
-    else
-      pkgs.neovim-nightly;
   treeSitterLanguages = [
     "astro"
     "bash"
@@ -65,7 +59,7 @@ let
 in
 {
   home.activation.lazyNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" "writeBoundary" ] ''
-    CUSTOM_PATH="${lib.makeBinPath [ customNeovim pkgs.bash pkgs.coreutils pkgs.git pkgs.nix ]}"
+    CUSTOM_PATH="${lib.makeBinPath [ pkgs.neovim pkgs.bash pkgs.coreutils pkgs.git pkgs.nix ]}"
 
     LAZY_DIR=$HOME/.local/share/nvim/lazy/lazy.nvim
     if [ ! -d $LAZY_DIR/.git ]; then
@@ -78,7 +72,7 @@ in
 
     if [ $(git -C $LAZY_DIR rev-parse HEAD) != "${inputs.lazy-nvim.rev}" ]; then
       echo "Updating lazy.nvim"
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR fetch --no-tags --filter=blob:none https://github.com/folke/lazy.nvim.git
+      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR fetch --force --filter=blob:none https://github.com/folke/lazy.nvim.git
       PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR checkout ${inputs.lazy-nvim.rev}
     else
       $VERBOSE_ECHO "lazy.nvim is up to date, skipping"
@@ -113,7 +107,6 @@ in
 
   programs.neovim = {
     enable = true;
-    package = customNeovim;
     withPython3 = false;
     withRuby = false;
 
