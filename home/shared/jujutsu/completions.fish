@@ -161,6 +161,10 @@ function __jj_revision_modified_files
         set -f change "Deleted"
       case A
         set -f change "Added"
+      case R
+        set -f change "Renamed"
+      case C
+        set -f change "Copied"
     end
     printf "%s\t%s%s\n" $file[2] $change $suffix
   end

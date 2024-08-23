@@ -1,10 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   programs.firefox = {
     enable = true;
     package =
-      if pkgs.stdenv.hostPlatform.system == "aarch64-darwin"
+      if pkgs.stdenv.hostPlatform.isDarwin
       # Installed in `environment.systemPackages` for Darwin.
       then pkgs.emptyDirectory
       else pkgs.firefox;
@@ -98,19 +98,13 @@
             "Genius" = {
               urls = [{ template = "https://genius.com/search?q={searchTerms}"; }];
               definedAliases = [ "@gen" ];
-              iconUpdateURL = "https://assets.genius.com/images/favicon.ico";
+              iconUpdateURL = "https://genius.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Stack Overflow" = {
               urls = [{ template = "https://stackoverflow.com/search?q={searchTerms}"; }];
               definedAliases = [ "@so" ];
               iconUpdateURL = "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico";
-              updateInterval = 24 * 60 * 60 * 1000;
-            };
-            "NUSMods Modules" = {
-              urls = [{ template = "https://nusmods.com/modules?q={searchTerms}"; }];
-              definedAliases = [ "@nm" ];
-              iconUpdateURL = "https://nusmods.com/favicon-32x32.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "NixOS Packages" = {
@@ -129,13 +123,15 @@
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             };
             "Home Manager Options" = {
-              urls = [{ template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}"; }];
+              urls = [{ template = "https://home-manager-options.extranix.com/?query={searchTerms}&release=master"; }];
               definedAliases = [ "@hm" ];
               icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             };
             "npm" = {
               urls = [{ template = "https://www.npmjs.com/search?q={searchTerms}"; }];
               definedAliases = [ "@npm" ];
+              iconUpdateURL = "https://static.npmjs.com/favicon-16x16.png";
+              updateInterval = 24 * 60 * 60 * 1000;
             };
             "bundlephobia" = {
               urls = [{ template = "https://bundlephobia.com/package/{searchTerms}"; }];
@@ -161,7 +157,6 @@
             "Twitter"
             "Genius"
             "Stack Overflow"
-            "NUSMods Modules"
             "NixOS Packages"
             "NixOS Options"
             "Nixpkgs PRs"
@@ -172,6 +167,16 @@
           ];
         };
       };
+    };
+  };
+
+
+  # https://github.com/nix-community/home-manager/issues/3323
+  launchd.agents.firefox-env = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    enable = true;
+    config = {
+      ProgramArguments = [ "/bin/sh" "-c" "launchtl setenv MOZ_LEGACY_PROFILES 1; launchctl setenv MOZ_ALLOW_DOWNGRADE 1" ];
+      RunAtLoad = true;
     };
   };
 }

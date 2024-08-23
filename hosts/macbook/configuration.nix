@@ -25,10 +25,6 @@
       upgrade = true;
     };
     global.brewfile = true;
-    # Safari Technology Preview lives in cask-versions
-    taps = [
-      "homebrew/homebrew-cask-versions"
-    ];
     casks = [
       "aldente"
       "betterdisplay"
@@ -37,6 +33,7 @@
       "mullvadvpn"
       "google-chrome"
       "safari-technology-preview"
+      "transmission"
     ];
   };
 
@@ -70,6 +67,7 @@
         "${pkgs.firefox-bin}/Applications/Firefox.app/"
         "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed}/Applications/${pkgs.zed.sourceRoot}/"
+        "/Applications/Figma.app/"
         "${pkgs.spotify}/Applications/Spotify.app/"
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"

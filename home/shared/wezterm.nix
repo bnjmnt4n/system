@@ -4,7 +4,7 @@
   programs.wezterm = {
     enable = true;
     package =
-      if pkgs.stdenv.hostPlatform.system == "aarch64-darwin"
+      if pkgs.stdenv.hostPlatform.isDarwin
       # Installed in `environment.systemPackages` for Darwin.
       then pkgs.emptyDirectory
       else pkgs.wezterm;

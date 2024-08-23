@@ -12,7 +12,6 @@
        devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs-18_x
-            nodePackages.typescript-language-server
             nodePackages.vscode-langservers-extracted
             nodePackages."@tailwindcss/language-server"
           ];

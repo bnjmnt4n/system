@@ -11,13 +11,13 @@
       ui = {
         pager = "less -FRX";
         default-command = "log";
-        log-synthetic-elided-nodes = true;
         always-allow-large-revsets = true;
-        diff.format = "git";
         diff-editor = ":builtin";
         merge-editor = "idea";
       };
+      diff.color-words.max-inline-alternation = 5;
       templates = {
+        log = "log_compact";
         log_node = ''
           coalesce(
             if(!self, label("elided", "⇋")),
@@ -28,7 +28,6 @@
             "○"
           )
         '';
-        op_log_node = "builtin_op_log_node";
       };
       template-aliases = {
         "format_timestamp(timestamp)" = "timestamp.ago()";
@@ -59,7 +58,7 @@
             root.branches()
           ) ++ "\n"
         '';
-        builtin_log_oneline = ''
+        log_oneline = ''
           if(root,
             format_root_commit(self),
             label(if(current_working_copy, "working_copy"),
@@ -79,6 +78,7 @@
                       separate(" ",
                         if(immutable, "immutable"),
                         if(hidden, "hidden"),
+                        if(self.contained_in("trunk()"), "trunk"),
                         if(!description || description.starts_with("wip:"), "wip"),
                         "empty",
                       ),
@@ -102,7 +102,7 @@
             )
           )
         '';
-        builtin_log_compact = ''
+        log_compact = ''
           if(root,
             format_root_commit(self),
             label(if(current_working_copy, "working_copy"),
@@ -124,6 +124,7 @@
                       separate(" ",
                         if(immutable, "immutable"),
                         if(hidden, "hidden"),
+                        if(self.contained_in("trunk()"), "trunk"),
                         if(!description || description.starts_with("wip:"), "wip"),
                         "empty",
                       ),
@@ -143,13 +144,18 @@
                       description_placeholder)
                   )
                 ) ++ "\n",
+                if(!empty &&
+                  (!description || description.starts_with("wip:") || current_working_copy),
+                  diff.summary()
+                ),
               ),
             )
           )
         '';
       };
       revset-aliases = {
-        "immutable_heads()" = "trunk() | tags() | untracked_remote_branches()";
+        "at" = "@";
+
         "diverge(a, b)" = "heads(::a & ::b)::(a | b)";
 
         "base()" = "roots(roots(trunk()..@)-)";
@@ -192,8 +198,8 @@
         gp = [ "git" "push" ];
         abandon-merged = [ "abandon" "trunk().. & ..@ & empty() ~ @ ~ merges() ~ visible_heads()" ];
         simplify-merge = [ "rebase" "-s" "heads(trunk()..@ & merges())" "-d" "heads(heads(trunk()..@ & merges())-)" ];
-        sync = [ "rebase" "-s" "roots(trunk()..@)" "-d" "trunk()" ];
-        sync-all = [ "rebase" "-s" "roots(mutable())" "-d" "trunk()" ];
+        sync = [ "rebase" "-s" "roots(trunk()..@)" "-d" "trunk()" "--skip-emptied" ];
+        sync-all = [ "rebase" "-s" "roots(mutable())" "-d" "trunk()" "--skip-emptied" ];
         rebaset = [ "rebase" "-d" "trunk()" ];
       };
       merge-tools = {
@@ -216,6 +222,16 @@
         sign-all = true;
         backend = "gpg";
         key = "A853F0716C413825";
+      };
+      fix.tools = {
+        rustfmt = {
+          command = [ "rustfmt" "--emit" "stdout" ];
+          patterns = [ "glob:'**/*.rs'" ];
+        };
+        prettier = {
+          command = [ "npx" "prettier" "--stdin-filepath=$path" ];
+          patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'" ];
+        };
       };
       colors = {
         # Change IDs.
@@ -247,6 +263,7 @@
         "wip description placeholder" = "yellow";
         "trunk description" = "cyan";
         "immutable empty" = "default";
+        "trunk empty" = "cyan";
         "hidden empty" = "black";
         "wip empty" = "yellow";
         "wip empty description placeholder" = "yellow";
@@ -269,15 +286,12 @@
         "node immutable" = "default";
         "node conflict" = "red";
         "node wip" = "yellow";
+
+        "diff renamed" = "cyan";
+        "diff copied" = "cyan";
       };
     };
   };
-  home.shellAliases = {
-    j = "jj";
-  };
   # TODO: move to completions directory?
   programs.fish.interactiveShellInit = pkgs.lib.readFile ./completions.fish;
-  home.sessionVariables = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin) {
-    JJ_CONFIG = "${config.xdg.configHome}/jj/config.toml";
-  };
 }

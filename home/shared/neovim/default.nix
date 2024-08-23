@@ -39,7 +39,7 @@ let
     "ruby"
     "rust"
     "scss"
-    "sql"
+    # "sql"
     "svelte"
     "toml"
     "tsx"
@@ -59,7 +59,7 @@ let
 in
 {
   home.activation.lazyNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" "writeBoundary" ] ''
-    CUSTOM_PATH="${lib.makeBinPath [ pkgs.neovim pkgs.bash pkgs.coreutils pkgs.git pkgs.nix ]}"
+    CUSTOM_PATH="${lib.makeBinPath [ config.programs.neovim.package pkgs.bash pkgs.coreutils pkgs.git pkgs.nix ]}"
 
     LAZY_DIR=$HOME/.local/share/nvim/lazy/lazy.nvim
     if [ ! -d $LAZY_DIR/.git ]; then
@@ -107,6 +107,9 @@ in
 
   programs.neovim = {
     enable = true;
+    # TODO: Figure out why nightly overlay is not being applied.
+    package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
+    defaultEditor = true;
     withPython3 = false;
     withRuby = false;
 
@@ -130,6 +133,7 @@ in
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
   xdg.configFile."nvim/luasnippets".source = ./luasnippets;
 
-  # Shell aliases.
   home.shellAliases.v = "nvim";
+
+  home.sessionVariables.VISUAL = "nvim";
 }

@@ -28,7 +28,7 @@ return {
         highlights.StatuslineDiffDelete = { fg = colors.fg_removed, bg = colors.bg_status_line }
 
         -- Leap
-        highlights.LeapMatch = { fg = colors.fg_main, bold = true }
+        highlights.LeapLabel = { fg = colors.magenta_cooler, bold = true }
 
         -- Conflict markers
         highlights.GitConflictCurrentLabel = { bg = colors.bg_green_intense }
@@ -209,44 +209,31 @@ return {
     config = function()
       local wk = require 'which-key'
       wk.setup {}
-      wk.register {
-        mode = { 'n', 'v' },
-        g = { name = '+goto' },
-        [']'] = { name = '+next' },
-        ['['] = { name = '+prev' },
-        ['<leader><tab>'] = { name = '+tab' },
-        ['<leader>b'] = { name = '+buffer' },
-        ['<leader>c'] = { name = '+code' },
-        ['<leader>d'] = { name = '+definition' },
-        ['<leader>f'] = { name = '+file' },
-        ['<leader>g'] = { name = '+git' },
-        ['<leader>h'] = { name = '+git hunk' },
-        ['<leader>l'] = { name = '+lsp' },
-        ['<leader>lw'] = { name = '+workspace' },
-        ['<leader>n'] = { name = '+neovim' },
-        ['<leader>o'] = { name = '+open' },
-        ['<leader>q'] = { name = '+quit' },
-        ['<leader>s'] = { name = '+search' },
-        ['<leader>t'] = { name = '+toggle' },
-        ['<leader>w'] = { name = '+window' },
-        ['<leader>x'] = { name = '+trouble' },
+      wk.add {
+        {
+          mode = { 'n', 'v' },
+          { 'g', group = 'goto' },
+          { '[', group = 'prev' },
+          { ']', group = 'next' },
+          { '<leader><tab>', group = 'tab' },
+          { '<leader>b', group = 'buffer' },
+          { '<leader>c', group = 'code' },
+          { '<leader>d', group = 'definition' },
+          { '<leader>f', group = 'file' },
+          { '<leader>g', group = 'git' },
+          { '<leader>h', group = 'hunk' },
+          { '<leader>l', group = 'lsp' },
+          { '<leader>lw', group = 'workspace' },
+          { '<leader>n', group = 'neovim' },
+          { '<leader>o', group = 'open' },
+          { '<leader>q', group = 'quit' },
+          { '<leader>s', group = 'search' },
+          { '<leader>t', group = 'toggle' },
+          { '<leader>w', group = 'window' },
+          { '<leader>x', group = 'trouble' },
+        },
       }
     end,
-  },
-
-  -- Hint for code actions
-  {
-    'kosayoda/nvim-lightbulb',
-    event = 'BufEnter',
-    cond = vim.g.slow_device ~= 1,
-    opts = {
-      autocmd = { enabled = true },
-      sign = { enabled = false },
-      number = {
-        enabled = true,
-        hl = 'LightBulbNumber',
-      },
-    },
   },
 
   -- Zen mode

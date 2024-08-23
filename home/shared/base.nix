@@ -50,6 +50,7 @@ in
     # Code tools
     # ast-grep
     codespell
+    git-sizer
     # comby
     tokei
 

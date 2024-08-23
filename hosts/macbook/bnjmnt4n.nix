@@ -16,22 +16,18 @@ in
     ../../home/shared/base.nix
 
     ../../home/shared/shell.nix
+    ../../home/shared/atuin.nix
     ../../home/shared/bat.nix
     ../../home/shared/git.nix
-    ../../home/shared/helix.nix
-    ../../home/shared/jujutsu
     ../../home/shared/gpg.nix
-    ../../home/shared/tmux.nix
+    ../../home/shared/helix.nix
     ../../home/shared/neovim
+    ../../home/shared/jujutsu
+    ../../home/shared/tmux.nix
 
     ../../home/shared/wezterm.nix
     ../../home/shared/firefox
   ];
-
-  home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-  };
 
   home.packages = [
     pkgs.gg
