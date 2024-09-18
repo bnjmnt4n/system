@@ -160,6 +160,7 @@
 
         "base()" = "roots(roots(trunk()..@)-)";
         "stack()" = "reachable(@, ~ ::trunk()) | ancestors(trunk()..@, 2) | trunk()";
+        # "'stack(x)' = 'mutable() & ::x'"
         "overview()" = "@ | ancestors(remote_branches(), 2) | trunk() | root()";
         "my_unmerged()" = "mine() ~ ::trunk()";
         "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_branches()";
@@ -170,15 +171,14 @@
         short-prefixes = "trunk()..";
       };
       aliases = {
-        b = [ "branch" ];
-        bl = [ "branch" "list" ];
+        bl = [ "bookmark" "list" ];
         conflicts = [ "resolve" "--list" "-r" ];
         d = [ "diff" ];
         dg = [ "diff" "--tool" "idea" ];
         dd = [ "diff" "--git" "--config-toml=ui.pager='delta'" ];
         ddl = [ "diff" "--git" "--config-toml=ui.pager='delta --line-numbers'" ];
-        diffg = [ "diff" "--tool" "idea"];
-        diffeditg = [ "diffedit" "--tool" "idea"];
+        diffg = [ "diff" "--tool" "idea" ];
+        diffeditg = [ "diffedit" "--tool" "idea" ];
         l = [ "log" ];
         la = [ "log" "-r" "::@" ];
         lall = [ "log" "-r" "all()" ];
@@ -286,9 +286,6 @@
         "node immutable" = "default";
         "node conflict" = "red";
         "node wip" = "yellow";
-
-        "diff renamed" = "cyan";
-        "diff copied" = "cyan";
       };
     };
   };

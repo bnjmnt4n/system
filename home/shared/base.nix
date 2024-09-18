@@ -63,7 +63,7 @@ in
     # Archiving
     zip
     unzip
-    # unrar
+    unrar-wrapper
     # xz
 
     # Default language servers

@@ -39,7 +39,7 @@ let
     "ruby"
     "rust"
     "scss"
-    # "sql"
+    "sql"
     "svelte"
     "toml"
     "tsx"

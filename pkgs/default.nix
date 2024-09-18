@@ -15,7 +15,7 @@ inputs: system: final: prev:
   gg = prev.callPackage ./darwin/gg.nix { };
   secretive = prev.callPackage ./darwin/secretive.nix { };
   # TODO: Switch to https://github.com/NixOS/nixpkgs/pull/284010
-  zed = prev.callPackage ./darwin/zed.nix { };
+  zed-preview = prev.callPackage ./darwin/zed-preview.nix { };
   # Add access to x86 packages if system is running Apple Silicon.
   pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
     system = "x86_64-darwin";

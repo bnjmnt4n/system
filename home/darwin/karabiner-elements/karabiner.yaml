@@ -88,7 +88,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a @wezterm@"
+                - shell_command: open -a "@wezterm@"
               type: basic
         - description: Hyper + b -> Open Browser (Firefox)
           manipulators:
@@ -101,7 +101,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a @firefox@"
+                - shell_command: open -a "@firefox@"
               type: basic
         - description: Hyper + c -> Open Code Editor (Zed)
           manipulators:
@@ -114,7 +114,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a @zed@"
+                - shell_command: open -a "@zed_preview@"
               type: basic
         - description: Hyper + f -> Open Finder
           manipulators:
@@ -127,7 +127,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a Finder.app"
+                - shell_command: open -a Finder.app
               type: basic
         - description: Hyper + m -> Open Music Player (Spotify)
           manipulators:
@@ -140,7 +140,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a @spotify@"
+                - shell_command: open -a "@spotify@"
               type: basic
         - description: Hyper + t -> Open Terminal (WezTerm)
           manipulators:
@@ -153,7 +153,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: "open -a @wezterm@"
+                - shell_command: open -a "@wezterm@"
               type: basic
     devices:
       - disable_built_in_keyboard_if_exists: false

@@ -21,14 +21,16 @@
         extensions = with pkgs.nur.repos.rycee.firefox-addons; [
           bitwarden
           decentraleyes
-          h264ify
           multi-account-containers
           temporary-containers
           privacy-badger
           react-devtools
           ublock-origin
           vimium
-        ];
+        ] ++ (if (pkgs.stdenv.hostPlatform.isDarwin) then [ ] else with pkgs.nur.repos.rycee.firefox-addons;
+          [
+            h264ify
+          ]);
         settings = {
           "app.update.auto" = false;
           "browser.startup.page" = 3; # Restore previous tabs
@@ -40,6 +42,7 @@
           "experiments.enabled" = false;
           "experiments.supported" = false;
           "extensions.pocket.enabled" = false;
+          "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
 
           # Reduce File IO / SSD abuse.

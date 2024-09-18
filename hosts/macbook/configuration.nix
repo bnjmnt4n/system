@@ -66,7 +66,7 @@
       persistent-apps = [
         "${pkgs.firefox-bin}/Applications/Firefox.app/"
         "${pkgs.wezterm}/Applications/WezTerm.app/"
-        "${pkgs.zed}/Applications/${pkgs.zed.sourceRoot}/"
+        "${pkgs.zed-preview}/Applications/${pkgs.zed-preview.sourceRoot}/"
         "/Applications/Figma.app/"
         "${pkgs.spotify}/Applications/Spotify.app/"
         "/Applications/Google Chrome.app/"

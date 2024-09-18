@@ -33,8 +33,9 @@ in
     pkgs.gg
     pkgs.jetbrains.idea-community
     pkgs.restic
+    pkgs.yt-dlp
     # pkgs.zed-editor
-    pkgs.zed
+    pkgs.zed-preview
   ];
 
   # Disable login message.

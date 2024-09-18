@@ -4,15 +4,15 @@ let
   hdiutil = "/usr/bin/hdiutil";
 in
 stdenvNoCC.mkDerivation rec {
-  pname = "Zed";
-  version = "0.149.3";
+  pname = "Zed Preview";
+  version = "0.153.5";
 
   src = fetchurl {
-    url = "https://zed.dev/api/releases/stable/${version}/Zed.dmg";
-    sha256 = "sha256-BlpvN3jEzQiKSR4Jj6JmvlPYcPdJu37HCiK/bJKz69c=";
+    url = "https://zed.dev/api/releases/preview/${version}/Zed.dmg";
+    sha256 = "sha256-CYRnu0eJAsbnQBmBAeyizLH1SEbDhvTTiumpXqinKyo=";
   };
 
-  sourceRoot = "Zed.app";
+  sourceRoot = "Zed Preview.app";
 
   unpackPhase = ''
     mkdir -p ./Applications

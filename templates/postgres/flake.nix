@@ -4,17 +4,18 @@
     flake-utils.url = "github:numtide/flake-utils?rev=ff7b65b44d01cf9ba6a71320833626af21126384";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         startPostgresqlScript = pkgs.writeShellScriptBin "start-postgresql" ''
           pg_ctl start -l $LOG_PATH -o "-c listen_addresses= -c unix_socket_directories=$PGHOST"
         '';
-      in {
-       devShell = pkgs.mkShell {
+      in
+      {
+        devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            (postgresql_16.withPackages (ps: [
+            (pkgs.postgresql_16.withPackages (ps: [
               ps.pgjwt
             ]))
             startPostgresqlScript

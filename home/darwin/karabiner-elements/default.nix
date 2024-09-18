@@ -7,7 +7,7 @@ let
     firefox = "${pkgs.firefox-bin}/Applications/Firefox.app";
     wezterm = "${pkgs.wezterm}/Applications/WezTerm.app";
     spotify = "${pkgs.spotify}/Applications/Spotify.app";
-    zed = "${pkgs.zed}/Applications/${pkgs.zed.sourceRoot}";
+    zed_preview = "${pkgs.zed-preview}/Applications/${pkgs.zed-preview.sourceRoot}";
   };
 in
 {

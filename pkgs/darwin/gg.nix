@@ -5,11 +5,11 @@ let
 in
 stdenvNoCC.mkDerivation rec {
   pname = "gg";
-  version = "0.17.0";
+  version = "0.20.0";
 
   src = fetchurl {
     url = "https://github.com/gulbanana/gg/releases/download/v${version}/gg_${version}_universal.dmg";
-    sha256 = "sha256-Up36vqCYOxqGESW4dCbJKQolRvvgh5o5q04tzfQX764=";
+    sha256 = "sha256-m22s9zMYt8Qy4xX9+KBRtwrrp/KNf2KphrOaLQOS/+4=";
   };
 
   sourceRoot = "gg.app";
