@@ -178,7 +178,7 @@
   launchd.agents.firefox-env = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = true;
     config = {
-      ProgramArguments = [ "/bin/sh" "-c" "launchtl setenv MOZ_LEGACY_PROFILES 1; launchctl setenv MOZ_ALLOW_DOWNGRADE 1" ];
+      ProgramArguments = [ "/bin/sh" "-c" "launchctl setenv MOZ_LEGACY_PROFILES 1; launchctl setenv MOZ_ALLOW_DOWNGRADE 1" ];
       RunAtLoad = true;
     };
   };

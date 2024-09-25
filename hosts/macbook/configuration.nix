@@ -29,10 +29,13 @@
       "aldente"
       "betterdisplay"
       "docker"
+      "dropbox"
       "figma"
+      "handbrake"
       "mullvadvpn"
       "google-chrome"
       "safari-technology-preview"
+      "spotify"
       "transmission"
     ];
   };
@@ -40,7 +43,6 @@
   environment.systemPackages = [
     pkgs.firefox-bin
     pkgs.monitorcontrol
-    pkgs.spotify
     pkgs.vlc-bin
     pkgs.wezterm
   ];
@@ -68,7 +70,7 @@
         "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed-preview}/Applications/${pkgs.zed-preview.sourceRoot}/"
         "/Applications/Figma.app/"
-        "${pkgs.spotify}/Applications/Spotify.app/"
+        "/Applications/Spotify.app/"
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"
       ];

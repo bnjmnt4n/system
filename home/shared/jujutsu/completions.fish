@@ -110,11 +110,11 @@ end
 function __jj_branches
   set -f filter $argv[1]
   if string length --quiet -- $argv[2]
-    __jj branch list --all-remotes -r "$argv[2]" \
-      -T "if($filter, name ++ if(remote, \"@\" ++ remote) ++ \"\t\" ++ if(normal_target, normal_target.change_id().shortest() ++ \": \" ++ if(normal_target.description(), normal_target.description().first_line(), \"(no description set)\"), \"(conflicted branch)\") ++ \"\n\")"
+    __jj bookmark list --all-remotes -r "$argv[2]" \
+      -T "if($filter, name ++ if(remote, \"@\" ++ remote) ++ \"\t\" ++ if(normal_target, normal_target.change_id().shortest() ++ \": \" ++ if(normal_target.description(), normal_target.description().first_line(), \"(no description set)\"), \"(conflicted bookmark)\") ++ \"\n\")"
   else
-    __jj branch list --all-remotes \
-      -T "if($filter, name ++ if(remote, \"@\" ++ remote) ++ \"\t\" ++ if(normal_target, normal_target.change_id().shortest() ++ \": \" ++ if(normal_target.description(), normal_target.description().first_line(), \"(no description set)\"), \"(conflicted branch)\") ++ \"\n\")"
+    __jj bookmark list --all-remotes \
+      -T "if($filter, name ++ if(remote, \"@\" ++ remote) ++ \"\t\" ++ if(normal_target, normal_target.change_id().shortest() ++ \": \" ++ if(normal_target.description(), normal_target.description().first_line(), \"(no description set)\"), \"(conflicted bookmark)\") ++ \"\n\")"
   end
 end
 
@@ -122,7 +122,7 @@ function __jj_all_branches
   __jj_branches '!remote || !remote.starts_with("git")' $argv[1]
 end
 
-function __jj_local_branches
+function __jj_local_bookmarks
   __jj_branches '!remote' ''
 end
 
@@ -200,10 +200,10 @@ function __jj_parse_revision
     if $return_next
       echo $i
       set return_value 0
-    else if contains -- $i -r --revision --from
+    else if contains -- $i -r --revision --from -f
       set return_next true
     else
-      set -l match (string match --regex '^(?:-r=?|--revision=|--from=)(.+)\s*$' --groups-only -- $i)
+      set -l match (string match --regex '^(?:-r=?|--revision=|--from=|-f=?)(.+)\s*$' --groups-only -- $i)
       if set -q match[1]
         echo $match[1]
         set return_value 0
@@ -271,6 +271,7 @@ complete -f -c jj -n '__fish_use_subcommand' -a '(__jj_aliases_with_descriptions
 
 # Files.
 complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from show' -ka '(__jj_parse_revision_files)'
+complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from annotate' -ka '(__jj_parse_revision_files)'
 complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from chmod' -ka '(__jj_parse_revision_files)'
 complete -f -c jj -n '__jj_seen_subcommand_from commit' -ka '(__jj_revision_modified_files "@")'
 complete -c jj -n '__jj_seen_subcommand_from diff' -ka '(__jj_parse_revision_files_or_wc_modified_files)'
@@ -285,6 +286,7 @@ complete -f -c jj -n '__jj_seen_subcommand_from untrack' -ka '(__jj_parse_revisi
 complete -f -c jj -n '__jj_seen_subcommand_from abandon' -ka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from backout' -s r -l revisions -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from backout' -s d -l destination -rka '(__jj_all_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from annotate' -s r -l revision -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from show' -s r -l revision -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from chmod' -s r -l revision -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from describe' -ka '(__jj_mutable_changes)'
@@ -296,6 +298,7 @@ complete -f -c jj -n '__jj_seen_subcommand_from diffedit' -l from -rka '(__jj_al
 complete -f -c jj -n '__jj_seen_subcommand_from diffedit' -l to -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from duplicate' -ka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from edit' -ka '(__jj_mutable_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from fix' -s s -l source -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from file; and __jj_seen_subcommand_from list' -s r -l revision -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from interdiff' -l from -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from interdiff' -l to -rka '(__jj_all_changes)'
@@ -315,25 +318,28 @@ complete -f -c jj -n '__jj_seen_subcommand_from resolve' -s r -l revision -rka '
 complete -f -c jj -n '__jj_seen_subcommand_from restore' -l from -rka '(__jj_all_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from restore' -l to -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from restore' -s c -l changes-in -rka '(__jj_all_changes)'
-complete -f -c jj -n '__jj_seen_subcommand_from show' -ka '(__jj_all_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from show; and not __jj_seen_subcommand_from file; and not __jj_seen_subcommand_from operation' -ka '(__jj_all_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from simplify-parents' -s r -l revisions -rka '(__jj_mutable_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from simplify-parents' -s s -l source -rka '(__jj_mutable_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from rebase' -s s -l source -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from split' -s r -l revision -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from squash' -s r -l revision -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from squash' -l from -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from squash' -l to -l into -rka '(__jj_mutable_changes)'
 complete -f -c jj -n '__jj_seen_subcommand_from unsquash' -s r -l revision -rka '(__jj_mutable_changes)'
 
-# Branches.
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from delete forget rename set d f r s' -ka '(__jj_local_branches)'
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from track t' -ka '(__jj_branches "remote && !tracked" "")'
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from untrack' -ka '(__jj_branches "remote && tracked && !remote.starts_with(\"git\")" "")'
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from create move set c m s' -s r -l revision -kra '(__jj_all_changes)'
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from move' -l from -rka '(__jj_changes "all()")'
-complete -f -c jj -n '__jj_seen_subcommand_from branch; and __jj_seen_subcommand_from move' -l to -rka '(__jj_changes "all()")'
+# Bookmarks
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from move delete forget rename set m d f r s' -ka '(__jj_local_bookmarks)'
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from track t' -ka '(__jj_branches "remote && !tracked" "")'
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from untrack' -ka '(__jj_branches "remote && tracked && !remote.starts_with(\"git\")" "")'
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from create move set c m s' -s r -l revision -kra '(__jj_all_changes)'
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from move' -l from -rka '(__jj_changes "all()")'
+complete -f -c jj -n '__jj_seen_subcommand_from bookmark; and __jj_seen_subcommand_from move' -l to -rka '(__jj_changes "all()")'
 
 # Git.
 complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from push' -s c -l change -kra '(__jj_changes "all()")'
 complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from push' -s r -l revisions -kra '(__jj_changes "all()")'
-complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from fetch push' -s b -l branch -rka '(__jj_local_branches)'
+complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from fetch push' -s b -l bookmark -rka '(__jj_local_bookmarks)'
 complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from fetch push' -l remote -rka '(__jj_remotes)'
 complete -f -c jj -n '__jj_seen_subcommand_from git; and __jj_seen_subcommand_from remote; and __jj_seen_subcommand_from remove rename set-url' -ka '(__jj_remotes)'
 

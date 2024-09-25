@@ -5,11 +5,11 @@ let
 in
 stdenvNoCC.mkDerivation rec {
   pname = "Zed Preview";
-  version = "0.153.5";
+  version = "0.156.0";
 
   src = fetchurl {
     url = "https://zed.dev/api/releases/preview/${version}/Zed.dmg";
-    sha256 = "sha256-CYRnu0eJAsbnQBmBAeyizLH1SEbDhvTTiumpXqinKyo=";
+    sha256 = "sha256-ESirDBj5vLfPDdnSbxHZNsJCRFQm08wLd+UBIwwjVxM=";
   };
 
   sourceRoot = "Zed Preview.app";

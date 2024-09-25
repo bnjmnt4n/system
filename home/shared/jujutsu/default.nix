@@ -24,13 +24,24 @@
             if(current_working_copy, label("working_copy", "@")),
             if(immutable, label("immutable", "◆")),
             if(conflict, label("conflict", "×")),
-            if(!description || description.starts_with("wip:"), label("wip", "○")),
+            if(is_wip_commit_description(description), label("wip", "○")),
             "○"
           )
         '';
       };
       template-aliases = {
-        "format_timestamp(timestamp)" = "timestamp.ago()";
+        "is_wip_commit_description(description)" = ''
+          !description ||
+          description.first_line().lower().starts_with("wip:") ||
+          description.first_line().lower().starts_with("wip") && description.first_line().lower().ends_with("wip")
+        '';
+        "format_timestamp(timestamp)" = ''
+          if(
+            timestamp.before("1 month ago"),
+            timestamp.format("%b %d %Y %H:%M"),
+            timestamp.ago()
+          )
+        '';
         "format_short_change_id_with_hidden_and_divergent_info(commit)" = ''
           label(
             coalesce(
@@ -38,7 +49,7 @@
               if(commit.contained_in("trunk()"), "trunk"),
               if(commit.immutable(), "immutable"),
               if(commit.conflict(), "conflict"),
-              if(!commit.description() || commit.description().starts_with("wip:"), "wip"),
+              if(is_wip_commit_description(commit.description()), "wip"),
             ),
             if(commit.hidden(),
               label("hidden",
@@ -55,7 +66,7 @@
             label("immutable", format_short_change_id(root.change_id())),
             label("root", "root()"),
             format_short_commit_id(root.commit_id()),
-            root.branches()
+            root.bookmarks()
           ) ++ "\n"
         '';
         log_oneline = ''
@@ -67,10 +78,10 @@
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   if(author.email(), author.username(), email_placeholder),
                   format_timestamp(committer.timestamp()),
-                  branches,
+                  bookmarks,
                   tags,
                   working_copies,
-                  git_head,
+                  if(git_head, label("git_head", "git_head()")),
                   format_short_commit_id(commit_id),
                   if(conflict, label("conflict", "conflict")),
                   if(empty,
@@ -79,7 +90,7 @@
                         if(immutable, "immutable"),
                         if(hidden, "hidden"),
                         if(self.contained_in("trunk()"), "trunk"),
-                        if(!description || description.starts_with("wip:"), "wip"),
+                        if(is_wip_commit_description(description), "wip"),
                         "empty",
                       ),
                       "(empty)"
@@ -88,7 +99,7 @@
                     label(
                       separate(" ",
                         if(self.contained_in("trunk()"), "trunk"),
-                        if(description.starts_with("wip:"), "wip")),
+                        if(is_wip_commit_description(description), "wip")),
                       description.first_line()),
                     label(
                       separate(" ",
@@ -111,10 +122,10 @@
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_signature(author),
                   format_timestamp(committer.timestamp()),
-                  branches,
+                  bookmarks,
                   tags,
                   working_copies,
-                  git_head,
+                  if(git_head, label("git_head", "git_head()")),
                   format_short_commit_id(commit_id),
                   if(conflict, label("conflict", "conflict")),
                 ) ++ "\n",
@@ -125,7 +136,7 @@
                         if(immutable, "immutable"),
                         if(hidden, "hidden"),
                         if(self.contained_in("trunk()"), "trunk"),
-                        if(!description || description.starts_with("wip:"), "wip"),
+                        if(is_wip_commit_description(description), "wip"),
                         "empty",
                       ),
                       "(empty)"
@@ -134,7 +145,7 @@
                     label(
                       separate(" ",
                         if(self.contained_in("trunk()"), "trunk"),
-                        if(description.starts_with("wip:"), "wip")),
+                        if(is_wip_commit_description(description), "wip")),
                       description.first_line()),
                     label(
                       separate(" ",
@@ -145,7 +156,7 @@
                   )
                 ) ++ "\n",
                 if(!empty &&
-                  (!description || description.starts_with("wip:") || current_working_copy),
+                  (is_wip_commit_description(description) || current_working_copy),
                   diff.summary()
                 ),
               ),
@@ -155,19 +166,23 @@
       };
       revset-aliases = {
         "at" = "@";
+        "AT" = "@";
 
-        "diverge(a, b)" = "heads(::a & ::b)::(a | b)";
+        "new_visible_commits(op)" = "at_operation(@-, at_operation(op, visible_heads()))..at_operation(op, visible_heads())";
+        "new_hidden_commits(op)" = "at_operation(op, visible_heads())..at_operation(@-, at_operation(op, visible_heads()))";
 
         "base()" = "roots(roots(trunk()..@)-)";
-        "stack()" = "reachable(@, ~ ::trunk()) | ancestors(trunk()..@, 2) | trunk()";
-        # "'stack(x)' = 'mutable() & ::x'"
-        "overview()" = "@ | ancestors(remote_branches(), 2) | trunk() | root()";
+        "tree(x)" = "reachable(x, ~ ::trunk())";
+        "stack(x)" = "trunk()..x";
+        "overview()" = "@ | ancestors(remote_bookmarks(), 2) | trunk() | root()";
         "my_unmerged()" = "mine() ~ ::trunk()";
-        "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_branches()";
-        "not_pushed()" = "remote_branches()..";
+        "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_bookmarks()";
+        "not_pushed()" = "remote_bookmarks()..";
+
+        "diverge(a, b)" = "heads(::a & ::b)::(a | b)";
       };
       revsets = {
-        log = "stack()";
+        log = "ancestors(tree(@), 2) | trunk()";
         short-prefixes = "trunk()..";
       };
       aliases = {
@@ -187,6 +202,7 @@
         lmu = [ "log" "-r" "ancestors(my_unmerged(), 2) | trunk()" ];
         lmur = [ "log" "-r" "ancestors(my_unmerged_remote(), 2) | trunk()" ];
         lnp = [ "log" "-r" "ancestors(not_pushed(), 2) | trunk()" ];
+        ls = [ "log" "-r" "ancestors(stack(@), 2) | trunk()" ];
         s = [ "show" ];
         sg = [ "show" "--tool" "idea" ];
         sp = [ "show" "@-" ];
@@ -197,10 +213,11 @@
         gf = [ "git" "fetch" ];
         gp = [ "git" "push" ];
         abandon-merged = [ "abandon" "trunk().. & ..@ & empty() ~ @ ~ merges() ~ visible_heads()" ];
-        simplify-merge = [ "rebase" "-s" "heads(trunk()..@ & merges())" "-d" "heads(heads(trunk()..@ & merges())-)" ];
+        simplify = [ "simplify-parents" "-r" "reachable(@, ~ ::trunk())" ];
         sync = [ "rebase" "-s" "roots(trunk()..@)" "-d" "trunk()" "--skip-emptied" ];
         sync-all = [ "rebase" "-s" "roots(mutable())" "-d" "trunk()" "--skip-emptied" ];
         rebaset = [ "rebase" "-d" "trunk()" ];
+        new-from-previous-op = [ "new" "heads(new_visible_commits(@))" ];
       };
       merge-tools = {
         difft = {
@@ -274,10 +291,10 @@
         "working_copy wip description placeholder" = "green";
 
         "log working_copy" = { bold = false; };
-        "log working_copy branch" = "green";
-        "log working_copy branches" = "green";
-        "log working_copy local_branches" = "green";
-        "log working_copy remote_branches" = "green";
+        "log working_copy bookmark" = "green";
+        "log working_copy bookmarks" = "green";
+        "log working_copy local_bookmarks" = "green";
+        "log working_copy remote_bookmarks" = "green";
 
         "log root" = "bright yellow";
 
