@@ -2,21 +2,21 @@
 
 {
   imports = [
-    ../../home/base.nix
+    ../../home/shared/base.nix
 
-    ../../home/shell.nix
-    ../../home/xdg.nix
-    ../../home/git.nix
-    ../../home/gpg.nix
+    ../../home/shared/shell.nix
+    ../../home/linux/xdg.nix
+    ../../home/shared/git.nix
+    ../../home/shared/gpg.nix
 
-    ../../home/bat.nix
-    ../../home/tmux.nix
+    ../../home/shared/bat.nix
+    ../../home/shared/tmux.nix
 
-    ../../home/neovim
+    ../../home/shared/neovim
 
-    ../../home/chromium.nix
-    ../../home/firefox
-    ../../home/gtk.nix
+    ../../home/shared/chromium.nix
+    ../../home/shared/firefox
+    ../../home/linux/gtk.nix
   ];
 
   home.packages = with pkgs; [

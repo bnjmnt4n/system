@@ -109,7 +109,6 @@ return {
   -- Statuscolumn
   {
     'luukvbaal/statuscol.nvim',
-    branch = '0.10',
     event = 'VeryLazy',
     opts = function()
       local builtin = require 'statuscol.builtin'
@@ -234,28 +233,6 @@ return {
         },
       }
     end,
-  },
-
-  -- Zen mode
-  {
-    'folke/zen-mode.nvim',
-    cmd = 'ZenMode',
-    keys = {
-      { '<leader>tz', '<cmd>ZenMode<cr>', desc = 'Toggle zen mode' },
-    },
-    config = true,
-  },
-
-  -- Focus on specific lines of code
-  {
-    'folke/twilight.nvim',
-    cmd = 'Twilight',
-    keys = {
-      { '<leader>tt', '<cmd>Twilight<cr>', desc = 'Toggle twilight mode' },
-    },
-    opts = {
-      context = 15,
-    },
   },
 
   -- Icons

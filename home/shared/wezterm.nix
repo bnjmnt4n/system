@@ -37,6 +37,10 @@
           { family = 'Symbols Nerd Font Mono', scale = 0.75 },
         }),
         font_size = 20.0,
+        -- See:
+        -- - https://github.com/NixOS/nixpkgs/issues/336069
+        -- - https://github.com/wez/wezterm/issues/5990
+        front_end = 'WebGpu',
         color_scheme = scheme_for_appearance(get_appearance()),
         hide_tab_bar_if_only_one_tab = true,
         check_for_updates = false,

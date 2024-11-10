@@ -31,27 +31,18 @@
   '';
 
   nixFlakeInit = pkgs.writeShellScriptBin "nix-flake-init" ''
-    nix flake init -t "${inputs.self}#''${1:-default}"
-    echo "use flake" >> .envrc
-    direnv allow .
+    ${pkgs.nix}/bin/nix flake init -t "${inputs.self}#''${1:-default}"
+    ${pkgs.nix}/bin/nix flake lock --override-input nixpkgs github:NixOS/nixpkgs/${inputs.nixpkgs.rev}
+    ${pkgs.coreutils}/bin/echo "use flake" >> .envrc
+    ${pkgs.direnv}/bin/direnv allow .
   '';
 
   nixFlakeSync = pkgs.writeShellScriptBin "nix-flake-sync" ''
-    [ -f flake.nix ] && ${pkgs.gnused}/bin/sed -i 's/nixpkgs.url *= *[^;]\+;/nixpkgs.url = "github:NixOS\/nixpkgs?rev=${inputs.nixpkgs.rev}";/g' flake.nix
-    [ -f flake.nix ] && ${pkgs.gnused}/bin/sed -i 's/flake-utils.url *= *[^;]\+;/flake-utils.url = "github:numtide\/flake-utils?rev=${inputs.flake-utils.rev}";/g' flake.nix
-    [ -f .envrc ] && direnv allow .
+    ${pkgs.nix}/bin/nix flake lock --override-input nixpkgs github:NixOS/nixpkgs/${inputs.nixpkgs.rev}
+    [ -f .envrc ] && ${pkgs.direnv}/bin/direnv allow .
   '';
 
-  # TODO: setup encrypted environment variables on WSL.
-  setupResticEnv = pkgs.writeScriptBin "restic-env" ''
-    #!/usr/bin/env fish
-
-    set -x RESTIC_REPOSITORY (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-repo.age})
-    set -x B2_ACCOUNT_ID (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-account-id.age})
-    set -x B2_ACCOUNT_KEY (${pkgs.age}/bin/age --decrypt -i ~/.ssh/id_ed25519 ${../secrets/b2-account-key.age})
-  '';
-
-  setupResticEnvNew = pkgs.writeScript "setup-restic-env" ''
+  setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''
     #!/usr/bin/env fish
 
     set yq ${pkgs.yq-go}/bin/yq

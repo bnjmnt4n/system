@@ -22,7 +22,7 @@
       experimental-features = [ "nix-command" "flakes" ];
       trusted-users = [ "root" "@wheel" ];
 
-      extra-platforms = lib.mkIf (pkgs.system == "aarch64-darwin")
+      extra-platforms = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
         [ "x86_64-darwin" "aarch64-darwin" ];
 
       # Binary caches.

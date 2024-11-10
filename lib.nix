@@ -1,34 +1,65 @@
-{ self, nixpkgs, agenix, home-manager, darwin, nix-index-database, mac-app-util, ... }@inputs:
+{ self, nixpkgs, home-manager, nix-darwin, ... }@inputs:
 
 let
   homeStateVersion = "20.09";
-  optional = condition: item: if condition then [ item ] else [ ];
+  mkIf = cond: attrs: if cond then attrs else {};
 in
 rec {
-  makeOverlays = system: [
+  overlays = [
     inputs.agenix.overlays.default
     inputs.neovim-nightly-overlay.overlays.default
     inputs.nur.overlay
     inputs.jujutsu.overlays.default
-    (import ../pkgs inputs system)
-  ] ++ (optional (system == "aarch64-darwin") inputs.firefox-darwin.overlay);
+    (import ./pkgs inputs)
+  ];
 
   makePkgs = system: import nixpkgs {
-    inherit system;
-    overlays = makeOverlays system;
+    inherit system overlays;
     config.allowUnfree = true;
   };
 
-  makeNixosConfiguration = { system, hostname, username, modules ? [ ], users }:
+  makeHostsConfigurations = hosts: nixpkgs.lib.foldl'
+    (attrs: hostname:
+      let
+        inherit (hosts.${hostname}) system users;
+        isDarwin = system == "aarch64-darwin";
+      in
+      (nixpkgs.lib.foldl' nixpkgs.lib.recursiveUpdate attrs [
+        (mkIf (!isDarwin) {
+          nixosConfigurations.${hostname} = makeNixosConfiguration {
+            inherit system hostname users;
+            modules = hosts.${hostname}.nixosModules or [ ];
+          };
+        })
+        (mkIf isDarwin {
+          darwinConfigurations.${hostname} = makeDarwinConfiguration {
+            inherit system hostname users;
+            modules = hosts.${hostname}.darwinModules or [ ];
+          };
+        })
+        (nixpkgs.lib.foldl'
+          (attrs: username:
+            nixpkgs.lib.recursiveUpdate attrs {
+              homeConfigurations."${username}@${hostname}" = makeHomeManagerConfiguration {
+                inherit system hostname username;
+              };
+            })
+          { }
+          users)
+      ]))
+    { }
+    (builtins.attrNames hosts);
+
+  makeNixosConfiguration = { system, hostname, modules ? [ ], users }:
     let
       pkgs = makePkgs system;
     in
     nixpkgs.lib.nixosSystem {
       inherit system;
       modules = modules ++ [
-        home-manager.nixosModules.home-manager
-        agenix.nixosModules.age
-        nix-index-database.nixosModules.nix-index
+        inputs.home-manager.nixosModules.home-manager
+        inputs.agenix.nixosModules.age
+        inputs.nix-index-database.nixosModules.nix-index
         {
           # Before changing this value read the documentation for this option
           # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
@@ -36,18 +67,19 @@ rec {
           system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
           nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
           nix.registry.nixpkgs.flake = nixpkgs;
+          nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
           nix.registry.my.flake = self;
           # Use our custom instance of nixpkgs.
           nixpkgs = { inherit pkgs; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
         }
-        (../hosts + "/${hostname}/configuration.nix")
-        (nixpkgs.lib.lists.foldl'
-          (attrs: user: attrs // {
+        (./hosts + "/${hostname}/configuration.nix")
+        (nixpkgs.lib.foldl'
+          (attrs: user: nixpkgs.lib.recursiveUpdate attrs {
             home-manager.users.${user} = args: {
               imports = [
-                (../hosts + "/${hostname}/${user}.nix")
+                (./hosts + "/${hostname}/${user}.nix")
               ];
 
               home = {
@@ -66,39 +98,40 @@ rec {
     let
       pkgs = makePkgs system;
     in
-    darwin.lib.darwinSystem {
+    nix-darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { inherit inputs; };
       modules = [
         home-manager.darwinModules.home-manager
-        nix-index-database.darwinModules.nix-index
-        mac-app-util.darwinModules.default
+        inputs.nix-index-database.darwinModules.nix-index
+        inputs.mac-app-util.darwinModules.default
         {
           # Before changing this value read the documentation for this option
           # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
           system.stateVersion = 4;
           system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
           nix.nixPath = [ "nixpkgs=${nixpkgs}" ];
-          nix.registry.my.flake = self;
           nix.registry.nixpkgs.flake = nixpkgs;
+          nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
+          nix.registry.my.flake = self;
           # Use our custom instance of nixpkgs.
           nixpkgs = { inherit pkgs; };
           home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
         }
-        (../hosts + "/${hostname}/configuration.nix")
-        (nixpkgs.lib.lists.foldl'
-          (attrs: user: attrs // {
-            users.users."${user}" = {
+        (./hosts + "/${hostname}/configuration.nix")
+        (nixpkgs.lib.foldl'
+          (attrs: user: nixpkgs.lib.recursiveUpdate attrs {
+            users.users.${user} = {
               home = "/Users/${user}";
               shell = "/run/current-system/sw/bin/fish";
             };
             home-manager.users.${user} = args: {
               imports = [
-                (../hosts + "/${hostname}/${user}.nix")
-                agenix.homeManagerModules.default
-                mac-app-util.homeManagerModules.default
+                (./hosts + "/${hostname}/${user}.nix")
+                inputs.agenix.homeManagerModules.default
+                inputs.mac-app-util.homeManagerModules.default
               ];
 
               home = {
@@ -120,14 +153,15 @@ rec {
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [
-        nix-index-database.hmModules.nix-index
-        agenix.homeManagerModules.default
+        inputs.nix-index-database.hmModules.nix-index
+        inputs.agenix.homeManagerModules.default
         {
           nixpkgs = {
-            overlays = makeOverlays system;
+            inherit overlays;
             config.allowUnfree = true;
           };
           nix.registry.nixpkgs.flake = nixpkgs;
+          nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
           nix.registry.my.flake = self;
           home = {
             inherit username;
@@ -136,7 +170,7 @@ rec {
           };
           programs.home-manager.enable = true;
         }
-        (../hosts + "/${hostname}/${username}.nix")
+        (./hosts + "/${hostname}/${username}.nix")
       ];
       extraSpecialArgs = { inherit inputs; };
     };

@@ -1,8 +1,5 @@
 { config, lib, pkgs, inputs, ... }:
 
-let
-  scripts = import ../../lib/scripts.nix { inherit pkgs inputs; };
-in
 {
   imports = [
     ./dig.nix

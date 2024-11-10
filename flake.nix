@@ -3,9 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.11";
-    flake-utils.url = "github:numtide/flake-utils";
-    darwin = {
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -18,7 +17,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     mac-app-util.url = "github:hraban/mac-app-util";
-    firefox-darwin = {
+    # TODO: Remove once native derivation lands: https://github.com/NixOS/nixpkgs/pull/350384
+    nixpkgs-firefox-darwin = {
       url = "github:bandithedoge/nixpkgs-firefox-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -40,79 +40,53 @@
     jujutsu.url = "github:martinvonz/jj";
   };
 
-  outputs = { self, flake-utils, nixos-hardware, ... }@inputs:
+  outputs = { self, nixpkgs, ... }@inputs:
     let
-      utils = import ./lib/utils.nix inputs;
+      lib = import ./lib.nix inputs;
+      systems = [ "aarch64-darwin" "aarch64-linux" "x86_64-linux" ];
+      forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
     in
-    {
-      nixosConfigurations = {
-        gastropod = utils.makeNixosConfiguration {
-          system = "x86_64-linux";
-          hostname = "gastropod";
-          users = [ "bnjmnt4n" ];
-        };
-        raspy = utils.makeNixosConfiguration {
-          system = "aarch64-linux";
-          hostname = "raspy";
-          users = [ "bnjmnt4n" "guest" ];
-          modules = [ nixos-hardware.nixosModules.raspberry-pi-4 ];
-        };
-      };
-
-      darwinConfigurations.macbook = utils.makeDarwinConfiguration {
+    lib.makeHostsConfigurations {
+      macbook = {
         system = "aarch64-darwin";
-        hostname = "macbook";
         users = [ "bnjmnt4n" ];
       };
-
-      homeConfigurations = {
-        "bnjmnt4n@gastropod" = utils.makeHomeManagerConfiguration {
-          system = "x86_64-linux";
-          hostname = "gastropod";
-          username = "bnjmnt4n";
-        };
-        "bnjmnt4n@macbook" = utils.makeHomeManagerConfiguration {
-          system = "aarch64-darwin";
-          hostname = "macbook";
-          username = "bnjmnt4n";
-        };
-        "bnjmnt4n@windows" = utils.makeHomeManagerConfiguration {
-          system = "x86_64-linux";
-          hostname = "windows";
-          username = "bnjmnt4n";
-        };
+      windows = {
+        system = "x86_64-linux";
+        users = [ "bnjmnt4n" ];
       };
-
-      defaultTemplate = { path = ./templates/default; description = "Default"; };
+      raspy = {
+        system = "aarch64-linux";
+        users = [ "bnjmnt4n" "guest" ];
+        nixosModules = [ inputs.nixos-hardware.nixosModules.raspberry-pi-4 ];
+      };
+    }
+    //
+    {
       templates = {
         default = { path = ./templates/default; description = "Default"; };
         go = { path = ./templates/go; description = "Go"; };
         mariadb = { path = ./templates/mariadb; description = "MariaDB"; };
-        ocaml = { path = ./templates/ocaml; description = "OCaml"; };
         postgres = { path = ./templates/postgres; description = "PostgreSQL"; };
         python = { path = ./templates/python; description = "Python"; };
-        rust = { path = ./templates/rust; description = "Rust"; };
         web = { path = ./templates/web; description = "Web"; };
-        zig = { path = ./templates/zig; description = "Zig"; };
       };
     }
     //
-    # Convenient shortcuts to switch configurations within this repository.
-    flake-utils.lib.eachDefaultSystem (system:
+    forEachSystem systems (system:
       let
-        pkgs = utils.makePkgs system;
-        scripts = import ./lib/scripts.nix { inherit pkgs inputs; };
+        pkgs = lib.makePkgs system;
       in
       {
-        # TODO: check for correctness.
-        packages = import ./pkgs inputs system {} inputs.nixpkgs.legacyPackages.${system};
-        devShell = pkgs.mkShell {
-          buildInputs = [
+        # Custom version of nixpkgs with overlays.
+        packages.${system}.nixpkgs = pkgs;
+        devShells.${system}.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
             scripts.switchHome
             scripts.switchNixos
-            pkgs.agenix
-            pkgs.stylua
-            pkgs.sumneko-lua-language-server
+            agenix
+            stylua
+            sumneko-lua-language-server
           ];
         };
       }

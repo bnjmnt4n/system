@@ -57,6 +57,3 @@ vim.opt.fillchars = {
   foldsep = ' ',
   foldclose = '',
 }
-
--- GUI font for neovide
-vim.o.guifont = 'Iosevka Nerd Font:h20'

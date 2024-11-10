@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ../../nixos/nix.nix
+    ../../os/shared/nix.nix
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";
@@ -35,7 +35,6 @@
       "mullvadvpn"
       "google-chrome"
       "safari-technology-preview"
-      "spotify"
       "transmission"
     ];
   };
@@ -43,13 +42,17 @@
   environment.systemPackages = [
     pkgs.firefox-bin
     pkgs.monitorcontrol
+    pkgs.spotify
     pkgs.vlc-bin
     pkgs.wezterm
   ];
 
   services.nix-daemon.enable = true;
 
-  services.karabiner-elements.enable = true;
+  services.karabiner-elements = {
+    enable = true;
+    package = pkgs.karabiner-elements;
+  };
 
   # Use TouchID for `sudo`.
   security.pam.enableSudoTouchIdAuth = true;
@@ -68,9 +71,9 @@
       persistent-apps = [
         "${pkgs.firefox-bin}/Applications/Firefox.app/"
         "${pkgs.wezterm}/Applications/WezTerm.app/"
-        "${pkgs.zed-preview}/Applications/${pkgs.zed-preview.sourceRoot}/"
+        "${pkgs.zed-editor}/Applications/Zed.app/"
         "/Applications/Figma.app/"
-        "/Applications/Spotify.app/"
+        "${pkgs.spotify}/Applications/Spotify.app/"
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"
       ];
@@ -78,7 +81,6 @@
   };
 
   fonts.packages = [
-    (pkgs.nerdfonts.override { fonts = [ "Iosevka" ]; })
     pkgs.inter
     pkgs.iosevka-bin
     (pkgs.iosevka-bin.override { variant = "SGr-IosevkaTerm"; })

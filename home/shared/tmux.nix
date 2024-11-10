@@ -4,7 +4,11 @@
   programs.tmux = {
     enable = true;
     terminal = "tmux-256color";
+    shell = "${pkgs.fish}/bin/fish";
     extraConfig = ''
+      # See https://github.com/tmux/tmux/issues/4162.
+      set -gu default-command
+
       set -as terminal-features ',xterm-256color:RGB'
       set -g mouse on
 

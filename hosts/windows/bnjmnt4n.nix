@@ -1,8 +1,5 @@
 { config, lib, pkgs, ... }:
 
-let
-  scripts = import ../../lib/scripts.nix { inherit pkgs; };
-in
 {
   imports = [
     ../../home/base.nix
@@ -42,7 +39,6 @@ in
   home.packages = with pkgs; [
     hledger
     restic
-    scripts.setupResticEnv
     yt-dlp
   ];
 

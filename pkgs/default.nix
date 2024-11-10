@@ -1,21 +1,50 @@
-inputs: system: final: prev:
-{
-  # Add access to x86 packages if system is running Apple Silicon.
+inputs: final: prev:
+let
   nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
+in
+{
+  scripts = import ./shared/scripts.nix {
+    pkgs = final;
+    inherit inputs;
+  };
+  inherit nixpkgs-stable;
+  inherit (nixpkgs-stable)
+    # IDEA Community's merge tool seems to be missing some buttons?
+    jetbrains;
+
+  # Karabiner Elements 15.0 is not supported yet in nix-darwin.
+  # https://github.com/LnL7/nix-darwin/issues/1041
+  karabiner-elements = prev.karabiner-elements.overrideAttrs (old: {
+    version = "14.13.0";
+    src = prev.fetchurl {
+      inherit (old.src) url;
+      hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
+    };
+  });
 
   telescope-fzf-native = prev.callPackage ./shared/telescope-fzf-native.nix {
     src = inputs.telescope-fzf-native;
   };
+
+  # Enable experimental shell completion for Jujutsu
+  jujutsu = prev.jujutsu.overrideAttrs (old: {
+    postInstall = ''
+      $out/bin/jj util mangen > ./jj.1
+      installManPage ./jj.1
+
+      installShellCompletion --cmd jj \
+        --bash <(COMPLETE=bash $out/bin/jj) \
+        --fish <(COMPLETE=fish $out/bin/jj) \
+        --zsh <(COMPLETE=zsh $out/bin/jj)
+    '';
+  });
 
   clop = prev.callPackage ./darwin/clop.nix { };
   cleanshot = prev.callPackage ./darwin/cleanshot.nix { };
   dark-notify = prev.callPackage ./darwin/dark-notify.nix {
     src = inputs.dark-notify;
   };
-  gg = prev.callPackage ./darwin/gg.nix { };
   secretive = prev.callPackage ./darwin/secretive.nix { };
-  # TODO: Switch to https://github.com/NixOS/nixpkgs/pull/284010
-  zed-preview = prev.callPackage ./darwin/zed-preview.nix { };
   # Add access to x86 packages if system is running Apple Silicon.
   pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
     system = "x86_64-darwin";
@@ -29,3 +58,9 @@ inputs: system: final: prev:
     smbus2 = prev.python3.pkgs.callPackage ./linux/raspberry-pi-4/smbus2.nix { };
   };
 }
+//
+(
+  if (prev.stdenv.hostPlatform.isDarwin)
+  then inputs.nixpkgs-firefox-darwin.overlay final prev
+  else {}
+)

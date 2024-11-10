@@ -4,12 +4,12 @@ let
   hdiutil = "/usr/bin/hdiutil";
 in
 stdenvNoCC.mkDerivation rec {
-  pname = "clop";
-  version = "2.5.5";
+  pname = "Clop";
+  version = "2.6.3";
 
   src = fetchurl {
     url = "https://github.com/FuzzyIdeas/Clop/releases/download/v${version}/Clop-${version}.dmg";
-    sha256 = "sha256-iooXDzp9EKdJU2fFWlf4BExNo/Dy5D7TvVq9nLca2P8=";
+    sha256 = "sha256-R7h4XDVLAMj2XzhQsBxHi1gHg3CJKjizvSZKP/d6QAQ=";
   };
 
   sourceRoot = "Clop.app";

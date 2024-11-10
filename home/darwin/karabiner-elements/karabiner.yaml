@@ -114,7 +114,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@zed_preview@"
+                - shell_command: open -a "@zed@"
               type: basic
         - description: Hyper + f -> Open Finder
           manipulators:

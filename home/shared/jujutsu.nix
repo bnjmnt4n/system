@@ -1,5 +1,32 @@
 { config, lib, pkgs, ... }:
 
+let
+  jj-fix-eslint = pkgs.writeShellScript "jj-fix-eslint" ''
+    export PATH=${with pkgs; lib.makeBinPath [ coreutils jq ]}:"$PATH"
+    FILE_CONTENTS=$(cat)
+    ESLINT_OUTPUT_JSON=$(echo "$FILE_CONTENTS" | npx eslint --no-color --format json --stdin --stdin-filename "$1")
+    if [ "$?" -ne 0 ]; then
+      echo "$ESLINT_FIXED_OUTPUT" | npx eslint --stdin --stdin-filename "$1" 1>&2
+      exit "$?"
+    fi
+    HAS_WARNINGS=$(echo "$ESLINT_OUTPUT_JSON" | jq -M -e ".[0].messages | length == 0 and .[0].fixableErrorCount + .[0].fixableWarningCount")
+    if [ "$?" -eq 0 ]; then
+      echo "$FILE_CONTENTS"
+      exit 0
+    fi
+    ESLINT_FIXED_OUTPUT=$(echo "$FILE_CONTENTS" | npx eslint --no-color --fix-dry-run --format json --stdin --stdin-filename "$1" | jq -e -M ".[0].output" --raw-output)
+    if [ "$?" -eq 0 ]; then
+      # This tends to have false positives for some reason
+      # echo "$ESLINT_FIXED_OUTPUT" | npx eslint --stdin --stdin-filename "$1" 1>&2
+      echo "$ESLINT_FIXED_OUTPUT"
+      exit 0
+    else
+      echo "$FILE_CONTENTS" | npx eslint --stdin --stdin-filename "$1" 1>&2
+      echo "$FILE_CONTENTS"
+      exit 1
+    fi
+  '';
+in
 {
   programs.jujutsu = {
     enable = true;
@@ -16,6 +43,7 @@
         merge-editor = "idea";
       };
       diff.color-words.max-inline-alternation = 5;
+      snapshot.auto-update-stale = true;
       templates = {
         log = "log_compact";
         log_node = ''
@@ -33,7 +61,7 @@
         "is_wip_commit_description(description)" = ''
           !description ||
           description.first_line().lower().starts_with("wip:") ||
-          description.first_line().lower().starts_with("wip") && description.first_line().lower().ends_with("wip")
+          description.first_line().lower() == "wip"
         '';
         "format_timestamp(timestamp)" = ''
           if(
@@ -84,6 +112,52 @@
                   if(git_head, label("git_head", "git_head()")),
                   format_short_commit_id(commit_id),
                   if(conflict, label("conflict", "conflict")),
+                  if(empty,
+                    label(
+                      separate(" ",
+                        if(immutable, "immutable"),
+                        if(hidden, "hidden"),
+                        if(self.contained_in("trunk()"), "trunk"),
+                        if(is_wip_commit_description(description), "wip"),
+                        "empty",
+                      ),
+                      "(empty)"
+                    )),
+                  if(description,
+                    label(
+                      separate(" ",
+                        if(self.contained_in("trunk()"), "trunk"),
+                        if(is_wip_commit_description(description), "wip")),
+                      description.first_line()),
+                    label(
+                      separate(" ",
+                        if(self.contained_in("trunk()"), "trunk"),
+                        "wip",
+                        if(empty, "empty")),
+                      description_placeholder)
+                  )
+                ) ++ "\n",
+              ),
+            )
+          )
+        '';
+        log_compact_no_summary = ''
+          if(root,
+            format_root_commit(self),
+            label(if(current_working_copy, "working_copy"),
+              concat(
+                separate(" ",
+                  format_short_change_id_with_hidden_and_divergent_info(self),
+                  format_short_signature(author),
+                  format_timestamp(committer.timestamp()),
+                  bookmarks,
+                  tags,
+                  working_copies,
+                  if(git_head, label("git_head", "git_head()")),
+                  format_short_commit_id(commit_id),
+                  if(conflict, label("conflict", "conflict")),
+                ) ++ "\n",
+                separate(" ",
                   if(empty,
                     label(
                       separate(" ",
@@ -178,11 +252,13 @@
         "my_unmerged()" = "mine() ~ ::trunk()";
         "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_bookmarks()";
         "not_pushed()" = "remote_bookmarks()..";
-
-        "diverge(a, b)" = "heads(::a & ::b)::(a | b)";
+        "archived()" = "(mine() & description(regex:'^archive($|:)'))::";
+        "unarchived(x)" = "x ~ archived()";
+        "diverge(x)" = "fork_point(x)::x";
       };
       revsets = {
         log = "ancestors(tree(@), 2) | trunk()";
+        simplify-parents = "reachable(@, ~ ::trunk())";
         short-prefixes = "trunk()..";
       };
       aliases = {
@@ -196,13 +272,16 @@
         diffeditg = [ "diffedit" "--tool" "idea" ];
         l = [ "log" ];
         la = [ "log" "-r" "::@" ];
+        lar = [ "log" "-r" "ancestors(mutable() & archived(), 2)" ];
         lall = [ "log" "-r" "all()" ];
         lo = [ "log" "-r" "overview()" ];
-        lm = [ "log" "-r" "ancestors(mutable(), 2) | trunk()" ];
-        lmu = [ "log" "-r" "ancestors(my_unmerged(), 2) | trunk()" ];
-        lmur = [ "log" "-r" "ancestors(my_unmerged_remote(), 2) | trunk()" ];
-        lnp = [ "log" "-r" "ancestors(not_pushed(), 2) | trunk()" ];
-        ls = [ "log" "-r" "ancestors(stack(@), 2) | trunk()" ];
+        lm = [ "log" "-r" "ancestors(unarchived(mutable()), 2) | trunk()" ];
+        lmu = [ "log" "-r" "ancestors(unarchived(my_unmerged()), 2) | trunk()" ];
+        lmur = [ "log" "-r" "ancestors(unarchived(my_unmerged_remote()), 2) | trunk()" ];
+        lnp = [ "log" "-r" "ancestors(unarchived(not_pushed()), 2) | trunk()" ];
+        ls = [ "log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()" ];
+        lsummary = [ "log" "-T" "log_compact_no_summary" "--summary" ];
+        n = [ "new" ];
         s = [ "show" ];
         sg = [ "show" "--tool" "idea" ];
         sp = [ "show" "@-" ];
@@ -212,12 +291,14 @@
         g = [ "git" ];
         gf = [ "git" "fetch" ];
         gp = [ "git" "push" ];
-        abandon-merged = [ "abandon" "trunk().. & ..@ & empty() ~ @ ~ merges() ~ visible_heads()" ];
+        abandon-merged = [ "abandon" "trunk()..@ & empty() ~ @ ~ merges() ~ visible_heads()" ];
+        bump = [ "describe" "--reset-author" "--no-edit" ];
+        bumpt = [ "describe" "--reset-author" "--no-edit" "tree(@)" ];
         simplify = [ "simplify-parents" "-r" "reachable(@, ~ ::trunk())" ];
-        sync = [ "rebase" "-s" "roots(trunk()..@)" "-d" "trunk()" "--skip-emptied" ];
-        sync-all = [ "rebase" "-s" "roots(mutable())" "-d" "trunk()" "--skip-emptied" ];
+        sync = [ "rebase" "-d" "trunk()" "--skip-emptied" ];
+        synct = [ "rebase" "-s" "children(::trunk()) & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied" ];
         rebaset = [ "rebase" "-d" "trunk()" ];
-        new-from-previous-op = [ "new" "heads(new_visible_commits(@))" ];
+        newt = [ "new" "trunk()" ];
       };
       merge-tools = {
         difft = {
@@ -249,6 +330,11 @@
           command = [ "npx" "prettier" "--stdin-filepath=$path" ];
           patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'" ];
         };
+        # Disabling since it's kinda slow and I'm not even sure it's fully correct.
+        # eslint = {
+        #   command = [ jj-fix-eslint "$path" ];
+        #   patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" ];
+        # };
       };
       colors = {
         # Change IDs.
@@ -306,6 +392,4 @@
       };
     };
   };
-  # TODO: move to completions directory?
-  programs.fish.interactiveShellInit = pkgs.lib.readFile ./completions.fish;
 }

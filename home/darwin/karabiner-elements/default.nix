@@ -1,13 +1,12 @@
 { pkgs, ... }:
 
 let
-  scripts = import ../../../lib/scripts.nix { inherit pkgs; };
   yaml = pkgs.substituteAll {
     src = ./karabiner.yaml;
     firefox = "${pkgs.firefox-bin}/Applications/Firefox.app";
     wezterm = "${pkgs.wezterm}/Applications/WezTerm.app";
     spotify = "${pkgs.spotify}/Applications/Spotify.app";
-    zed_preview = "${pkgs.zed-preview}/Applications/${pkgs.zed-preview.sourceRoot}";
+    zed = "${pkgs.zed-editor}/Applications/Zed.app";
   };
 in
 {

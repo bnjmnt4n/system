@@ -5,9 +5,11 @@ let
     "astro"
     "bash"
     "c"
+    "cmake"
     "comment"
     "cpp"
     "css"
+    "dockerfile"
     "fish"
     "git_config"
     "git_rebase"
@@ -25,6 +27,7 @@ let
     "javascript"
     "jsdoc"
     "json"
+    "json5"
     "jsonc"
     "ledger"
     "lua"
@@ -33,6 +36,7 @@ let
     "markdown_inline"
     "nix"
     "ocaml"
+    "properties"
     "python"
     "query"
     "regex"
@@ -47,11 +51,12 @@ let
     "vim"
     "vimdoc"
     "vue"
+    "xml"
     "yaml"
     "zig"
   ];
   # Ensure that the same version of nvim-treesitter is used to get the parsers and queries.
-  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs: (map (language: pkgs."${language}") treeSitterLanguages));
+  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs: (map (language: pkgs.${language}) treeSitterLanguages));
   treesitter-parsers = pkgs.symlinkJoin {
     name = "treesitter-parsers";
     paths = nvim-treesitter.dependencies;

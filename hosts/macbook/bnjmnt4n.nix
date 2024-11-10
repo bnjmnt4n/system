@@ -1,7 +1,6 @@
 { config, lib, pkgs, ... }:
 
 let
-  scripts = import ../../lib/scripts.nix { inherit pkgs; };
   inherit (import ./dock.nix) createAppTile createDirTile;
 in
 {
@@ -22,7 +21,7 @@ in
     ../../home/shared/gpg.nix
     ../../home/shared/helix.nix
     ../../home/shared/neovim
-    ../../home/shared/jujutsu
+    ../../home/shared/jujutsu.nix
     ../../home/shared/tmux.nix
 
     ../../home/shared/wezterm.nix
@@ -30,12 +29,12 @@ in
   ];
 
   home.packages = [
-    pkgs.gg
+    pkgs.ffmpeg
+    pkgs.gg-jj
     pkgs.jetbrains.idea-community
     pkgs.restic
     pkgs.yt-dlp
-    # pkgs.zed-editor
-    pkgs.zed-preview
+    pkgs.zed-editor
   ];
 
   # Disable login message.
@@ -51,7 +50,7 @@ in
   # Shell aliases.
   programs.fish.shellAliases.gg = "gg &; disown";
   programs.fish.shellAliases.setup-restic-env =
-    "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${scripts.setupResticEnvNew}";
+    "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
   home.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
   # Setup Dock.

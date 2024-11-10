@@ -6,23 +6,20 @@ return {
   {
     'stevearc/oil.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      require('oil').setup {
-        default_file_explorer = false,
-        view_options = {
-          show_hidden = true,
-        },
-      }
-
-      -- Open parent directory in current window
-      vim.keymap.set('n', '<space>-', '<cmd>Oil<cr>', { desc = 'Open parent directory in Oil' })
-    end,
+    keys = {
+      { '<leader>-', '<cmd>Oil<cr>', desc = 'Open parent directory in Oil' },
+    },
+    opts = {
+      default_file_explorer = false,
+      view_options = {
+        show_hidden = true,
+      },
+    },
   },
 
   -- Git commands
   {
     'tpope/vim-fugitive',
-    event = 'VeryLazy',
     keys = {
       { '<leader>gG', '<cmd>Git<cr>', desc = 'Fugitive' },
       { '<leader>ga', '<cmd>Git add %:p<cr><cr>', desc = 'git add current file' },
@@ -55,7 +52,9 @@ return {
   -- Symbol outlines
   {
     'stevearc/aerial.nvim',
-    event = 'VeryLazy',
+    keys = {
+      { '<leader>os', '<cmd>AerialToggle<cr>', desc = 'Open symbols' },
+    },
     opts = {
       attach_mode = 'global',
       backends = { 'lsp', 'treesitter', 'markdown', 'man' },
@@ -66,9 +65,6 @@ return {
         nested_top = '│ ',
         whitespace = '  ',
       },
-    },
-    keys = {
-      { '<leader>os', '<cmd>AerialToggle<cr>', desc = 'Open symbols' },
     },
   },
 

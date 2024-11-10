@@ -1,13 +1,14 @@
 { config, pkgs, lib, ... }:
+
 {
   imports = [
-    ../../nixos/nix.nix
+    ../../os/shared/nix.nix
 
-    ../../nixos/defaults.nix
-    ../../nixos/fonts.nix
+    ../../os/nixos/defaults.nix
+    ../../os/nixos/fonts.nix
 
-    ../../nixos/interception-tools.nix
-    ../../nixos/tailscale.nix
+    ../../os/nixos/interception-tools.nix
+    ../../os/nixos/tailscale.nix
   ];
 
   fileSystems = {
