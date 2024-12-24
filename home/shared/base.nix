@@ -40,9 +40,10 @@
     wget
     xdg-utils
 
-    # Diff tools
+    # Diff/merge tools
     delta
     difftastic
+    mergiraf
 
     # Code tools
     # ast-grep

@@ -309,6 +309,12 @@ in
           program = "${pkgs.delta}/bin/delta";
           diff-args = [ "--color-only" "$left" "$right" ];
         };
+        mergiraf = {
+          program = "${pkgs.mergiraf}/bin/mergiraf";
+          merge-args = ["merge" "$base" "$left" "$right" "-o" "$output" "--fast"];
+          merge-conflict-exit-codes = [1];
+          conflict-marker-style = "git";
+        };
         idea = {
           program = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin "${pkgs.jetbrains.idea-community}/Applications/IntelliJ IDEA CE.app/Contents/MacOS/idea";
           diff-args = [ "diff" "$left" "$right" ];
