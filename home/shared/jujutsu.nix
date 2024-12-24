@@ -1,32 +1,5 @@
 { config, lib, pkgs, ... }:
 
-let
-  jj-fix-eslint = pkgs.writeShellScript "jj-fix-eslint" ''
-    export PATH=${with pkgs; lib.makeBinPath [ coreutils jq ]}:"$PATH"
-    FILE_CONTENTS=$(cat)
-    ESLINT_OUTPUT_JSON=$(echo "$FILE_CONTENTS" | npx eslint --no-color --format json --stdin --stdin-filename "$1")
-    if [ "$?" -ne 0 ]; then
-      echo "$ESLINT_FIXED_OUTPUT" | npx eslint --stdin --stdin-filename "$1" 1>&2
-      exit "$?"
-    fi
-    HAS_WARNINGS=$(echo "$ESLINT_OUTPUT_JSON" | jq -M -e ".[0].messages | length == 0 and .[0].fixableErrorCount + .[0].fixableWarningCount")
-    if [ "$?" -eq 0 ]; then
-      echo "$FILE_CONTENTS"
-      exit 0
-    fi
-    ESLINT_FIXED_OUTPUT=$(echo "$FILE_CONTENTS" | npx eslint --no-color --fix-dry-run --format json --stdin --stdin-filename "$1" | jq -e -M ".[0].output" --raw-output)
-    if [ "$?" -eq 0 ]; then
-      # This tends to have false positives for some reason
-      # echo "$ESLINT_FIXED_OUTPUT" | npx eslint --stdin --stdin-filename "$1" 1>&2
-      echo "$ESLINT_FIXED_OUTPUT"
-      exit 0
-    else
-      echo "$FILE_CONTENTS" | npx eslint --stdin --stdin-filename "$1" 1>&2
-      echo "$FILE_CONTENTS"
-      exit 1
-    fi
-  '';
-in
 {
   programs.jujutsu = {
     enable = true;
@@ -43,7 +16,10 @@ in
         merge-editor = "idea";
       };
       diff.color-words.max-inline-alternation = 5;
-      snapshot.auto-update-stale = true;
+      snapshot = {
+        auto-update-stale = true;
+        auto-track = "glob:'*.*'";
+      };
       templates = {
         log = "log_compact";
         log_node = ''
@@ -258,8 +234,8 @@ in
         conflicts = [ "resolve" "--list" "-r" ];
         d = [ "diff" ];
         dg = [ "diff" "--tool" "idea" ];
-        dd = [ "diff" "--git" "--config-toml=ui.pager='delta'" ];
-        ddl = [ "diff" "--git" "--config-toml=ui.pager='delta --line-numbers'" ];
+        dd = [ "diff" "--git" "--config=ui.pager='delta'" ];
+        ddl = [ "diff" "--git" "--config=ui.pager='delta --line-numbers'" ];
         dv = [ "describe" "--config=templates.draft_commit_description=draft_commit_description_verbose" ];
         descv = [ "describe" "--config=templates.draft_commit_description=draft_commit_description_verbose" ];
         diffg = [ "diff" "--tool" "idea" ];
@@ -298,6 +274,7 @@ in
         difft = {
           program = "${pkgs.difftastic}/bin/difft";
           diff-args = [ "--color=always" "$left" "$right" ];
+          conflict-marker-style = "snapshot";
         };
         delta = {
           program = "${pkgs.delta}/bin/delta";
@@ -330,11 +307,6 @@ in
           command = [ "npx" "prettier" "--stdin-filepath=$path" ];
           patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'" ];
         };
-        # Disabling since it's kinda slow and I'm not even sure it's fully correct.
-        # eslint = {
-        #   command = [ jj-fix-eslint "$path" ];
-        #   patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" ];
-        # };
       };
       colors = {
         # Change IDs.
