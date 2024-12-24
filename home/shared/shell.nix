@@ -32,6 +32,9 @@
 
     nix-direnv.enable = true;
     stdlib = pkgs.lib.readFile ./.direnvrc;
+    config = {
+      warn_timeout = "0s"; # Disable warning
+    };
   };
 
   # Fast Rust-powered shell prompt.
