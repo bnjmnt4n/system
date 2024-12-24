@@ -153,6 +153,17 @@ in
             bookmarks
           )
         '';
+        draft_commit_description_verbose = ''
+          concat(
+            description,
+            separate("\n",
+              "\nJJ: This commit contains the following changes:",
+              indent("JJ:     ", diff.summary()),
+              "\nJJ: ignore-rest",
+              diff.git(),
+            )
+          )
+        '';
         log_oneline = ''
           if(root,
             format_root_commit(self),
@@ -249,6 +260,8 @@ in
         dg = [ "diff" "--tool" "idea" ];
         dd = [ "diff" "--git" "--config-toml=ui.pager='delta'" ];
         ddl = [ "diff" "--git" "--config-toml=ui.pager='delta --line-numbers'" ];
+        dv = [ "describe" "--config=templates.draft_commit_description=draft_commit_description_verbose" ];
+        descv = [ "describe" "--config=templates.draft_commit_description=draft_commit_description_verbose" ];
         diffg = [ "diff" "--tool" "idea" ];
         diffeditg = [ "diffedit" "--tool" "idea" ];
         l = [ "log" ];
