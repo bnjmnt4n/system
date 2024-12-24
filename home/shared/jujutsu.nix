@@ -58,6 +58,13 @@ in
         '';
       };
       template-aliases = {
+        # Used to link to repository branches and commits.
+        "get_repository_github_url()" = "''";
+        "hyperlink(url, text)" = ''
+          raw_escape_sequence("\e]8;;" ++ url ++ "\e\\") ++
+          text ++
+          raw_escape_sequence("\e]8;;\e\\")
+	'';
         "is_wip_commit_description(description)" = ''
           !description ||
           description.first_line().lower().starts_with("wip:") ||
@@ -97,47 +104,71 @@ in
             root.bookmarks()
           ) ++ "\n"
         '';
+        "format_commit_description(commit)" = ''
+          separate(" ",
+            if(commit.empty(),
+              label(
+                separate(" ",
+                  if(commit.immutable(), "immutable"),
+                  if(commit.hidden(), "hidden"),
+                  if(commit.contained_in("trunk()"), "trunk"),
+                  if(is_wip_commit_description(commit.description()), "wip"),
+                  "empty",
+                ),
+                "(empty)"
+              )),
+            if(commit.description(),
+              label(
+                separate(" ",
+                  if(commit.contained_in("trunk()"), "trunk"),
+                  if(is_wip_commit_description(commit.description()), "wip")),
+                description.first_line()),
+              label(
+                separate(" ",
+                  if(commit.contained_in("trunk()"), "trunk"),
+                  "wip",
+                  if(commit.empty(), "empty")),
+                description_placeholder))
+          )
+        '';
+        "format_commit_id(commit)" = ''
+          if(get_repository_github_url() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+            hyperlink(
+              concat(get_repository_github_url(), "/commit/", commit.commit_id()),
+              format_short_commit_id(commit.commit_id()),
+            ),
+            format_short_commit_id(commit.commit_id()),
+          )
+        '';
+        # TODO: This wrongly links to unpushed local bookmarks.
+        "format_commit_bookmarks(bookmarks)" = ''
+          if(get_repository_github_url(),
+            bookmarks.map(
+              |bookmark| if(
+                bookmark.remote() == "origin" || bookmark.remote() == "",
+                hyperlink(concat(get_repository_github_url(), "/tree/", bookmark.name()), bookmark),
+                bookmark
+              )
+            ),
+            bookmarks
+          )
+        '';
         log_oneline = ''
           if(root,
             format_root_commit(self),
             label(if(current_working_copy, "working_copy"),
-              concat(
-                separate(" ",
-                  format_short_change_id_with_hidden_and_divergent_info(self),
-                  if(author.email(), author.username(), email_placeholder),
-                  format_timestamp(committer.timestamp()),
-                  bookmarks,
-                  tags,
-                  working_copies,
-                  if(git_head, label("git_head", "git_head()")),
-                  format_short_commit_id(commit_id),
-                  if(conflict, label("conflict", "conflict")),
-                  if(empty,
-                    label(
-                      separate(" ",
-                        if(immutable, "immutable"),
-                        if(hidden, "hidden"),
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip"),
-                        "empty",
-                      ),
-                      "(empty)"
-                    )),
-                  if(description,
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip")),
-                      description.first_line()),
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        "wip",
-                        if(empty, "empty")),
-                      description_placeholder)
-                  )
-                ) ++ "\n",
-              ),
+              separate(" ",
+                format_short_change_id_with_hidden_and_divergent_info(self),
+                if(author.email(), author.email().local(), email_placeholder),
+                format_timestamp(committer.timestamp()),
+                format_commit_bookmarks(bookmarks),
+                tags,
+                working_copies,
+                if(git_head, label("git_head", "git_head()")),
+                format_commit_id(self),
+                if(conflict, label("conflict", "conflict")),
+                format_commit_description(self),
+              ) ++ "\n",
             )
           )
         '';
@@ -150,39 +181,14 @@ in
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_signature(author),
                   format_timestamp(committer.timestamp()),
-                  bookmarks,
+                  format_commit_bookmarks(bookmarks),
                   tags,
                   working_copies,
                   if(git_head, label("git_head", "git_head()")),
-                  format_short_commit_id(commit_id),
+                  format_commit_id(self),
                   if(conflict, label("conflict", "conflict")),
                 ) ++ "\n",
-                separate(" ",
-                  if(empty,
-                    label(
-                      separate(" ",
-                        if(immutable, "immutable"),
-                        if(hidden, "hidden"),
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip"),
-                        "empty",
-                      ),
-                      "(empty)"
-                    )),
-                  if(description,
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip")),
-                      description.first_line()),
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        "wip",
-                        if(empty, "empty")),
-                      description_placeholder)
-                  )
-                ) ++ "\n",
+                format_commit_description(self) ++ "\n",
               ),
             )
           )
@@ -196,39 +202,14 @@ in
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_signature(author),
                   format_timestamp(committer.timestamp()),
-                  bookmarks,
+                  format_commit_bookmarks(bookmarks),
                   tags,
                   working_copies,
                   if(git_head, label("git_head", "git_head()")),
-                  format_short_commit_id(commit_id),
+                  format_commit_id(self),
                   if(conflict, label("conflict", "conflict")),
                 ) ++ "\n",
-                separate(" ",
-                  if(empty,
-                    label(
-                      separate(" ",
-                        if(immutable, "immutable"),
-                        if(hidden, "hidden"),
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip"),
-                        "empty",
-                      ),
-                      "(empty)"
-                    )),
-                  if(description,
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        if(is_wip_commit_description(description), "wip")),
-                      description.first_line()),
-                    label(
-                      separate(" ",
-                        if(self.contained_in("trunk()"), "trunk"),
-                        "wip",
-                        if(empty, "empty")),
-                      description_placeholder)
-                  )
-                ) ++ "\n",
+                format_commit_description(self) ++ "\n",
                 if(!empty &&
                   (is_wip_commit_description(description) || current_working_copy),
                   diff.summary()
