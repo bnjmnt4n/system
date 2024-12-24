@@ -31,6 +31,7 @@
       "docker"
       "dropbox"
       "figma"
+      "firefox"
       "handbrake"
       "mullvadvpn"
       "google-chrome"
@@ -40,7 +41,9 @@
   };
 
   environment.systemPackages = [
-    pkgs.firefox-bin
+    # pkgs.firefox-bin
+    # TODO
+    # pkgs.firefox-unwrapped
     pkgs.monitorcontrol
     pkgs.spotify
     pkgs.vlc-bin
@@ -69,7 +72,7 @@
       showhidden = true;
       mru-spaces = false;
       persistent-apps = [
-        "${pkgs.firefox-bin}/Applications/Firefox.app/"
+        "/Applications/Firefox.app/"
         "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed-editor}/Applications/Zed.app/"
         "/Applications/Figma.app/"

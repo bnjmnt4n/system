@@ -58,9 +58,3 @@ in
     smbus2 = prev.python3.pkgs.callPackage ./linux/raspberry-pi-4/smbus2.nix { };
   };
 }
-//
-(
-  if (prev.stdenv.hostPlatform.isDarwin)
-  then inputs.nixpkgs-firefox-darwin.overlay final prev
-  else {}
-)

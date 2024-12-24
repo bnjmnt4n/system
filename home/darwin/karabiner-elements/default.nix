@@ -3,7 +3,7 @@
 let
   yaml = pkgs.substituteAll {
     src = ./karabiner.yaml;
-    firefox = "${pkgs.firefox-bin}/Applications/Firefox.app";
+    firefox = "/Applications/Firefox.app";
     wezterm = "${pkgs.wezterm}/Applications/WezTerm.app";
     spotify = "${pkgs.spotify}/Applications/Spotify.app";
     zed = "${pkgs.zed-editor}/Applications/Zed.app";
