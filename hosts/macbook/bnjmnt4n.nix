@@ -23,6 +23,7 @@ in
     ../../home/shared/neovim
     ../../home/shared/jujutsu.nix
     ../../home/shared/tmux.nix
+    ../../home/shared/zed-editor.nix
 
     ../../home/shared/wezterm.nix
     ../../home/shared/firefox
@@ -34,7 +35,6 @@ in
     pkgs.jetbrains.idea-community
     pkgs.restic
     pkgs.yt-dlp
-    pkgs.zed-editor
   ];
 
   # Disable login message.
