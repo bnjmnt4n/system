@@ -8,7 +8,7 @@ rec {
   overlays = [
     inputs.agenix.overlays.default
     inputs.neovim-nightly-overlay.overlays.default
-    inputs.nur.overlay
+    inputs.nur.overlays.default
     inputs.jujutsu.overlays.default
     (import ./pkgs inputs)
   ];

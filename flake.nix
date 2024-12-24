@@ -37,7 +37,7 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
-    jujutsu.url = "github:martinvonz/jj";
+    jujutsu.url = "github:jj-vcs/jj";
   };
 
   outputs = { self, nixpkgs, ... }@inputs:
