@@ -5,7 +5,7 @@ let
     src = ./karabiner.yaml;
     firefox = "/Applications/Firefox.app";
     wezterm = "${pkgs.wezterm}/Applications/WezTerm.app";
-    spotify = "${pkgs.spotify}/Applications/Spotify.app";
+    spotify = "/Applications/Spotify.app";
     zed = "${pkgs.zed-editor}/Applications/Zed.app";
   };
 in

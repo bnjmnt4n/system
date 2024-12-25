@@ -36,6 +36,7 @@
       "mullvadvpn"
       "google-chrome"
       "safari-technology-preview"
+      "spotify"
       "transmission"
     ];
   };
@@ -45,7 +46,6 @@
     # TODO
     # pkgs.firefox-unwrapped
     pkgs.monitorcontrol
-    pkgs.spotify
     pkgs.vlc-bin
     pkgs.wezterm
   ];
@@ -76,7 +76,7 @@
         "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed-editor}/Applications/Zed.app/"
         "/Applications/Figma.app/"
-        "${pkgs.spotify}/Applications/Spotify.app/"
+        "/Applications/Spotify.app/"
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"
       ];
