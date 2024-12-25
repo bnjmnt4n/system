@@ -145,8 +145,8 @@ end, { desc = 'Toggle line numbers' })
 map('n', '<leader>th', function()
   local Util = require 'lazy.core.util'
   local bufnr = 0
-  local enabled = not vim.lsp.inlay_hint.is_enabled(bufnr)
-  vim.lsp.inlay_hint.enable(bufnr, enabled)
+  local enabled = not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }
+  vim.lsp.inlay_hint.enable(enabled, { bufnr = bufnr })
   if enabled then
     Util.info('Enabled inlay hints', { title = 'Inlay hints' })
   else
@@ -154,7 +154,7 @@ map('n', '<leader>th', function()
   end
 end, { desc = 'Toggle LSP inlay hints' })
 
-local diagnostic_lines_enabled = false
+local diagnostic_lines_enabled = true
 map('n', '<leader>tg', function()
   local Util = require 'lazy.core.util'
   diagnostic_lines_enabled = not diagnostic_lines_enabled

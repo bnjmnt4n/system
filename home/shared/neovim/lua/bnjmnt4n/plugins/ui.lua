@@ -6,9 +6,11 @@ return {
     opts = {
       on_highlights = function(highlights, colors)
         -- Signs
+        highlights.LineNr = { fg = colors.fg_main, bg = colors.bg_dim }
+        highlights.LineNrAbove = { fg = colors.fg_dim, bg = colors.bg_dim }
+        highlights.LineNrBelow = { fg = colors.fg_dim, bg = colors.bg_dim }
         highlights.SignColumn = { fg = colors.fg_dim, bg = colors.bg_dim }
         highlights.FoldColumn = { fg = colors.fg_dim, bg = colors.bg_dim }
-        highlights.LightBulbNumber = { fg = colors.gold, bg = colors.bg_dim }
         highlights.GitSignsAdd = { fg = colors.fg_added, bg = colors.bg_dim }
         highlights.GitSignsChange = { fg = colors.fg_changed, bg = colors.bg_dim }
         highlights.GitSignsDelete = { fg = colors.fg_removed, bg = colors.bg_dim }
@@ -109,7 +111,7 @@ return {
   -- Statuscolumn
   {
     'luukvbaal/statuscol.nvim',
-    event = 'VeryLazy',
+    event = { 'BufReadPre', 'BufNewFile' },
     opts = function()
       local builtin = require 'statuscol.builtin'
       return {
@@ -207,7 +209,7 @@ return {
     end,
     config = function()
       local wk = require 'which-key'
-      wk.setup {}
+      wk.setup()
       wk.add {
         {
           mode = { 'n', 'v' },
