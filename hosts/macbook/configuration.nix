@@ -42,9 +42,6 @@
   };
 
   environment.systemPackages = [
-    # pkgs.firefox-bin
-    # TODO
-    # pkgs.firefox-unwrapped
     pkgs.monitorcontrol
     pkgs.vlc-bin
     pkgs.wezterm
