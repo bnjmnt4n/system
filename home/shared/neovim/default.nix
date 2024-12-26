@@ -136,7 +136,6 @@ in
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
   xdg.configFile."nvim/lua".source = ./lua;
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
-  xdg.configFile."nvim/luasnippets".source = ./luasnippets;
 
   home.shellAliases.v = "nvim";
 

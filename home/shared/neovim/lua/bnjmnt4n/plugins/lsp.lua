@@ -11,6 +11,8 @@ return {
   {
     'neovim/nvim-lspconfig',
     dependencies = {
+      'saghen/blink.cmp',
+
       -- Delay before displaying diagnostics
       {
         'yorickpeterse/nvim-dd',
@@ -40,9 +42,8 @@ return {
     config = function()
       local nvim_lsp = require 'lspconfig'
 
-      -- nvim-cmp supports additional completion capabilities
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
+      -- blink.cmp supports additional completion capabilities
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
       -- Enable the following language servers
       local servers = { 'astro', 'clangd', 'cssls', 'eslint', 'html', 'nixd', 'ocamllsp', 'pyright', 'zls' }
 
@@ -71,16 +72,6 @@ return {
             diagnostics = {
               globals = {
                 'vim', -- Neovim
-                -- LuaSnip
-                's',
-                'fmt',
-                'c',
-                'd',
-                'i',
-                'l',
-                'r',
-                'sn',
-                't',
               },
             },
             workspace = {

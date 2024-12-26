@@ -260,162 +260,77 @@ return {
     end,
   },
 
-  -- Snippets
+  -- Completion
   {
-    'L3MON4D3/LuaSnip',
-    event = 'InsertEnter',
-    opts = function()
-      local types = require 'luasnip.util.types'
+    'saghen/blink.cmp',
+    version = '*',
+    ---@module 'blink.cmp'
+    ---@type blink.cmp.Config
+    opts = {
+      keymap = {
+        preset = 'none',
 
-      return {
-        link_children = true,
-        update_events = { 'TextChanged', 'TextChangedI' },
-        delete_check_events = 'InsertLeave',
-        ext_opts = {
-          -- Display a bullet for choice nodes.
-          [types.choiceNode] = {
-            passive = {
-              virt_text = { { '•', 'Comment' } },
-              virt_text_pos = 'inline',
-            },
-          },
-          -- Display a cursor-like placeholder in unvisited nodes of the snippet.
-          [types.insertNode] = {
-            unvisited = {
-              virt_text = { { '|', 'Conceal' } },
-              virt_text_pos = 'inline',
-            },
-          },
-          [types.exitNode] = {
-            unvisited = {
-              virt_text = { { '|', 'Conceal' } },
-              virt_text_pos = 'inline',
-            },
-          },
-        },
-        ext_base_prio = 300,
-        ext_prio_increase = 1,
-      }
-    end,
-    config = function(_, opts)
-      local luasnip = require 'luasnip'
-      luasnip.setup(opts)
-      luasnip.filetype_extend('javascriptreact', { 'javascript' })
-      luasnip.filetype_extend('typescript', { 'javascript' })
-      luasnip.filetype_extend('typescriptreact', { 'javascript', 'javascriptreact' })
-      require('luasnip.loaders.from_lua').lazy_load()
+        ['<c-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+        ['<cr>'] = { 'accept', 'fallback' },
+        ['<c-c>'] = { 'cancel', 'fallback' },
 
-      vim.keymap.set({ 'i', 's' }, '<c-k>', function()
-        if luasnip.expand_or_locally_jumpable() then
-          luasnip.expand_or_jump()
-        end
-      end, { desc = 'Expand or jump to next placeholder' })
-      vim.keymap.set({ 'i', 's' }, '<c-j>', function()
-        if luasnip.locally_jumpable(-1) then
-          luasnip.jump(-1)
-        end
-      end, { desc = 'Jump to previous placeholder' })
-      -- -- Use <C-c> to select a choice in a snippet.
-      -- vim.keymap.set({ 'i', 's' }, '<c-c>', function()
-      --   if luasnip.choice_active() then
-      --     require 'luasnip.extras.select_choice'()
-      --   end
-      -- end, { desc = 'Select choice' })
-      vim.keymap.set({ 'i', 's' }, '<c-e>', function()
-        if luasnip.choice_active() then
-          luasnip.change_choice(1)
-        end
-      end, { desc = 'Change choice' })
-      vim.keymap.set('s', '<bs>', '<c-o>s', { desc = 'Remove placeholder' })
-
-      vim.api.nvim_create_autocmd('ModeChanged', {
-        group = vim.api.nvim_create_augroup('bnjmnt4n/unlink_snippet', { clear = true }),
-        desc = 'Cancel the snippet session when leaving insert mode',
-        pattern = { 's:n', 'i:*' },
-        callback = function(args)
-          if
-            luasnip.session
-            and luasnip.session.current_nodes[args.buf]
-            and not luasnip.session.jump_active
-            and not luasnip.choice_active()
-          then
-            luasnip.unlink_current()
-          end
-        end,
-      })
-    end,
-  },
-
-  -- nvim-cmp
-  {
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
-    dependencies = {
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
-      'hrsh7th/cmp-path',
-      'saadparwaiz1/cmp_luasnip',
-    },
-    opts = function()
-      local cmp = require 'cmp'
-
-      local has_words_before = function()
-        local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-        return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
-      end
-
-      local winhighlight = 'Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:Visual,Search:None'
-      return {
-        snippet = {
-          expand = function(args)
-            require('luasnip').lsp_expand(args.body)
-          end,
-        },
-        window = {
-          completion = {
-            border = 'rounded',
-            winhighlight = winhighlight,
-          },
-          documentation = {
-            border = 'rounded',
-            winhighlight = winhighlight,
-          },
-        },
-        completion = {
-          autocomplete = false,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ['<c-d>'] = cmp.mapping.scroll_docs(-4),
-          ['<c-f>'] = cmp.mapping.scroll_docs(4),
-          ['<c-space>'] = cmp.mapping.complete(),
-          ['<cr>'] = cmp.mapping.confirm {
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
-          },
-          ['<c-c>'] = cmp.mapping.close(),
-          ['<tab>'] = cmp.mapping(function(fallback)
+        ['<tab>'] = {
+          function(cmp)
             local copilot = require 'copilot.suggestion'
+
+            local has_words_before = function()
+              local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+              return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
+            end
 
             if copilot.is_visible() then
               copilot.accept()
-            elseif cmp.visible() then
-              cmp.select_next_item()
+              return true
+            elseif cmp.is_visible() then
+              return cmp.select_next()
             elseif has_words_before() then
-              cmp.complete()
-            else
-              fallback()
+              return cmp.show()
             end
-          end, { 'i', 's' }),
-          ['<s-tab>'] = cmp.mapping.select_prev_item(),
+          end,
+          'fallback',
         },
-        sources = cmp.config.sources {
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
-          { name = 'buffer' },
+        ['<s-tab>'] = { 'select_prev', 'fallback' },
+
+        ['<c-p>'] = { 'show', 'select_prev', 'fallback' },
+        ['<c-n>'] = { 'show', 'select_next', 'fallback' },
+
+        ['<c-j>'] = { 'snippet_forward', 'fallback' },
+        ['<c-k>'] = { 'snippet_backward', 'fallback' },
+
+        ['<c-d>'] = { 'scroll_documentation_up', 'fallback' },
+        ['<c-f>'] = { 'scroll_documentation_down', 'fallback' },
+      },
+      appearance = {
+        -- Sets fallback highlight groups to nvim-cmp's highlight groups.
+        use_nvim_cmp_as_default = true,
+        nerd_font_variant = 'mono',
+      },
+      sources = {
+        default = { 'lsp', 'snippets', 'path', 'buffer' },
+      },
+      completion = {
+        menu = {
+          auto_show = false,
         },
-      }
-    end,
+        list = {
+          selection = function(ctx)
+            return ctx.mode == 'cmdline' and 'auto_insert' or 'preselect'
+          end,
+        },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 0,
+          window = {
+            border = 'rounded',
+          },
+        },
+      },
+    },
   },
 
   -- Copilot
@@ -437,7 +352,7 @@ return {
       suggestion = {
         auto_trigger = true,
         keymap = {
-          -- Handled in <tab> keybinding in nvim-cmp configuration.
+          -- Handled in <tab> keybinding in blink.cmp configuration.
           accept = false,
           accept_word = '<m-w>',
           accept_line = '<m-l>',
@@ -452,36 +367,22 @@ return {
       },
       copilot_node_command = vim.g.node_binary_path,
     },
-    -- Based on https://github.com/MariaSolOs/dotfiles/blob/5d961a1751fbd8f50b0cef4d51e9df3eb8a32687/.config/nvim/lua/plugins/copilot.lua.
     config = function(_, opts)
-      local cmp = require 'cmp'
-      local copilot = require 'copilot.suggestion'
-      local luasnip = require 'luasnip'
-
       require('copilot').setup(opts)
 
-      ---@param trigger boolean
-      local function set_trigger(trigger)
-        if not trigger and copilot.is_visible() then
-          copilot.dismiss()
-        end
-        vim.b.copilot_suggestion_auto_trigger = trigger
-        vim.b.copilot_suggestion_hidden = not trigger
-      end
-
       -- Hide suggestions when the completion menu is open.
-      cmp.event:on('menu_opened', function()
-        set_trigger(false)
-      end)
-      cmp.event:on('menu_closed', function()
-        set_trigger(not luasnip.expand_or_locally_jumpable())
-      end)
-
+      local copilot = require 'copilot.suggestion'
       vim.api.nvim_create_autocmd('User', {
-        desc = 'Disable Copilot inside snippets',
-        pattern = { 'LuasnipInsertNodeEnter', 'LuasnipInsertNodeLeave' },
+        pattern = 'BlinkCmpCompletionMenuOpen',
         callback = function()
-          set_trigger(not luasnip.expand_or_locally_jumpable())
+          copilot.dismiss()
+          vim.b.copilot_suggestion_hidden = true
+        end,
+      })
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'BlinkCmpCompletionMenuClose',
+        callback = function()
+          vim.b.copilot_suggestion_hidden = false
         end,
       })
     end,
