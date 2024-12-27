@@ -32,6 +32,7 @@
       "dropbox"
       "figma"
       "firefox"
+      "ghostty@tip"
       "handbrake"
       "mullvadvpn"
       "google-chrome"
@@ -70,6 +71,7 @@
       mru-spaces = false;
       persistent-apps = [
         "/Applications/Firefox.app/"
+        "/Applications/Ghostty.app/"
         "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed-editor}/Applications/Zed.app/"
         "/Applications/Figma.app/"

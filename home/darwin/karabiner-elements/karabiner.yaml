@@ -77,7 +77,7 @@ profiles:
               to:
                 - key_code: delete_forward
               type: basic
-        - description: Hyper + Enter -> Open WezTerm
+        - description: Hyper + Enter -> Open Terminal (Ghostty)
           manipulators:
             - from:
                 key_code: return_or_enter
@@ -88,7 +88,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@wezterm@"
+                - shell_command: open -a "@ghostty@"
               type: basic
         - description: Hyper + b -> Open Browser (Firefox)
           manipulators:
@@ -142,7 +142,7 @@ profiles:
               to:
                 - shell_command: open -a "@spotify@"
               type: basic
-        - description: Hyper + t -> Open Terminal (WezTerm)
+        - description: Hyper + t -> Open Terminal (Ghostty)
           manipulators:
             - from:
                 key_code: t
@@ -153,7 +153,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@wezterm@"
+                - shell_command: open -a "@ghostty@"
               type: basic
     devices:
       - disable_built_in_keyboard_if_exists: false
