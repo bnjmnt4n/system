@@ -45,7 +45,6 @@
   environment.systemPackages = [
     pkgs.monitorcontrol
     pkgs.vlc-bin
-    pkgs.wezterm
   ];
 
   services.nix-daemon.enable = true;
@@ -72,7 +71,6 @@
       persistent-apps = [
         "/Applications/Firefox.app/"
         "/Applications/Ghostty.app/"
-        "${pkgs.wezterm}/Applications/WezTerm.app/"
         "${pkgs.zed-editor}/Applications/Zed.app/"
         "/Applications/Figma.app/"
         "/Applications/Spotify.app/"

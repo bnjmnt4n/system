@@ -25,7 +25,6 @@ in
     ../../home/shared/tmux.nix
     ../../home/shared/zed-editor.nix
 
-    ../../home/shared/wezterm.nix
     ../../home/shared/ghostty
     ../../home/shared/firefox
   ];
