@@ -400,7 +400,7 @@
       };
       colors = {
         # Change IDs.
-        "change_id" = "bright magenta";
+        "change_id" = "magenta";
         "trunk change_id" = "cyan";
         "working_copy change_id" = "green";
         "immutable change_id" = "default";
@@ -415,13 +415,10 @@
         "rest" = "bright black";
 
         # Commit author and timestamp.
-        "log email" = "bright black";
-        "log username" = "bright black";
-        "log timestamp" = "bright black";
-        "log working_copy timestamp" = "bright black";
-        "log date" = "bright black";
-        "log working_copy email" = "bright black";
-        "log working_copy username" = "bright black";
+        "log email" = "#888888";
+        "log timestamp" = "#888888";
+        "log working_copy email" = "#888888";
+        "log working_copy timestamp" = "#888888";
 
         # Descriptions.
         "wip description" = "yellow";
@@ -449,7 +446,7 @@
 
         "log root" = "bright yellow";
 
-        "node" = { fg = "bright magenta"; bold = true; };
+        "node" = { fg = "magenta"; bold = true; };
         "node working_copy" = "green";
         "node immutable" = "default";
         "node conflict" = "red";
