@@ -32,7 +32,7 @@
       "dropbox"
       "figma"
       "firefox"
-      "ghostty@tip"
+      "ghostty"
       "handbrake"
       "mullvadvpn"
       "google-chrome"
