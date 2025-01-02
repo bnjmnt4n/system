@@ -42,6 +42,21 @@
     [ -f .envrc ] && ${pkgs.direnv}/bin/direnv allow .
   '';
 
+  cloneRepo = pkgs.writeShellScriptBin "clone-repo" ''
+    if [ $# -eq 0 ]; then
+      echo "Usage: clone-repo username/repository"
+      exit 1
+    fi
+
+    if ! [[ $1 =~ ^[[:alnum:]_-]+/[[:alnum:]_-]+$ ]]; then
+      echo "Usage: clone-repo username/repository"
+      exit 1
+    fi
+
+    ${pkgs.jujutsu}/bin/jj git clone --colocate "git@github.com:$1.git" $1
+    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo "template-aliases.'get_repository_github_url()'" "\"'https://github.com/$1'\""
+  '';
+
   setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''
     #!/usr/bin/env fish
 

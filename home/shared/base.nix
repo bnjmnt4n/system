@@ -51,6 +51,7 @@
     git-sizer
     # comby
     tokei
+    scripts.cloneRepo
 
     # Nix tools
     nixd
