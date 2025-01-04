@@ -1,6 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}: let
   treeSitterLanguages = [
     "astro"
     "bash"
@@ -62,17 +66,16 @@ let
     "zig"
   ];
   # Ensure that the same version of nvim-treesitter is used to get the parsers and queries.
-  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs:
-    (map (language: pkgs.${language}) treeSitterLanguages)
+  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (
+    pkgs: (map (language: pkgs.${language}) treeSitterLanguages)
   );
   treesitter-parsers = pkgs.symlinkJoin {
     name = "treesitter-parsers";
     paths = nvim-treesitter.dependencies;
   };
-in
-{
-  home.activation.lazyNvimSetup = lib.hm.dag.entryAfter [ "installPackages" "linkGeneration" "writeBoundary" ] ''
-    CUSTOM_PATH="${lib.makeBinPath [ config.programs.neovim.package pkgs.bash pkgs.coreutils pkgs.git pkgs.nix ]}"
+in {
+  home.activation.lazyNvimSetup = lib.hm.dag.entryAfter ["installPackages" "linkGeneration" "writeBoundary"] ''
+    CUSTOM_PATH="${lib.makeBinPath [config.programs.neovim.package pkgs.bash pkgs.coreutils pkgs.git pkgs.nix]}"
 
     LAZY_DIR=$HOME/.local/share/nvim/lazy/lazy.nvim
     if [ ! -d $LAZY_DIR/.git ]; then
@@ -127,7 +130,11 @@ in
     withRuby = false;
 
     extraLuaConfig = ''
-      vim.g.is_mac = '${if pkgs.stdenv.hostPlatform.isDarwin then "1" else "0"}'
+      vim.g.is_mac = '${
+        if pkgs.stdenv.hostPlatform.isDarwin
+        then "1"
+        else "0"
+      }'
 
       vim.g.lazy_rev = '${inputs.lazy-nvim.rev}'
       vim.g.nvim_treesitter_path = '${nvim-treesitter}'
@@ -138,8 +145,9 @@ in
     '';
   };
 
-  home.packages = lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin)
-    [ pkgs.dark-notify ];
+  home.packages =
+    lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin)
+    [pkgs.dark-notify];
 
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
   xdg.configFile."nvim/queries".source = ./queries;

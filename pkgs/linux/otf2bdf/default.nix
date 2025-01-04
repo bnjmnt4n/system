@@ -1,12 +1,14 @@
 # Copied from https://github.com/thefloweringash/kevin-nix/blob/36eecdcba397c15830b8b09733e7e5a0f2cfe619/packages/otf2bdf/default.nix
-
-{ stdenv, fetchFromGitHub, freetype }:
-
+{
+  stdenv,
+  fetchFromGitHub,
+  freetype,
+}:
 stdenv.mkDerivation rec {
   name = "otf2bdf-${version}";
   version = "3.1";
 
-  buildInputs = [ freetype ];
+  buildInputs = [freetype];
 
   patches = [
     ./0001-Remove-deprecated-MKINSTALLDIRS.patch

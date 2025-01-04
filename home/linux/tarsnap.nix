@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-let
+{pkgs, ...}: let
   configFile = pkgs.writeTextFile {
     name = "tarsnap.conf";
     destination = "/etc/tarsnap.conf";
@@ -10,8 +8,7 @@ let
     set -euo pipefail
     sudo ${pkgs.tarsnap}/bin/tarsnap --configfile ${configFile}/etc/tarsnap.conf $@
   '';
-in
-{
+in {
   home.packages = [
     configuredTarsnap
     (pkgs.scripts.backupDirectory configuredTarsnap)

@@ -1,9 +1,11 @@
-{ config, lib, pkgs, ... }:
-
-let
-  inherit (import ./dock.nix) createDirTile;
-in
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  inherit (import ./dock.nix) createDirTile;
+in {
   imports = [
     # Mac apps
     ../../home/darwin/karabiner-elements
@@ -40,7 +42,7 @@ in
   # Disable login message.
   home.file.".hushlogin".text = "";
 
-  age.identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
+  age.identityPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
   age.secrets.restic-repositories.file = ../../secrets/restic-repositories.age;
 
   home.sessionVariables = {
@@ -49,37 +51,36 @@ in
 
   # Shell aliases.
   programs.fish.shellAliases.gg = "gg &; disown";
-  programs.fish.shellAliases.setup-restic-env =
-    "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
+  programs.fish.shellAliases.setup-restic-env = "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
   home.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
   # Setup Dock.
-  home.activation.setupMacosDock = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.setupMacosDock = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD defaults write com.apple.dock persistent-others -array ${
-        lib.strings.concatStringsSep " " (map createDirTile [
-          {
-            path = "/Applications/";
-            fileType = 1;
-            arrangement = 1;
-            displayAs = 1;
-            showAs = 2;
-          }
-          {
-            path = "${config.home.homeDirectory}/Documents/";
-            fileType = 2;
-            arrangement = 2;
-            displayAs = 0;
-            showAs = 1;
-          }
-          {
-            path = "${config.home.homeDirectory}/Downloads/";
-            fileType = 2;
-            arrangement = 2;
-            displayAs = 0;
-            showAs = 1;
-          }
-        ])
-      }
+      lib.strings.concatStringsSep " " (map createDirTile [
+        {
+          path = "/Applications/";
+          fileType = 1;
+          arrangement = 1;
+          displayAs = 1;
+          showAs = 2;
+        }
+        {
+          path = "${config.home.homeDirectory}/Documents/";
+          fileType = 2;
+          arrangement = 2;
+          displayAs = 0;
+          showAs = 1;
+        }
+        {
+          path = "${config.home.homeDirectory}/Downloads/";
+          fileType = 2;
+          arrangement = 2;
+          displayAs = 0;
+          showAs = 1;
+        }
+      ])
+    }
     $DRY_RUN_CMD killall Dock
   '';
 }

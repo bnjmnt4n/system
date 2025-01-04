@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # GRUB.
   # Based on https://nixos.wiki/wiki/Dual_Booting_NixOS_and_Windows#EFI.
 
@@ -8,7 +11,7 @@
   boot.loader.grub = {
     enable = true;
     efiSupport = true;
-    devices = [ "nodev" ];
+    devices = ["nodev"];
     version = 2;
     useOSProber = true;
 

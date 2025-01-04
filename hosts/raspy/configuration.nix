@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   imports = [
     ../../os/shared/nix.nix
 
@@ -15,7 +13,7 @@
     "/" = {
       device = "/dev/disk/by-label/NIXOS_SD";
       fsType = "ext4";
-      options = [ "noatime" ];
+      options = ["noatime"];
     };
   };
 
@@ -52,17 +50,17 @@
   networking.hostName = "raspy";
   networking.networkmanager.enable = true; # Alternative to wpa_supplicant.
   networking.firewall.enable = true;
-  networking.nameservers = [ "1.1.1.1" "1.0.0.1" "8.8.8.8" "9.9.9.9" ];
+  networking.nameservers = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "9.9.9.9"];
 
   # VPN setup
   networking.wg-quick.interfaces = {
     wg0 = {
-      address = [ "10.64.15.59/32" "fc00:bbbb:bbbb:bb01::1:f3a/128" ];
-      dns = [ "193.138.218.74" ];
+      address = ["10.64.15.59/32" "fc00:bbbb:bbbb:bb01::1:f3a/128"];
+      dns = ["193.138.218.74"];
       privateKeyFile = "/run/secrets/wireguard-private-key";
       peers = [
         {
-          allowedIPs = [ "0.0.0.0/0" "::0/0" ];
+          allowedIPs = ["0.0.0.0/0" "::0/0"];
           publicKey = "HbD3PLJKJdHPyjof67Tug83HH5x/KyInbiuPQvkOaDI=";
           endpoint = "94.198.43.34:51820";
         }
@@ -104,7 +102,7 @@
   # Enable blueman applet.
   # services.blueman.enable = true;
 
-  services.udev.packages = [ pkgs.android-udev-rules ];
+  services.udev.packages = [pkgs.android-udev-rules];
 
   age.secrets.wireguard-private-key = {
     file = ../../secrets/wireguard-private-key.age;

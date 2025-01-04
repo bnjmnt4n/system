@@ -1,6 +1,8 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}: {
   nix = {
     gc = {
       automatic = true;
@@ -19,11 +21,12 @@
 
       keep-outputs = true;
       keep-derivations = true;
-      experimental-features = [ "nix-command" "flakes" ];
-      trusted-users = [ "root" "@wheel" ];
+      experimental-features = ["nix-command" "flakes"];
+      trusted-users = ["root" "@wheel"];
 
-      extra-platforms = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-        [ "x86_64-darwin" "aarch64-darwin" ];
+      extra-platforms =
+        lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
+        ["x86_64-darwin" "aarch64-darwin"];
 
       # Binary caches.
       substituters = [

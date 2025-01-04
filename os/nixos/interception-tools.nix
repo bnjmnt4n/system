@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # Map CapsLock to Esc on single press and Ctrl on when used with multiple keys.
   services.interception-tools = {
     enable = true;

@@ -1,9 +1,6 @@
-{ ... }:
-
-let
+{...}: let
   aunique = "%aunique{albumartist album,albumtype label catalognum albumdisambig releasegroupdisambig}";
-in
-{
+in {
   programs.beets = {
     enable = true;
     settings = {

@@ -1,7 +1,10 @@
-{ src, lib, stdenv, fetchurl }:
-
+{
+  src,
+  lib,
+  stdenv,
+  fetchurl,
+}:
 # TODO: Build manually.
-
 stdenv.mkDerivation rec {
   name = "dark-notify";
   version = "0.1.2";

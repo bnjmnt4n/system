@@ -1,6 +1,7 @@
-{ pkgs, inputs ? { } }:
-
 {
+  pkgs,
+  inputs ? {},
+}: {
   # Copied from https://github.com/terlar/nix-config/blob/570134ba7007f68e058855e0d6a1677a9dc3fa27/lib/scripts.nix
   switchNixos = pkgs.writeShellScriptBin "swn" ''
     set -euo pipefail
@@ -14,7 +15,7 @@
 
   switchHome = pkgs.writeShellScriptBin "swh" ''
     set -euo pipefail
-    export PATH=${with pkgs; lib.makeBinPath [ coreutils gitMinimal jq nix ]}
+    export PATH=${with pkgs; lib.makeBinPath [coreutils gitMinimal jq nix]}
     usr="''${1:-$USER}"
     hst=$(uname -n)
     attr="''${usr}@''${hst}"
@@ -91,8 +92,9 @@
     end
   '';
 
-  backupDirectory = tarsnap: pkgs.writeShellScriptBin "backup-directory" ''
-    set -euox pipefail
-    ${tarsnap}/bin/tarsnap -c -f "$(basename "$1")-$(uname -n)-$(date +%Y-%m-%d_%H-%M-%S)" $1
-  '';
+  backupDirectory = tarsnap:
+    pkgs.writeShellScriptBin "backup-directory" ''
+      set -euox pipefail
+      ${tarsnap}/bin/tarsnap -c -f "$(basename "$1")-$(uname -n)-$(date +%Y-%m-%d_%H-%M-%S)" $1
+    '';
 }

@@ -1,5 +1,7 @@
-{ pkgs, src }:
-
+{
+  pkgs,
+  src,
+}:
 pkgs.stdenv.mkDerivation {
   name = "telescope-fzf-native";
   src = src;

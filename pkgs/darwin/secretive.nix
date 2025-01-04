@@ -1,5 +1,9 @@
-{ lib, fetchurl, stdenvNoCC, unzip }:
-
+{
+  lib,
+  fetchurl,
+  stdenvNoCC,
+  unzip,
+}:
 stdenvNoCC.mkDerivation rec {
   pname = "secretive";
   version = "2.4.1";
@@ -11,7 +15,7 @@ stdenvNoCC.mkDerivation rec {
 
   sourceRoot = "Secretive.app";
 
-  nativeBuildInputs = [ unzip ];
+  nativeBuildInputs = [unzip];
 
   installPhase = ''
     mkdir -p "$out/Applications/${sourceRoot}"

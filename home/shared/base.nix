@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   imports = [
     ./dig.nix
     ./ssh.nix
@@ -55,7 +53,7 @@
 
     # Nix tools
     nixd
-    nixpkgs-fmt
+    alejandra
     scripts.nixFlakeInit
     scripts.nixFlakeSync
 

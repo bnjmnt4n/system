@@ -1,6 +1,4 @@
-{ ... }:
-
-let
+{...}: let
   inlay_hints_lsp_initialization_options = {
     preferences = {
       includeInlayParameterNameHints = "all";
@@ -13,8 +11,7 @@ let
       includeInlayEnumMemberValueHints = true;
     };
   };
-in
-{
+in {
   programs.zed-editor = {
     enable = true;
     extensions = [

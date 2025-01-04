@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   imports = [
     ../../os/shared/nix.nix
   ];
@@ -9,7 +7,7 @@
   networking.hostName = "macbook";
   time.timeZone = "Asia/Singapore";
 
-  environment.shells = [ pkgs.fish ];
+  environment.shells = [pkgs.fish];
   programs.fish = {
     enable = true;
     loginShellInit = ''
@@ -83,6 +81,6 @@
   fonts.packages = with pkgs; [
     inter
     iosevka-bin
-    (iosevka-bin.override { variant = "SGr-IosevkaTerm"; })
+    (iosevka-bin.override {variant = "SGr-IosevkaTerm";})
   ];
 }

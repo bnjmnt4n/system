@@ -1,6 +1,4 @@
-{ ... }:
-
-{
+{...}: {
   # LightDM.
   # TODO: look into a more lightweight solution like greetd in the future.
   services.xserver = {
@@ -18,7 +16,7 @@
       enable = true;
       # TODO: use a separate repository for background images?
       background = ./background-image.jpg;
-      greeters.gtk.indicators = [ "~clock" "~session" "~power" ];
+      greeters.gtk.indicators = ["~clock" "~session" "~power"];
     };
   };
 

@@ -35,44 +35,58 @@
     jujutsu.url = "github:jj-vcs/jj";
   };
 
-  outputs = { nixpkgs, ... }@inputs:
-    let
-      lib = import ./lib.nix inputs;
-      systems = [ "aarch64-darwin" "aarch64-linux" "x86_64-linux" ];
-      forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
-    in
+  outputs = {nixpkgs, ...} @ inputs: let
+    lib = import ./lib.nix inputs;
+    systems = ["aarch64-darwin" "aarch64-linux" "x86_64-linux"];
+    forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
+  in
     lib.makeHostsConfigurations {
       macbook = {
         system = "aarch64-darwin";
-        users = [ "bnjmnt4n" ];
+        users = ["bnjmnt4n"];
       };
       windows = {
         system = "x86_64-linux";
-        users = [ "bnjmnt4n" ];
+        users = ["bnjmnt4n"];
       };
       raspy = {
         system = "aarch64-linux";
-        users = [ "bnjmnt4n" "guest" ];
-        nixosModules = [ inputs.nixos-hardware.nixosModules.raspberry-pi-4 ];
+        users = ["bnjmnt4n" "guest"];
+        nixosModules = [inputs.nixos-hardware.nixosModules.raspberry-pi-4];
       };
     }
-    //
-    {
+    // {
       templates = {
-        default = { path = ./templates/default; description = "Default"; };
-        go = { path = ./templates/go; description = "Go"; };
-        mariadb = { path = ./templates/mariadb; description = "MariaDB"; };
-        postgres = { path = ./templates/postgres; description = "PostgreSQL"; };
-        python = { path = ./templates/python; description = "Python"; };
-        web = { path = ./templates/web; description = "Web"; };
+        default = {
+          path = ./templates/default;
+          description = "Default";
+        };
+        go = {
+          path = ./templates/go;
+          description = "Go";
+        };
+        mariadb = {
+          path = ./templates/mariadb;
+          description = "MariaDB";
+        };
+        postgres = {
+          path = ./templates/postgres;
+          description = "PostgreSQL";
+        };
+        python = {
+          path = ./templates/python;
+          description = "Python";
+        };
+        web = {
+          path = ./templates/web;
+          description = "Web";
+        };
       };
     }
-    //
-    forEachSystem systems (system:
-      let
+    // forEachSystem systems (
+      system: let
         pkgs = lib.makePkgs system;
-      in
-      {
+      in {
         # Custom version of nixpkgs with overlays.
         packages.${system}.nixpkgs = pkgs;
         devShells.${system}.default = pkgs.mkShell {
@@ -84,6 +98,7 @@
             sumneko-lua-language-server
           ];
         };
+        formatter.${system} = pkgs.alejandra;
       }
     );
 }

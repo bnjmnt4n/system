@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   # Fish shell.
   programs.fish = {
     enable = true;
@@ -8,11 +10,13 @@
       set fish_greeting
 
       # WSL doesn't set the SHELL
-      ${if config.targets.genericLinux.enable 
+      ${
+        if config.targets.genericLinux.enable
         then ''
           set -x SHELL ${pkgs.fish}/bin/fish
         ''
-        else ""}
+        else ""
+      }
     '';
     interactiveShellInit = ''
       ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source

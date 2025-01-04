@@ -1,6 +1,8 @@
-{ pkgs, lib, ... }:
-
 {
+  pkgs,
+  lib,
+  ...
+}: {
   services.gpg-agent = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
     enable = true;
     enableExtraSocket = true;

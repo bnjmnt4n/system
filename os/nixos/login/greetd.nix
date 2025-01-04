@@ -1,6 +1,9 @@
-{ config, lib, pkgs, ... }:
-
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   sway_cmd = pkgs.writeShellScript "sway-session" ''
     export SDL_VIDEODRIVER=wayland
     # Requires `qt5.qtwayland`
@@ -23,8 +26,7 @@ let
 
     exec sway
   '';
-in
-{
+in {
   services.greetd = {
     enable = true;
     restart = false;

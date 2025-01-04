@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-let
+{pkgs, ...}: let
   yaml = pkgs.substituteAll {
     src = ./karabiner.yaml;
     firefox = "/Applications/Firefox.app";
@@ -8,13 +6,13 @@ let
     spotify = "/Applications/Spotify.app";
     zed = "${pkgs.zed-editor}/Applications/Zed.app";
   };
-in
-{
-  xdg.configFile."karabiner/karabiner.json".source = pkgs.runCommand "karabiner.json"
+in {
+  xdg.configFile."karabiner/karabiner.json".source =
+    pkgs.runCommand "karabiner.json"
     {
-      nativeBuildInputs = [ pkgs.yq-go ];
+      nativeBuildInputs = [pkgs.yq-go];
       yaml = yaml;
     } ''
-    yq -Poj <(cat "$yaml") > "$out"
-  '';
+      yq -Poj <(cat "$yaml") > "$out"
+    '';
 }

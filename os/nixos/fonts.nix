@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   fonts = {
     fontDir.enable = true;
     enableGhostscriptFonts = true;
@@ -10,7 +8,7 @@
       ia-writer-duospace
       inter
       # iosevka-bin
-      (nerdfonts.override { fonts = [ "Iosevka" ]; })
+      (nerdfonts.override {fonts = ["Iosevka"];})
       jetbrains-mono
       libre-baskerville
       overpass
@@ -22,9 +20,9 @@
     fontconfig = {
       enable = true;
       defaultFonts = {
-        monospace = [ "Iosevka" ];
-        sansSerif = [ "Source Sans Pro" ];
-        serif = [ "Source Serif Pro" ];
+        monospace = ["Iosevka"];
+        sansSerif = ["Source Sans Pro"];
+        serif = ["Source Serif Pro"];
       };
     };
   };

@@ -1,8 +1,11 @@
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   console.earlySetup = true;
-  systemd.services.systemd-vconsole-setup.before = lib.mkForce [ "display-manager.service" ];
+  systemd.services.systemd-vconsole-setup.before = lib.mkForce ["display-manager.service"];
 
   console.font = toString (pkgs.ttf-console-font {
     fontfile = "${pkgs.iosevka}/share/fonts/truetype/iosevka-regular.ttf";

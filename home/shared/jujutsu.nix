@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -66,7 +64,7 @@
           raw_escape_sequence("\e]8;;" ++ url ++ "\e\\") ++
           text ++
           raw_escape_sequence("\e]8;;\e\\")
-	'';
+        '';
         "is_wip_commit_description(description)" = ''
           !description ||
           description.first_line().lower().starts_with("wip:") ||
@@ -337,75 +335,74 @@
         short-prefixes = "trunk()..";
       };
       aliases = {
-        bl = [ "bookmark" "list" ];
-        conflicts = [ "resolve" "--list" "-r" ];
-        d = [ "diff" ];
-        dg = [ "diff" "--tool" "idea" ];
-        dd = [ "diff" "--git" "--config=ui.pager='delta'" ];
-        ddl = [ "diff" "--git" "--config=ui.pager='delta --line-numbers'" ];
-        dt = [ "diff" "--tool" "difftastic" ];
-        descd = [ "describe" "--config=templates.draft_commit_description=draft_commit_description" ];
-        diffg = [ "diff" "--tool" "idea" ];
-        diffeditg = [ "diffedit" "--tool" "idea" ];
-        l = [ "log" ];
-        la = [ "log" "-r" "::@" ];
-        lar = [ "log" "-r" "ancestors(mutable() & archived(), 2)" ];
-        lall = [ "log" "-r" "all()" ];
-        lo = [ "log" "-r" "overview()" ];
-        lm = [ "log" "-r" "ancestors(unarchived(mutable()), 2) | trunk()" ];
-        lmu = [ "log" "-r" "ancestors(unarchived(my_unmerged()), 2) | trunk()" ];
-        lmur = [ "log" "-r" "ancestors(unarchived(my_unmerged_remote()), 2) | trunk()" ];
-        lnp = [ "log" "-r" "ancestors(unarchived(not_pushed()), 2) | trunk()" ];
-        ls = [ "log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()" ];
-        lp = [ "log" "-T" "log_compact_no_summary" "--patch" ];
-        loneline = [ "log" "-T" "log_oneline" ];
-        lpatch = [ "log" "-T" "log_compact_no_summary" "--patch" ];
-        lsummary = [ "log" "-T" "log_compact_no_summary" "--summary" ];
-        n = [ "new" ];
-        s = [ "show" ];
-        sg = [ "show" "--tool" "idea" ];
-        sp = [ "show" "@-" ];
-        showg = [ "show" "--tool" "idea" ];
-        summary = [ "show" "--summary" ];
-        sq = [ "squash" ];
-        g = [ "git" ];
-        gf = [ "git" "fetch" ];
-        gp = [ "git" "push" ];
-        abandon-merged = [ "abandon" "trunk()..@ & empty() ~ @ ~ merges() ~ visible_heads()" ];
-        bump = [ "describe" "--reset-author" "--no-edit" ];
-        bumpt = [ "describe" "--reset-author" "--no-edit" "tree(@)" ];
-        sync = [ "rebase" "-d" "trunk()" "--skip-emptied" ];
-        synct = [ "rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied" ];
-        rebaset = [ "rebase" "-d" "trunk()" ];
-        newt = [ "new" "trunk()" ];
+        bl = ["bookmark" "list"];
+        conflicts = ["resolve" "--list" "-r"];
+        d = ["diff"];
+        dg = ["diff" "--tool" "idea"];
+        dd = ["diff" "--git" "--config=ui.pager='delta'"];
+        ddl = ["diff" "--git" "--config=ui.pager='delta --line-numbers'"];
+        dt = ["diff" "--tool" "difftastic"];
+        descd = ["describe" "--config=templates.draft_commit_description=draft_commit_description"];
+        diffg = ["diff" "--tool" "idea"];
+        diffeditg = ["diffedit" "--tool" "idea"];
+        l = ["log"];
+        la = ["log" "-r" "::@"];
+        lar = ["log" "-r" "ancestors(mutable() & archived(), 2)"];
+        lall = ["log" "-r" "all()"];
+        lo = ["log" "-r" "overview()"];
+        lm = ["log" "-r" "ancestors(unarchived(mutable()), 2) | trunk()"];
+        lmu = ["log" "-r" "ancestors(unarchived(my_unmerged()), 2) | trunk()"];
+        lmur = ["log" "-r" "ancestors(unarchived(my_unmerged_remote()), 2) | trunk()"];
+        lnp = ["log" "-r" "ancestors(unarchived(not_pushed()), 2) | trunk()"];
+        ls = ["log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()"];
+        lp = ["log" "-T" "log_compact_no_summary" "--patch"];
+        loneline = ["log" "-T" "log_oneline"];
+        lpatch = ["log" "-T" "log_compact_no_summary" "--patch"];
+        lsummary = ["log" "-T" "log_compact_no_summary" "--summary"];
+        n = ["new"];
+        s = ["show"];
+        sg = ["show" "--tool" "idea"];
+        sp = ["show" "@-"];
+        showg = ["show" "--tool" "idea"];
+        summary = ["show" "--summary"];
+        sq = ["squash"];
+        g = ["git"];
+        gf = ["git" "fetch"];
+        gp = ["git" "push"];
+        abandon-merged = ["abandon" "trunk()..@ & empty() ~ @ ~ merges() ~ visible_heads()"];
+        bump = ["describe" "--reset-author" "--no-edit"];
+        bumpt = ["describe" "--reset-author" "--no-edit" "tree(@)"];
+        sync = ["rebase" "-d" "trunk()" "--skip-emptied"];
+        synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied"];
+        rebaset = ["rebase" "-d" "trunk()"];
+        newt = ["new" "trunk()"];
       };
       merge-tools = {
         difftastic = {
           program = "${pkgs.difftastic}/bin/difft";
-          diff-args = [ "--color=always" "$left" "$right" ];
+          diff-args = ["--color=always" "$left" "$right"];
           conflict-marker-style = "snapshot";
         };
         delta = {
           program = "${pkgs.delta}/bin/delta";
-          diff-args = [ "--color-only" "$left" "$right" ];
+          diff-args = ["--color-only" "$left" "$right"];
         };
         mergiraf = {
           program = "${pkgs.mergiraf}/bin/mergiraf";
-          merge-args = [ "merge" "$base" "$left" "$right" "-o" "$output" "--fast" ];
-          merge-conflict-exit-codes = [ 1 ];
+          merge-args = ["merge" "$base" "$left" "$right" "-o" "$output" "--fast"];
+          merge-conflict-exit-codes = [1];
           conflict-marker-style = "git";
         };
         idea = {
           program =
             if pkgs.stdenv.hostPlatform.isDarwin
-            then
-              "${pkgs.writeShellScriptBin "idea-wrapper" ''
-                ${pkgs.jetbrains.idea-community}/Applications/IntelliJ\ IDEA\ CE.app/Contents/MacOS/idea $@ 2> /dev/null
-              ''}/bin/idea-wrapper"
+            then "${pkgs.writeShellScriptBin "idea-wrapper" ''
+              ${pkgs.jetbrains.idea-community}/Applications/IntelliJ\ IDEA\ CE.app/Contents/MacOS/idea $@ 2> /dev/null
+            ''}/bin/idea-wrapper"
             else "${pkgs.jetbrains.idea-community}/bin/idea-community";
-          diff-args = [ "diff" "$left" "$right" ];
-          edit-args = [ "diff" "$left" "$right" ];
-          merge-args = [ "merge" "$left" "$right" "$base" "$output" ];
+          diff-args = ["diff" "$left" "$right"];
+          edit-args = ["diff" "$left" "$right"];
+          merge-args = ["merge" "$left" "$right" "$base" "$output"];
         };
       };
       signing = {
@@ -415,12 +412,12 @@
       };
       fix.tools = {
         rustfmt = {
-          command = [ "rustfmt" "--emit" "stdout" ];
-          patterns = [ "glob:'**/*.rs'" ];
+          command = ["rustfmt" "--emit" "stdout"];
+          patterns = ["glob:'**/*.rs'"];
         };
         prettier = {
-          command = [ "npx" "prettier" "--stdin-filepath=$path" ];
-          patterns = [ "glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'" ];
+          command = ["npx" "prettier" "--stdin-filepath=$path"];
+          patterns = ["glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'"];
         };
       };
       colors = {
@@ -435,7 +432,7 @@
 
         # Commit IDs.
         "commit_id" = "bright cyan";
-        "commit_id prefix" = { bold = false; };
+        "commit_id prefix" = {bold = false;};
         "working_copy commit_id" = "bright cyan";
         "rest" = "bright black";
 
@@ -455,11 +452,17 @@
         "wip empty" = "yellow";
         "wip empty description placeholder" = "yellow";
 
-        "working_copy" = { bold = false; };
+        "working_copy" = {bold = false;};
 
-        "working_copy empty" = { fg = "green"; bold = true; };
+        "working_copy empty" = {
+          fg = "green";
+          bold = true;
+        };
         "working_copy empty description placeholder" = "green";
-        "working_copy description" = { fg = "green"; bold = true; };
+        "working_copy description" = {
+          fg = "green";
+          bold = true;
+        };
         "working_copy description placeholder" = "green";
         "working_copy wip description placeholder" = "green";
         "working_copy wip empty description" = "green";
@@ -471,7 +474,10 @@
 
         "log root" = "bright yellow";
 
-        "node" = { fg = "magenta"; bold = true; };
+        "node" = {
+          fg = "magenta";
+          bold = true;
+        };
         "node working_copy" = "green";
         "node immutable" = "default";
         "node conflict" = "red";

@@ -1,9 +1,7 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   home.file.".digrc".text = ''
     +noall +answer
   '';
 
-  home.packages = [ pkgs.dig ];
+  home.packages = [pkgs.dig];
 }

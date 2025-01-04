@@ -1,9 +1,10 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   programs.git = {
     enable = true;
-    package = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.git else pkgs.gitFull;
+    package =
+      if pkgs.stdenv.hostPlatform.isDarwin
+      then pkgs.git
+      else pkgs.gitFull;
     userName = "Benjamin Tan";
     userEmail = "benjamin@dev.ofcr.se";
     lfs.enable = true;

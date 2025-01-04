@@ -1,13 +1,15 @@
-{ config, pkgs, ... }:
-
 {
-  home.packages = [ pkgs.rectangle ];
+  config,
+  pkgs,
+  ...
+}: {
+  home.packages = [pkgs.rectangle];
 
   launchd.agents.rectangle = {
     enable = true;
     config = {
-      ProgramArguments = [ "${config.home.homeDirectory}/Applications/Home Manager Apps/Rectangle.app/Contents/MacOS/Rectangle" ];
-      KeepAlive = { SuccessfulExit = false; };
+      ProgramArguments = ["${config.home.homeDirectory}/Applications/Home Manager Apps/Rectangle.app/Contents/MacOS/Rectangle"];
+      KeepAlive = {SuccessfulExit = false;};
       ProcessType = "Interactive";
       StandardOutPath = "${config.xdg.cacheHome}/Rectangle.log";
       StandardErrorPath = "${config.xdg.cacheHome}/Rectangle.log";
