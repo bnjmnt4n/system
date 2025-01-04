@@ -57,6 +57,7 @@
         '';
         commit_summary = "format_commit_summary(self, bookmarks, tags)";
         draft_commit_description = "draft_commit_description_verbose";
+        show = "log_detailed";
       };
       template-aliases = {
         # Used to link to repository branches and commits.
@@ -71,6 +72,7 @@
           description.first_line().lower().starts_with("wip:") ||
           description.first_line().lower() == "wip"
         '';
+        "format_short_id(id)" = "id.shortest(7)";
         "format_timestamp(timestamp)" = ''
           if(
             timestamp.before("1 month ago"),
@@ -140,6 +142,15 @@
               format_short_commit_id(commit.commit_id()),
             ),
             format_short_commit_id(commit.commit_id()),
+          )
+        '';
+        "format_long_commit_id(commit)" = ''
+          if(get_repository_github_url() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+            hyperlink(
+              concat(get_repository_github_url(), "/commit/", commit.commit_id()),
+              commit.commit_id(),
+            ),
+            commit.commit_id(),
           )
         '';
         "format_ref_targets(ref)" = ''
@@ -214,12 +225,11 @@
         draft_commit_description_verbose = ''
           concat(
             description,
-            separate("\n",
-              "\nJJ: This commit contains the following changes:",
+            surround(
+              "\nJJ: This commit contains the following changes:\n", "",
               indent("JJ:     ", diff.summary()),
-              "JJ: ignore-rest",
-              diff.git(),
-            )
+            ),
+            surround("\nJJ: ignore-rest\n", "", diff.git()),
           )
         '';
         log_oneline = ''
@@ -285,6 +295,21 @@
                 ),
               ),
             )
+          )
+        '';
+        log_detailed = ''
+          concat(
+            "Commit ID: " ++ format_long_commit_id(self) ++ "\n",
+            "Change ID: " ++ change_id ++ "\n",
+            surround("Bookmarks: ", "\n",
+              separate(" ", format_commit_bookmarks(local_bookmarks), format_commit_bookmarks(remote_bookmarks))),
+            surround("Tags     : ", "\n", format_commit_tags(tags)),
+            "Author   : " ++ format_detailed_signature(author) ++ "\n",
+            "Committer: " ++ format_detailed_signature(committer)  ++ "\n",
+            "\n",
+            indent("    ",
+              coalesce(description, label(if(empty, "empty"), description_placeholder) ++ "\n")),
+            "\n",
           )
         '';
       };
@@ -439,10 +464,10 @@
         "working_copy wip description placeholder" = "green";
         "working_copy wip empty description" = "green";
         "working_copy wip empty description placeholder" = "green";
-        "log working_copy bookmark" = "green";
-        "log working_copy bookmarks" = "green";
-        "log working_copy local_bookmarks" = "green";
-        "log working_copy remote_bookmarks" = "green";
+        "working_copy bookmark" = "green";
+        "working_copy bookmarks" = "green";
+        "working_copy local_bookmarks" = "green";
+        "working_copy remote_bookmarks" = "green";
 
         "log root" = "bright yellow";
 
@@ -451,6 +476,9 @@
         "node immutable" = "default";
         "node conflict" = "red";
         "node wip" = "yellow";
+
+        "elided" = "#888888";
+        "node elided" = "#888888";
       };
     };
   };
