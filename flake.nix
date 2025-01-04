@@ -35,7 +35,7 @@
     jujutsu.url = "github:jj-vcs/jj";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { nixpkgs, ... }@inputs:
     let
       lib = import ./lib.nix inputs;
       systems = [ "aarch64-darwin" "aarch64-linux" "x86_64-linux" ];

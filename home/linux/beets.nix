@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ ... }:
 
 let
   aunique = "%aunique{albumartist album,albumtype label catalognum albumdisambig releasegroupdisambig}";

@@ -1,9 +1,7 @@
-{ config, lib, pkgs, ... }:
+{ config, pkgs, ... }:
 
 {
-  home.packages = [
-    pkgs.rectangle
-  ];
+  home.packages = [ pkgs.rectangle ];
 
   launchd.agents.rectangle = {
     enable = true;

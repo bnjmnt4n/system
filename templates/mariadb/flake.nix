@@ -3,7 +3,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { nixpkgs, ... }:
     let
       systems = ["aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux"];
       forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
@@ -21,10 +21,10 @@
         '';
       in {
         devShells.${system}.default = pkgs.mkShell {
-          buildInputs = [
+          buildInputs = with pkgs; [
             startMariadbScript
             endMariadbScript
-            pkgs.mariadb
+            mariadb
           ];
 
           # https://jeancharles.quillet.org/posts/2022-01-30-Local-mariadb-server-with-nix-shell.html

@@ -101,7 +101,7 @@ rec {
     nix-darwin.lib.darwinSystem {
       inherit system;
       specialArgs = { inherit inputs; };
-      modules = [
+      modules = modules ++ [
         home-manager.darwinModules.home-manager
         inputs.nix-index-database.darwinModules.nix-index
         inputs.mac-app-util.darwinModules.default

@@ -42,9 +42,9 @@
     ];
   };
 
-  environment.systemPackages = [
-    pkgs.monitorcontrol
-    pkgs.vlc-bin
+  environment.systemPackages = with pkgs; [
+    monitorcontrol
+    vlc-bin
   ];
 
   services.nix-daemon.enable = true;
@@ -80,9 +80,9 @@
     };
   };
 
-  fonts.packages = [
-    pkgs.inter
-    pkgs.iosevka-bin
-    (pkgs.iosevka-bin.override { variant = "SGr-IosevkaTerm"; })
+  fonts.packages = with pkgs; [
+    inter
+    iosevka-bin
+    (iosevka-bin.override { variant = "SGr-IosevkaTerm"; })
   ];
 }

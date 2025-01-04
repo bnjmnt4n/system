@@ -1,6 +1,5 @@
 # https://github.com/nix-community/nur-combined/blob/master/repos/drewrisinger/pkgs/raspberrypi/argonone-rpi4/default.nix#L56
 { stdenv
-, lib
 , fetchFromGitHub
 , python3
 , libffi
@@ -53,7 +52,7 @@ stdenv.mkDerivation {
     wrapPythonProgramsIn $out/opt/argonone/
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Argon One Service and Control Scripts for Raspberry Pi 4";
     homepage = "https://github.com/Elrondo46/argonone";
     platforms = [ "aarch64-linux" ]; # Raspberry Pi 4

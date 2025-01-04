@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (import ./dock.nix) createAppTile createDirTile;
+  inherit (import ./dock.nix) createDirTile;
 in
 {
   imports = [
@@ -29,12 +29,12 @@ in
     ../../home/shared/firefox
   ];
 
-  home.packages = [
-    pkgs.ffmpeg
-    pkgs.gg-jj
-    pkgs.jetbrains.idea-community
-    pkgs.restic
-    pkgs.yt-dlp
+  home.packages = with pkgs; [
+    ffmpeg
+    gg-jj
+    jetbrains.idea-community
+    restic
+    yt-dlp
   ];
 
   # Disable login message.

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ ... }:
 
 let
   inlay_hints_lsp_initialization_options = {
