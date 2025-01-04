@@ -33,6 +33,10 @@
       flake = false;
     };
     jujutsu.url = "github:jj-vcs/jj";
+    tree-sitter-jjdescription = {
+      url = "github:kareigu/tree-sitter-jjdescription";
+      flake = false;
+    };
   };
 
   outputs = { nixpkgs, ... }@inputs:

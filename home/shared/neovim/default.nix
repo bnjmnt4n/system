@@ -9,7 +9,10 @@ let
     "comment"
     "cpp"
     "css"
+    "csv"
+    "diff"
     "dockerfile"
+    "editorconfig"
     "fish"
     "git_config"
     "git_rebase"
@@ -22,6 +25,7 @@ let
     "graphql"
     "haskell"
     "html"
+    "http"
     "ini"
     "java"
     "javascript"
@@ -29,14 +33,16 @@ let
     "json"
     "json5"
     "jsonc"
+    "latex"
     "ledger"
     "lua"
+    "luadoc"
     "make"
     "markdown"
     "markdown_inline"
     "nix"
     "ocaml"
-    "properties"
+    "proto"
     "python"
     "query"
     "regex"
@@ -55,8 +61,17 @@ let
     "yaml"
     "zig"
   ];
+  jjdescriptionGrammar = pkgs.tree-sitter.buildGrammar {
+    language = "jjdescription";
+    version = "0.0.0+rev=${inputs.tree-sitter-jjdescription.rev}";
+    src = inputs.tree-sitter-jjdescription;
+    meta.homepage = "https://github.com/kareigu/tree-sitter-jjdescription";
+  };
   # Ensure that the same version of nvim-treesitter is used to get the parsers and queries.
-  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs: (map (language: pkgs.${language}) treeSitterLanguages));
+  nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs:
+    (map (language: pkgs.${language}) treeSitterLanguages) ++
+    [ jjdescriptionGrammar ]
+  );
   treesitter-parsers = pkgs.symlinkJoin {
     name = "treesitter-parsers";
     paths = nvim-treesitter.dependencies;
@@ -120,8 +135,8 @@ in
 
     extraLuaConfig = ''
       vim.g.is_mac = '${if pkgs.stdenv.hostPlatform.isDarwin then "1" else "0"}'
-      vim.g.slow_device = not vim.g.is_mac
 
+      vim.g.lazy_rev = '${inputs.lazy-nvim.rev}'
       vim.g.nvim_treesitter_path = '${nvim-treesitter}'
       vim.g.telescope_fzf_native_path = '${pkgs.telescope-fzf-native}'
       vim.g.node_binary_path = '${pkgs.nodejs}/bin/node'
@@ -134,6 +149,9 @@ in
     [ pkgs.dark-notify ];
 
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
+  xdg.configFile."nvim/queries".source = ./queries;
+
+  xdg.configFile."nvim/after".source = ./after;
   xdg.configFile."nvim/lua".source = ./lua;
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
 

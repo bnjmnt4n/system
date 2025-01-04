@@ -1,18 +1,8 @@
--- LSP
-
--- TODO: look for inspiration in the following configurations
--- - https://github.com/lukas-reineke/dotfiles/tree/master/vim/lua/lsp
--- - https://github.com/lucax88x/configs/tree/master/dotfiles/.config/nvim/lua/lt/lsp
-
-local on_attach = require('bnjmnt4n.lsp').on_attach
-
 return {
   -- LSP configuration
   {
     'neovim/nvim-lspconfig',
     dependencies = {
-      'saghen/blink.cmp',
-
       -- Delay before displaying diagnostics
       {
         'yorickpeterse/nvim-dd',
@@ -26,118 +16,136 @@ return {
         config = true,
       },
     },
+    cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
+    -- stylua: ignore
     keys = {
       { '<leader>li', '<cmd>LspInfo<cr>', desc = 'LSP information' },
-      { '<leader>lr', '<cmd>LspRestart<cr>', desc = 'Restart LSP servers' },
       { '<leader>ls', '<cmd>LspStart<cr>', desc = 'Start LSP servers' },
       { '<leader>lt', '<cmd>LspStop<cr>', desc = 'Stop LSP servers' },
-      { '<leader>lwa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<cr>', desc = 'Add workspace folder' },
-      { '<leader>lwr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<cr>', desc = 'Remove workspace folder' },
+      { '<leader>lr', '<cmd>LspRestart<cr>', desc = 'Restart LSP servers' },
+      { '<leader>ll', '<cmd>LspLog<cr>', desc = 'LSP log' },
+      { '<leader>lwa', vim.lsp.buf.add_workspace_folder, desc = 'Add workspace folder' },
+      { '<leader>lwr', vim.lsp.buf.remove_workspace_folder, desc = 'Remove workspace folder' },
       {
         '<leader>lwl',
-        '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<cr>',
+        function()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end,
         desc = 'List workspace folders',
       },
     },
     config = function()
-      local nvim_lsp = require 'lspconfig'
-
-      -- blink.cmp supports additional completion capabilities
-      local capabilities = require('blink.cmp').get_lsp_capabilities()
-      -- Enable the following language servers
-      local servers = { 'astro', 'clangd', 'cssls', 'eslint', 'html', 'nixd', 'ocamllsp', 'pyright', 'zls' }
-
-      for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {
-          on_attach = on_attach,
-          capabilities = capabilities,
-        }
-      end
-
-      -- Lua
       local runtime_path = vim.split(package.path, ';')
       table.insert(runtime_path, 'lua/?.lua')
       table.insert(runtime_path, 'lua/?/init.lua')
 
-      nvim_lsp.lua_ls.setup {
-        cmd = { 'lua-language-server' },
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          Lua = {
-            runtime = {
-              version = 'LuaJIT',
-              path = runtime_path,
+      local servers = {
+        astro = {},
+        clangd = {},
+        cssls = {},
+        eslint = {},
+        gopls = {
+          settings = {
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+              rangeVariableTypes = true,
             },
-            diagnostics = {
-              globals = {
-                'vim', -- Neovim
+          },
+        },
+        html = {},
+        jsonls = {
+          settings = {
+            json = {
+              validate = { enable = true },
+              format = { enable = false },
+            },
+          },
+          on_new_config = function(config)
+            config.settings.json.schemas = config.settings.json.schemas or {}
+            vim.list_extend(config.settings.json.schemas, require('schemastore').json.schemas())
+          end,
+        },
+        lua_ls = {
+          settings = {
+            Lua = {
+              runtime = {
+                version = 'LuaJIT',
+                path = runtime_path,
+              },
+              diagnostics = {
+                globals = {
+                  'vim', -- Neovim
+                },
+              },
+              workspace = {
+                library = vim.api.nvim_get_runtime_file('', true),
+                checkThirdParty = false,
+              },
+              format = { enable = false },
+              telemetry = { enable = false },
+            },
+          },
+        },
+        nixd = {
+          settings = {
+            nixd = {
+              options = {
+                home_manager = {
+                  -- TODO: does this need to be platform specific?
+                  expr = '(builtins.getFlake "my").homeConfigurations."bnjmnt4n@macbook".options',
+                },
               },
             },
-            workspace = {
-              library = vim.api.nvim_get_runtime_file('', true),
-              checkThirdParty = false,
-            },
-            format = { enable = false },
-            telemetry = { enable = false },
           },
         },
-      }
-
-      -- Tailwind
-      nvim_lsp.tailwindcss.setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          tailwindCSS = {
-            experimental = {
-              classRegex = {
-                { 'classNames\\(([^)]*)\\)', '"([^"]*)"' },
-                { 'cva\\(([^)]*)\\)', '["\'`]([^"\'`]*).*?["\'`]' },
-                { 'cx\\(([^)]*)\\)', "(?:'|\"|`)([^']*)(?:'|\"|`)" },
+        pyright = {},
+        tailwindcss = {
+          settings = {
+            tailwindCSS = {
+              experimental = {
+                classRegex = {
+                  { 'classNames\\(([^)]*)\\)', '"([^"]*)"' },
+                  { 'cva\\(([^)]*)\\)', '["\'`]([^"\'`]*).*?["\'`]' },
+                  { 'cx\\(([^)]*)\\)', "(?:'|\"|`)([^']*)(?:'|\"|`)" },
+                },
               },
             },
           },
         },
-      }
-
-      -- JSON
-      nvim_lsp.jsonls.setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          json = {
-            validate = { enable = true },
-            format = { enable = true },
+        yamlls = {
+          settings = {
+            yaml = {
+              validate = { enable = true },
+              format = { enable = false },
+              schemastore = {
+                -- Using the schemastore plugin instead.
+                enable = false,
+                url = '',
+              },
+            },
           },
+          on_new_config = function(config)
+            config.settings.yaml.schemas = config.settings.yaml.schemas or {}
+            vim.list_extend(config.settings.yaml.schemas, require('schemastore').yaml.schemas())
+          end,
         },
-        on_new_config = function(config)
-          config.settings.json.schemas = require('schemastore').json.schemas()
-        end,
+        zls = {},
       }
 
-      -- Go
-      nvim_lsp.gopls.setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-          hints = {
-            assignVariableTypes = true,
-            compositeLiteralFields = true,
-            constantValues = true,
-            functionTypeParameters = true,
-            parameterNames = true,
-            rangeVariableTypes = true,
-          },
-        },
-      }
+      local nvim_lsp = require 'lspconfig'
+      local capabilities = vim.lsp.protocol.make_client_capabilities()
+      capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
 
-      -- Haskell
-      nvim_lsp.hls.setup {
-        cmd = { 'haskell-language-server', '--lsp' },
-        on_attach = on_attach,
-        capabilities = capabilities,
-      }
+      for server, settings in pairs(servers) do
+        nvim_lsp[server].setup(vim.tbl_deep_extend('error', {
+          capabilities = capabilities,
+          silent = true,
+        }, settings))
+      end
     end,
   },
 
@@ -148,7 +156,6 @@ return {
     opts = {
       progress = {
         poll_rate = 0.5,
-        ignore_done_already = true,
         ignore_empty_message = true,
       },
     },
@@ -175,7 +182,7 @@ return {
     'aznhe21/actions-preview.nvim',
     -- stylua: ignore
     keys = {
-      { '<leader>ca', function() require('actions-preview').code_actions() end, desc = 'Code actions' },
+      { '<leader>ca', function() require('actions-preview').code_actions() end, mode = { 'n', 'x' }, desc = 'Code actions' },
     },
     opts = function()
       return {
@@ -205,7 +212,6 @@ return {
     ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
     dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
     opts = {
-      on_attach = on_attach,
       settings = {
         expose_as_code_action = 'all',
         tsserver_file_preferences = {
@@ -222,34 +228,26 @@ return {
     },
   },
 
-  -- Better Rust tools
+  -- Rust
   {
-    'simrat39/rust-tools.nvim',
-    ft = 'rust',
-    opts = function()
-      return {
+    'mrcjkb/rustaceanvim',
+    version = '^5',
+    lazy = false,
+    init = function()
+      vim.g.rustaceanvim = {
         tools = {
-          executor = require('rust-tools.executors').toggleterm,
-          inlay_hints = {
-            auto = false,
-          },
-          hover_actions = {
+          float_win_config = {
             border = 'rounded',
           },
-        },
-        server = {
-          on_attach = function(client, bufnr)
-            on_attach(client, bufnr)
-            vim.keymap.set('n', 'K', '<cmd>RustHoverActions<cr>', { buffer = bufnr, silent = true })
-          end,
         },
       }
     end,
   },
 
+  -- JSON schemas
   {
     'b0o/SchemaStore.nvim',
-    -- Loaded by jsonls when needed.
+    -- Loaded by jsonls/yamlls when needed.
     lazy = true,
   },
 }

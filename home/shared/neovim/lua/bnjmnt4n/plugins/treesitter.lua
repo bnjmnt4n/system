@@ -23,12 +23,7 @@ return {
       },
     },
     opts = {
-      highlight = {
-        enable = true,
-        disable = function(_, bufnr)
-          return vim.api.nvim_buf_line_count(bufnr) > 6000
-        end,
-      },
+      highlight = { enable = true },
       incremental_selection = {
         enable = true,
         keymaps = {

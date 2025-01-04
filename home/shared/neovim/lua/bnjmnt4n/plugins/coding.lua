@@ -152,7 +152,6 @@ return {
       filetypes_denylist = {
         '',
         'dirvish',
-        'fugitive',
         'help',
         'TelescopePrompt',
         'NeogitStatus',
@@ -296,11 +295,11 @@ return {
         },
         ['<s-tab>'] = { 'select_prev', 'fallback' },
 
-        ['<c-p>'] = { 'show', 'select_prev', 'fallback' },
         ['<c-n>'] = { 'show', 'select_next', 'fallback' },
+        ['<c-p>'] = { 'show', 'select_prev', 'fallback' },
 
-        ['<c-j>'] = { 'snippet_forward', 'fallback' },
-        ['<c-k>'] = { 'snippet_backward', 'fallback' },
+        ['<c-.>'] = { 'snippet_forward', 'fallback' },
+        ['<c-,>'] = { 'snippet_backward', 'fallback' },
 
         ['<c-d>'] = { 'scroll_documentation_up', 'fallback' },
         ['<c-f>'] = { 'scroll_documentation_down', 'fallback' },
@@ -318,9 +317,14 @@ return {
           auto_show = false,
         },
         list = {
-          selection = function(ctx)
-            return ctx.mode == 'cmdline' and 'auto_insert' or 'preselect'
-          end,
+          selection = {
+            preselect = function(ctx)
+              return ctx.mode ~= 'cmdline' and not require('blink.cmp').snippet_active { direction = 1 }
+            end,
+            auto_insert = function(ctx)
+              return ctx.mode == 'cmdline'
+            end,
+          },
         },
         documentation = {
           auto_show = true,
@@ -354,6 +358,7 @@ return {
         keymap = {
           -- Handled in <tab> keybinding in blink.cmp configuration.
           accept = false,
+          accept = '<m-enter>',
           accept_word = '<m-w>',
           accept_line = '<m-l>',
           next = '<c-]>',
@@ -373,14 +378,14 @@ return {
       -- Hide suggestions when the completion menu is open.
       local copilot = require 'copilot.suggestion'
       vim.api.nvim_create_autocmd('User', {
-        pattern = 'BlinkCmpCompletionMenuOpen',
+        pattern = 'BlinkCmpMenuOpen',
         callback = function()
           copilot.dismiss()
           vim.b.copilot_suggestion_hidden = true
         end,
       })
       vim.api.nvim_create_autocmd('User', {
-        pattern = 'BlinkCmpCompletionMenuClose',
+        pattern = 'BlinkCmpMenuClose',
         callback = function()
           vim.b.copilot_suggestion_hidden = false
         end,

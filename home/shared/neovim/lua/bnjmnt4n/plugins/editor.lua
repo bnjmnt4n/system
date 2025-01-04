@@ -17,22 +17,6 @@ return {
     },
   },
 
-  -- Git commands
-  {
-    'tpope/vim-fugitive',
-    keys = {
-      { '<leader>gG', '<cmd>Git<cr>', desc = 'Fugitive' },
-      { '<leader>ga', '<cmd>Git add %:p<cr><cr>', desc = 'git add current file' },
-      { '<leader>gd', '<cmd>Gdiffsplit<cr>', desc = 'git diff' },
-      { '<leader>ge', '<cmd>Gedit<cr>', desc = 'git edit' },
-      { '<leader>gr', '<cmd>Gread<cr>', desc = 'git read' },
-      { '<leader>gw', '<cmd>Gwrite<cr><cr>', desc = 'git write' },
-      { '<leader>gl', ':silent! Gclog<cr>:bot copen<cr>', desc = 'git log', silent = false },
-      { '<leader>gm', ':GMove<space>', desc = 'git move', silent = false },
-      { '<leader>go', ':Git checkout<space>', desc = 'git checkout', silent = false },
-    },
-  },
-
   -- Git links
   {
     'linrongbin16/gitlinker.nvim',
@@ -45,9 +29,6 @@ return {
       message = false,
     },
   },
-
-  -- Jujutsu description highlighting
-  'avm99963/vim-jjdescription',
 
   -- Symbol outlines
   {
@@ -83,15 +64,14 @@ return {
         desc = 'Format',
       },
       {
-        '<leader>tf',
+        '<leader>tF',
         function()
-          local Util = require 'lazy.core.util'
           local disabled = not (vim.g.disable_autoformat == true)
           vim.g.disable_autoformat = disabled
           if disabled then
-            Util.info('Disabled autoformat', { title = 'Autoformat' })
+            vim.notify 'Disabled autoformat'
           else
-            Util.info('Enabled autoformat', { title = 'Autoformat' })
+            vim.notify 'Enabled autoformat'
           end
         end,
         desc = 'Toggle autoformat',
@@ -99,13 +79,12 @@ return {
       {
         '<leader>tf',
         function()
-          local Util = require 'lazy.core.util'
           local disabled = not (vim.b.disable_autoformat == true)
           vim.b.disable_autoformat = disabled
           if disabled then
-            Util.info('Disabled autoformat (buffer)', { title = 'Autoformat' })
+            vim.notify 'Disabled autoformat (buffer)'
           else
-            Util.info('Enabled autoformat (buffer)', { title = 'Autoformat' })
+            vim.notify 'Enabled autoformat (buffer)'
           end
         end,
         desc = 'Toggle autoformat (buffer)',
@@ -178,79 +157,29 @@ return {
     },
     -- stylua: ignore
     keys = {
-      {
-        '<leader><space>',
-        function() require('telescope.builtin').find_files() end,
-        desc = 'Find files in folder'
-      },
+      { '<leader><space>', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
       {
         '<leader>.',
         function() require('telescope').extensions.file_browser.file_browser { cwd = vim.fn.expand '%:p:h', hidden = true } end,
         desc = 'Find in current directory',
       },
-      {
-        '<leader>,',
-        function() require('telescope.builtin').buffers { sort_lastused = true } end,
-        desc = 'Find buffer',
-      },
-      { '<leader>?',  function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
-      {
-        '<leader>/',
-        function() require('telescope.builtin').live_grep() end,
-        desc = 'Search in project'
-      },
-      {
-        "<leader>'",
-        function() require('telescope.builtin').resume() end,
-        desc = 'Resume previous search'
-      },
+      { '<leader>,', function() require('telescope.builtin').buffers { sort_lastused = true } end, desc = 'Find buffer' },
+      { '<leader>?', function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
+      { '<leader>/', function() require('telescope.builtin').live_grep() end, desc = 'Search in project' },
+      { "<leader>'", function() require('telescope.builtin').resume() end, desc = 'Resume previous search' },
       { '<leader>bi', function() require('telescope.builtin').buffers() end,  desc = 'Find buffer' },
-
-      {
-        '<leader>cb',
-        function() require('telescope.builtin').lsp_document_symbols() end,
-        desc = 'Document symbols'
-      },
-      {
-        '<leader>cx',
-        function() require('telescope.builtin').lsp_workspace_diagnostics() end,
-        desc = 'Workspace diagnostics'
-      },
-      {
-        '<leader>ff',
-        function() require('telescope.builtin').find_files() end,
-        desc =
-        'Find files in folder'
-      },
+      { '<leader>cb', function() require('telescope.builtin').lsp_document_symbols() end, desc = 'Document symbols' },
+      { '<leader>cx', function() require('telescope.builtin').lsp_diagnostics() end, desc = 'Diagnostics' },
+      { '<leader>ff', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
       { '<leader>fr', function() require('telescope.builtin').oldfiles() end,     desc = 'Recent files' },
       { '<leader>gc', function() require('telescope.builtin').git_commits() end,  desc = 'git commits' },
       { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = 'git branches' },
       { '<leader>gs', function() require('telescope.builtin').git_status() end,   desc = 'git status' },
-      {
-        '<leader>gp',
-        function() require('telescope.builtin').git_bcommits() end,
-        desc =
-        'git buffer commits'
-      },
-      {
-        '<leader>sd',
-        function() require('telescope.builtin').grep_string() end,
-        desc =
-        'Find current word in project'
-      },
+      { '<leader>gp', function() require('telescope.builtin').git_bcommits() end, desc = 'git buffer commits' },
+      { '<leader>sd', function() require('telescope.builtin').grep_string() end, desc = 'Find current word in project' },
       { '<leader>sh', function() require('telescope.builtin').help_tags() end, desc = 'Find help' },
-      {
-        '<leader>ss',
-        function() require('telescope.builtin').current_buffer_fuzzy_find() end,
-        desc =
-        'Find in buffer'
-      },
-      {
-        '<leader>sp',
-        function() require('telescope.builtin').live_grep() end,
-        desc =
-        'Find in project'
-      },
+      { '<leader>ss', function() require('telescope.builtin').current_buffer_fuzzy_find() end, desc = 'Find in buffer' },
+      { '<leader>sp', function() require('telescope.builtin').live_grep() end, desc = 'Find in project' },
     },
     opts = function()
       return {
@@ -434,13 +363,10 @@ return {
     cmd = { 'Trouble', 'TroubleToggle' },
     -- stylua: ignore
     keys = {
-      { '<leader>xx', '<cmd>Trouble<cr>',                                                              desc = 'Trouble' },
-      { '<leader>xw', '<cmd>Trouble workspace_diagnostics<cr>',                                        desc = 'Trouble Workspace Diagnostics' },
-      { '<leader>xd', '<cmd>Trouble document_diagnostics<cr>',                                         desc = 'Trouble Document Diagnostics' },
-      { '<leader>xl', '<cmd>Trouble loclist<cr>',                                                      desc = 'Trouble Loclist' },
-      { '<leader>xq', '<cmd>Trouble quickfix<cr>',                                                     desc = 'Trouble Quickfix' },
-      { '<leader>xn', function() require("trouble").next({ skip_groups = true, jump = true }) end,     desc = 'Next' },
-      { '<leader>xp', function() require("trouble").previous({ skip_groups = true, jump = true }) end, desc = 'Previous' },
+      { '<leader>xx', '<cmd>Trouble<cr>',             desc = 'Trouble' },
+      { '<leader>xd', '<cmd>Trouble diagnostics<cr>', desc = 'Trouble Diagnostics' },
+      { '<leader>xl', '<cmd>Trouble loclist<cr>',     desc = 'Trouble Loclist' },
+      { '<leader>xq', '<cmd>Trouble qflist<cr>',      desc = 'Trouble Quickfix' },
     },
     config = true,
   },
@@ -448,12 +374,12 @@ return {
   -- TODO comments
   {
     'folke/todo-comments.nvim',
-    cmd = { 'TodoTrouble', 'TodoTelescope' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    cmd = { 'TodoTrouble', 'TodoTelescope', 'TodoQuickFix', 'TodoLocList' },
     event = { 'BufReadPost', 'BufNewFile' },
     -- stylua: ignore
     keys = {
       { '<leader>xt', '<cmd>TodoTrouble<cr>',                              desc = 'Touble Todos' },
-      { '<leader>xT', '<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>',      desc = 'Trouble Todo/Fix/Fixme' },
       { '<leader>st', '<cmd>TodoTelescope<cr>',                            desc = 'Find todos' },
       { ']t',         function() require('todo-comments').jump_next() end, desc = 'Next todo comment' },
       { '[t',         function() require('todo-comments').jump_prev() end, desc = 'Previous todo comment' },

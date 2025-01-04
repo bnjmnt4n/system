@@ -606,7 +606,8 @@
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
         "nur": "nur",
-        "telescope-fzf-native": "telescope-fzf-native"
+        "telescope-fzf-native": "telescope-fzf-native",
+        "tree-sitter-jjdescription": "tree-sitter-jjdescription"
       }
     },
     "rust-overlay": {
@@ -688,6 +689,22 @@
       "original": {
         "owner": "nvim-telescope",
         "repo": "telescope-fzf-native.nvim",
+        "type": "github"
+      }
+    },
+    "tree-sitter-jjdescription": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1736251528,
+        "narHash": "sha256-ICbOKbaeWHA2klXfJAl1FYz3CuuzH7Vgbjh5+jKwE/0=",
+        "owner": "kareigu",
+        "repo": "tree-sitter-jjdescription",
+        "rev": "17d865a4b31d2e00d9a821a28b6651ded45d7a97",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kareigu",
+        "repo": "tree-sitter-jjdescription",
         "type": "github"
       }
     },

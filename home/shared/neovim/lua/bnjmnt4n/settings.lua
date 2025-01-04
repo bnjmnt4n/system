@@ -49,9 +49,6 @@ vim.o.splitkeep = 'screen'
 -- Folding
 vim.o.foldcolumn = 'auto:1'
 vim.o.foldlevelstart = 99
-vim.o.foldmethod = 'expr'
-vim.wo.foldtext = 'v:lua.vim.treesitter.foldtext()'
-vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.fillchars = {
   foldopen = '',
   foldsep = ' ',

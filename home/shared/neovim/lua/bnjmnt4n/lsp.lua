@@ -1,5 +1,7 @@
 local M = {}
 
+local methods = vim.lsp.protocol.Methods
+
 local signs = {
   text = {},
 }
@@ -17,56 +19,69 @@ vim.diagnostic.config {
     border = 'rounded',
   },
 }
+
 -- FIX: https://github.com/folke/lazy.nvim/issues/620
 vim.diagnostic.config({ virtual_lines = false }, require('lazy.core.config').ns)
 
-local hover = vim.lsp.buf.hover
----@diagnostic disable-next-line: duplicate-set-field
-vim.lsp.buf.hover = function()
-  return hover {
-    border = 'rounded',
-  }
-end
-local signature_help = vim.lsp.buf.signature_help
----@diagnostic disable-next-line: duplicate-set-field
-vim.lsp.buf.signature_help = function()
-  return signature_help {
-    border = 'rounded',
-  }
+-- Configure inlay hints
+vim.lsp.inlay_hint.enable()
+
+M.inlay_hint_disabled_filetypes = {
+  typescriptreact = true,
+  typescript = true,
+}
+
+-- `on_attach` function to handle LSP setup for buffers.
+local function on_attach(client, bufnr)
+  -- Only override default "K" and "gd" keymaps if LSP supports the corresponding methods.
+  if client:supports_method(methods.textDocument_hover) then
+    vim.keymap.set('n', 'K', function()
+      vim.lsp.buf.hover { border = 'rounded' }
+    end, { buffer = bufnr, desc = 'Hover' })
+  end
+  if client:supports_method(methods.textDocument_definition) then
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { buffer = bufnr, desc = 'Go to definition' })
+  end
+  if client:supports_method(methods.textDocument_inlayHint) then
+    if vim.lsp.inlay_hint.is_enabled() then
+      local filetype = vim.bo[bufnr].filetype
+      if M.inlay_hint_disabled_filetypes[filetype] then
+        vim.schedule(function()
+          vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
+        end)
+      end
+    end
+  end
 end
 
-function M.on_attach(_, bufnr)
-  local function map(mode, lhs, rhs, opts)
-    opts = opts or {}
-    opts.buffer = bufnr
-    vim.keymap.set(mode, lhs, rhs, opts)
+-- Update mappings when registering dynamic capabilities.
+local register_capability = vim.lsp.handlers[methods.client_registerCapability]
+vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  if not client then
+    return
   end
 
-  map('n', 'gD', vim.lsp.buf.declaration, { desc = 'Go to declaration' })
-  map('n', 'gd', vim.lsp.buf.definition, { desc = 'Go to definition' })
-  map('n', 'gi', vim.lsp.buf.implementation, { desc = 'Go to implementation' })
-  map('n', 'gr', vim.lsp.buf.references, { desc = 'Go to references' })
-  map('n', 'K', vim.lsp.buf.hover, { desc = 'Hover' })
-  map('n', 'gK', vim.lsp.buf.signature_help, { desc = 'Signature help' })
+  local result = register_capability(err, res, ctx)
 
-  map('n', '<leader>dt', vim.lsp.buf.type_definition, { desc = 'Go to type definition' })
-  map('n', '<leader>e', function()
-    vim.diagnostic.open_float { border = 'rounded' }
-  end, { desc = 'Show line diagnostics' })
-  map('n', '<leader>cl', vim.diagnostic.setloclist, { desc = 'Set location list' })
+  local bufnrs = vim.lsp.get_buffers_by_client_id(ctx.client_id)
+  for _, bufnr in ipairs(bufnrs) do
+    on_attach(client, bufnr)
+  end
 
-  map('n', '[d', function()
-    vim.diagnostic.jump {
-      count = -1,
-      float = not vim.diagnostic.is_enabled() and { border = 'rounded' },
-    }
-  end, { desc = 'Previous diagnostic' })
-  map('n', ']d', function()
-    vim.diagnostic.jump {
-      count = 1,
-      float = not vim.diagnostic.is_enabled() and { border = 'rounded' },
-    }
-  end, { desc = 'Next diagnostic' })
+  return result
 end
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  desc = 'Configure LSP keymaps',
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then
+      return
+    end
+
+    on_attach(client, args.buf)
+  end,
+})
 
 return M

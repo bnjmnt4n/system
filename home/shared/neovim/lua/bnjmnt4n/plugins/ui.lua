@@ -23,6 +23,9 @@ return {
         highlights.DiagnosticSignHint = { fg = colors.hint, bg = colors.bg_dim }
         highlights.TroubleIndent = { fg = colors.fg_active, bg = colors.bg_active }
 
+        highlights.FloatBorder = highlights.NormalFloat
+        highlights.FloatTitle = highlights.NormalFloat
+
         -- Statusline colors
         -- TODO: tweak?
         highlights.StatuslineDiffAdd = { fg = colors.fg_added, bg = colors.bg_status_line }
@@ -160,7 +163,6 @@ return {
           'help',
           'qf',
           'vim',
-          'fugitive',
           'Trouble',
           'lazy',
           'toggleterm',
