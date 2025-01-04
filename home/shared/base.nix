@@ -67,6 +67,7 @@
 
     # Default language servers
     nodePackages.vscode-langservers-extracted
+    yaml-language-server
   ];
 
   home.sessionVariables = {
