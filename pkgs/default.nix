@@ -26,19 +26,6 @@ in
     src = inputs.telescope-fzf-native;
   };
 
-  # Enable experimental shell completion for Jujutsu
-  jujutsu = prev.jujutsu.overrideAttrs (old: {
-    postInstall = ''
-      $out/bin/jj util mangen > ./jj.1
-      installManPage ./jj.1
-
-      installShellCompletion --cmd jj \
-        --bash <(COMPLETE=bash $out/bin/jj) \
-        --fish <(COMPLETE=fish $out/bin/jj) \
-        --zsh <(COMPLETE=zsh $out/bin/jj)
-    '';
-  });
-
   clop = prev.callPackage ./darwin/clop.nix { };
   cleanshot = prev.callPackage ./darwin/cleanshot.nix { };
   dark-notify = prev.callPackage ./darwin/dark-notify.nix {
