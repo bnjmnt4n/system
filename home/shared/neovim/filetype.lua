@@ -1,7 +1,6 @@
 vim.filetype.add {
   extension = {
     astro = 'astro',
-    jjdescription = 'jjdescription',
   },
   filename = {
     ['.eslintrc.json'] = 'jsonc',

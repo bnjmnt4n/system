@@ -61,16 +61,9 @@ let
     "yaml"
     "zig"
   ];
-  jjdescriptionGrammar = pkgs.tree-sitter.buildGrammar {
-    language = "jjdescription";
-    version = "0.0.0+rev=${inputs.tree-sitter-jjdescription.rev}";
-    src = inputs.tree-sitter-jjdescription;
-    meta.homepage = "https://github.com/kareigu/tree-sitter-jjdescription";
-  };
   # Ensure that the same version of nvim-treesitter is used to get the parsers and queries.
   nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (pkgs:
-    (map (language: pkgs.${language}) treeSitterLanguages) ++
-    [ jjdescriptionGrammar ]
+    (map (language: pkgs.${language}) treeSitterLanguages)
   );
   treesitter-parsers = pkgs.symlinkJoin {
     name = "treesitter-parsers";
