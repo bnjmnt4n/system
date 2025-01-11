@@ -55,7 +55,9 @@
     fi
 
     ${pkgs.jujutsu}/bin/jj git clone --colocate "git@github.com:$1.git" $1
-    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo "template-aliases.'get_repository_github_url()'" "\"'https://github.com/$1'\""
+    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo repo.github-url "https://github.com/$1"
+    TRUNK=$(${pkgs.jujutsu}/bin/jj --repository $1 config get "revset-aliases.'trunk()'")
+    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo "revset-aliases.'trunk()'" "present($TRUNK)"
   '';
 
   setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''

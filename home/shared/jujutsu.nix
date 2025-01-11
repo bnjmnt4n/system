@@ -18,6 +18,8 @@
         auto-update-stale = true;
         auto-track = "glob:'**/*.*'";
       };
+      # Used to link to repository branches and commits.
+      repo.github-url = "";
       templates = {
         log = "log_compact";
         log_node = ''
@@ -40,16 +42,16 @@
               label("bookmark", name ++ "@" ++ remote) ++ format_ref_targets(self),
             ),
             label("bookmark",
-              if(get_repository_github_url(),
-                hyperlink(concat(get_repository_github_url(), "/tree/", name), name),
+              if(config("repo.github-url").as_string(),
+                hyperlink(concat(config("repo.github-url").as_string(), "/tree/", name), name),
                 name)) ++
             if(present, format_ref_targets(self), " (deleted)"),
           ) ++ "\n"
         '';
         tag_list = ''
           label("tag",
-            if(get_repository_github_url(),
-              hyperlink(concat(get_repository_github_url(), "/releases/tag/", name), name),
+            if(config("repo.github-url").as_string(),
+              hyperlink(concat(config("repo.github-url").as_string(), "/releases/tag/", name), name),
               name)) ++
           format_ref_targets(self) ++ "\n"
         '';
@@ -58,8 +60,6 @@
         show = "log_detailed";
       };
       template-aliases = {
-        # Used to link to repository branches and commits.
-        "get_repository_github_url()" = "''";
         "hyperlink(url, text)" = ''
           raw_escape_sequence("\e]8;;" ++ url ++ "\e\\") ++
           text ++
@@ -134,18 +134,18 @@
           )
         '';
         "format_commit_id(commit)" = ''
-          if(get_repository_github_url() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(config("repo.github-url").as_string() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(get_repository_github_url(), "/commit/", commit.commit_id()),
+              concat(config("repo.github-url").as_string(), "/commit/", commit.commit_id()),
               format_short_commit_id(commit.commit_id()),
             ),
             format_short_commit_id(commit.commit_id()),
           )
         '';
         "format_long_commit_id(commit)" = ''
-          if(get_repository_github_url() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(config("repo.github-url").as_string() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(get_repository_github_url(), "/commit/", commit.commit_id()),
+              concat(config("repo.github-url").as_string(), "/commit/", commit.commit_id()),
               commit.commit_id(),
             ),
             commit.commit_id(),
@@ -187,11 +187,11 @@
         '';
         # TODO: This wrongly links to unpushed local bookmarks.
         "format_commit_bookmarks(bookmarks)" = ''
-          if(get_repository_github_url(),
+          if(config("repo.github-url").as_string(),
             bookmarks.map(
               |bookmark| if(
                 bookmark.remote() == "origin" || bookmark.remote() == "",
-                hyperlink(concat(get_repository_github_url(), "/tree/", bookmark.name()), bookmark),
+                hyperlink(concat(config("repo.github-url").as_string(), "/tree/", bookmark.name()), bookmark),
                 bookmark
               )
             ),
@@ -200,11 +200,11 @@
         '';
         # TODO: This wrongly links to unpushed local tags.
         "format_commit_tags(tags)" = ''
-          if(get_repository_github_url(),
+          if(config("repo.github-url").as_string(),
             tags.map(
               |tag| if(
                 tag.remote() == "origin" || tag.remote() == "",
-                hyperlink(concat(get_repository_github_url(), "/releases/tag/", tag.name()), tag),
+                hyperlink(concat(config("repo.github-url").as_string(), "/releases/tag/", tag.name()), tag),
                 tag
               )
             ),
@@ -304,6 +304,7 @@
             surround("Tags     : ", "\n", format_commit_tags(tags)),
             "Author   : " ++ format_detailed_signature(author) ++ "\n",
             "Committer: " ++ format_detailed_signature(committer)  ++ "\n",
+            if(signature, "Signature: " ++ format_detailed_cryptographic_signature(signature) ++ "\n"),
             "\n",
             indent("    ",
               coalesce(description, label(if(empty, "empty"), description_placeholder) ++ "\n")),
@@ -330,7 +331,7 @@
         "diverge(x)" = "fork_point(x)::x";
       };
       revsets = {
-        log = "ancestors(tree(@), 2) | trunk()";
+        log = "ancestors(unarchived(tree(@)), 2) | trunk()";
         simplify-parents = "reachable(@, ~ ::trunk())";
         short-prefixes = "trunk()..";
       };
@@ -406,11 +407,15 @@
         };
       };
       signing = {
-        sign-all = true;
         backend = "gpg";
         key = "A853F0716C413825";
       };
+      git.sign-on-push = true;
       fix.tools = {
+        alejandra = {
+          command = ["alejandra" "--quiet" "-"];
+          patterns = ["glob:'**/*.nix'"];
+        };
         rustfmt = {
           command = ["rustfmt" "--emit" "stdout"];
           patterns = ["glob:'**/*.rs'"];
