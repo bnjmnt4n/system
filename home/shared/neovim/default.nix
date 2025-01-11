@@ -150,7 +150,6 @@ in {
     [pkgs.dark-notify];
 
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
-  xdg.configFile."nvim/queries".source = ./queries;
 
   xdg.configFile."nvim/after".source = ./after;
   xdg.configFile."nvim/lua".source = ./lua;
