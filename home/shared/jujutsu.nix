@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -408,9 +412,9 @@
       };
       signing = {
         backend = "gpg";
-        key = "A853F0716C413825";
+        key = config.programs.gpg.settings.default-key;
       };
-      git.sign-on-push = true;
+      git.sign-on-push = config.programs.gpg.enable;
       fix.tools = {
         alejandra = {
           command = ["alejandra" "--quiet" "-"];

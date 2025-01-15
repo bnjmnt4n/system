@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   programs.git = {
     enable = true;
     package =
@@ -10,8 +14,8 @@
     lfs.enable = true;
 
     signing = {
-      key = "A853F0716C413825";
-      signByDefault = true;
+      key = config.programs.gpg.settings.default-key;
+      signByDefault = config.programs.gpg.enable;
     };
 
     ignores = [
@@ -124,14 +128,6 @@
       branch.sort = "-committerdate";
       tag.sort = "-taggerdate";
       transfer.fsckObjects = true;
-
-      "url \"git@github.com:\"" = {
-        insteadOf = "gh:";
-        # insteadOf = "https://github.com/";
-      };
-      "url \"git@gist.github.com:\"" = {
-        insteadOf = "gist:";
-      };
     };
   };
 
