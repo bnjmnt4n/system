@@ -414,7 +414,10 @@
         backend = "gpg";
         key = config.programs.gpg.settings.default-key;
       };
-      git.sign-on-push = config.programs.gpg.enable;
+      git = {
+        subprocess = true;
+        sign-on-push = config.programs.gpg.enable;
+      };
       fix.tools = {
         alejandra = {
           command = ["alejandra" "--quiet" "-"];
