@@ -7,7 +7,7 @@
     set -euo pipefail
     platform=$(uname)
     if [ "$platform" == "Darwin" ]; then
-      darwin-rebuild switch --flake . $@
+      sudo darwin-rebuild switch --flake . $@
     else
       sudo nixos-rebuild switch --flake . $@
     fi

@@ -1,6 +1,5 @@
 {pkgs, ...}: let
-  yaml = pkgs.substituteAll {
-    src = ./karabiner.yaml;
+  yaml = pkgs.replaceVars ./karabiner.yaml {
     firefox = "/Applications/Firefox.app";
     ghostty = "/Applications/Ghostty.app";
     spotify = "/Applications/Spotify.app";
