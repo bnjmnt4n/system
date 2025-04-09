@@ -22,6 +22,13 @@
         auto-update-stale = true;
         auto-track = "glob:'**/*.*'";
       };
+      signing = {
+        backend = "gpg";
+        key = config.programs.gpg.settings.default-key;
+        behavior = "drop";
+      };
+      git.sign-on-push = config.programs.gpg.enable;
+      hints.resolving-conflicts = false;
       # Used to link to repository branches and commits.
       repo.github-url = "";
       templates = {
@@ -215,9 +222,20 @@
             tags
           )
         '';
+        "format_short_signature(signature)" = ''
+          if(signature.email(),
+            hyperlink(concat("mailto:", signature.email()), signature.email()),
+            email_placeholder
+          )
+        '';
+        "format_detailed_signature(signature)" = ''
+          coalesce(signature.name(), name_placeholder)
+          ++ " <" ++ format_short_signature(signature) ++ ">"
+          ++ " (" ++ format_timestamp(signature.timestamp()) ++ ")"
+        '';
         draft_commit_description = ''
           concat(
-            description,
+            coalesce(description, "\n"),
             surround(
               "\nJJ: This commit contains the following changes:\n", "",
               indent("JJ:     ", diff.summary()),
@@ -226,13 +244,27 @@
         '';
         draft_commit_description_verbose = ''
           concat(
-            description,
+            coalesce(description, "\n"),
             surround(
               "\nJJ: This commit contains the following changes:\n", "",
               indent("JJ:     ", diff.summary()),
             ),
             surround("\nJJ: ignore-rest\n", "", diff.git()),
           )
+        '';
+        annotate_header = ''
+          if(first_line_in_hunk, surround("\n", "\n", separate("\n",
+            separate(" ",
+              format_short_change_id_with_hidden_and_divergent_info(commit),
+              format_commit_id(commit),
+              commit.description().first_line(),
+            ),
+            commit.committer().timestamp().local().format('%Y-%m-%d %H:%M:%S')
+            ++ " "
+            ++ commit.author(),
+          ))) ++
+          pad_start(4, line_number) ++ ": " ++
+          content
         '';
         log_oneline = ''
           if(root,
@@ -241,7 +273,10 @@
               separate(" ",
                 format_short_change_id_with_hidden_and_divergent_info(self),
                 format_commit_id(self),
-                if(author.email(), author.email().local(), email_placeholder),
+                if(author.email(),
+                  hyperlink(concat("mailto:", author.email()), author.email().local()),
+                  email_placeholder
+                ),
                 format_timestamp(committer.timestamp()),
                 format_commit_bookmarks(bookmarks),
                 format_commit_tags(tags),
@@ -327,6 +362,7 @@
         "tree(x)" = "reachable(x, ~ ::trunk())";
         "stack(x)" = "trunk()..x";
         "overview()" = "@ | ancestors(remote_bookmarks(), 2) | trunk() | root()";
+        "megamerge()" = "heads(trunk()..@ & (empty() | merges() | description(exact:'')) ~ @)";
         "my_unmerged()" = "mine() ~ ::trunk()";
         "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_bookmarks()";
         "not_pushed()" = "remote_bookmarks()..";
@@ -340,16 +376,37 @@
         short-prefixes = "trunk()..";
       };
       aliases = {
+        annotate = ["file" "annotate" "-T" "annotate_header"];
+        annotated = ["file" "annotate"];
         bl = ["bookmark" "list"];
-        conflicts = ["resolve" "--list" "-r"];
+        bump = ["describe" "--reset-author" "--no-edit"];
+        bumpt = ["describe" "--reset-author" "--no-edit" "tree(@)"];
+        conflicts = ["resolve" "--list"];
         d = ["diff"];
+        d- = ["diff" "-r" "@-"];
         dg = ["diff" "--tool" "idea"];
+        dg- = ["diff" "--tool" "idea" "-r" "@-"];
         dd = ["diff" "--git" "--config=ui.pager='delta'"];
+        dd- = ["diff" "--git" "--config=ui.pager='delta'" "-r" "@-"];
         ddl = ["diff" "--git" "--config=ui.pager='delta --line-numbers'"];
-        dt = ["diff" "--tool" "difftastic"];
+        ddl- = ["diff" "--git" "--config=ui.pager='delta --line-numbers'" "-r" "@-"];
+        dt = ["diff" "--tool" "difft"];
+        dt- = ["diff" "--tool" "difft" "-r" "@-"];
+        desc- = ["describe" "@-"];
         descd = ["describe" "--config=templates.draft_commit_description=draft_commit_description"];
+        descd- = ["describe" "--config=templates.draft_commit_description=draft_commit_description" "@-"];
         diffg = ["diff" "--tool" "idea"];
+        diffg- = ["diff" "--tool" "idea" "-r" "@-"];
+        diffedit- = ["diffedit" "-r" "@-"];
         diffeditg = ["diffedit" "--tool" "idea"];
+        diffeditg- = ["diffedit" "--tool" "idea" "-r" "@-"];
+        duplicateb = ["duplicate" "-B" "@"];
+        duplicatet = ["duplicate" "-d" "trunk()"];
+        duplicatem = ["duplicate" "-A" "trunk()" "-B" "megamerge()"];
+        g = ["git"];
+        gf = ["git" "fetch"];
+        gp = ["git" "push"];
+        jj = [];
         l = ["log"];
         la = ["log" "-r" "::@"];
         lar = ["log" "-r" "ancestors(mutable() & archived(), 2)"];
@@ -360,44 +417,34 @@
         lmur = ["log" "-r" "ancestors(unarchived(my_unmerged_remote()), 2) | trunk()"];
         lnp = ["log" "-r" "ancestors(unarchived(not_pushed()), 2) | trunk()"];
         ls = ["log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()"];
-        lp = ["log" "-T" "log_compact_no_summary" "--patch"];
         loneline = ["log" "-T" "log_oneline"];
+        lp = ["log" "-T" "log_compact_no_summary" "--patch"];
         lpatch = ["log" "-T" "log_compact_no_summary" "--patch"];
         lsummary = ["log" "-T" "log_compact_no_summary" "--summary"];
         n = ["new"];
+        newt = ["new" "trunk()"];
         s = ["show"];
         sg = ["show" "--tool" "idea"];
+        sg- = ["show" "--tool" "idea" "@-"];
         sp = ["show" "@-"];
+        s- = ["show" "@-"];
         showg = ["show" "--tool" "idea"];
+        showg- = ["show" "--tool" "idea" "@-"];
         summary = ["show" "--summary"];
+        summary- = ["show" "--summary" "@-"];
         sq = ["squash"];
-        g = ["git"];
-        gf = ["git" "fetch"];
-        gp = ["git" "push"];
-        abandon-merged = ["abandon" "trunk()..@ & empty() ~ @ ~ merges() ~ visible_heads()"];
-        bump = ["describe" "--reset-author" "--no-edit"];
-        bumpt = ["describe" "--reset-author" "--no-edit" "tree(@)"];
+        sq- = ["squash" "-r" "@-"];
         sync = ["rebase" "-d" "trunk()" "--skip-emptied"];
         synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied"];
+        rebaseb = ["rebase" "-B" "@"];
+        rebasem = ["rebase" "-A" "trunk()" "-B" "megamerge()"];
         rebaset = ["rebase" "-d" "trunk()"];
-        newt = ["new" "trunk()"];
+        revert- = ["revert" "-r" "@-"];
+        revertb = ["revert" "-B" "@"];
+        revertm = ["revert" "-A" "trunk()" "-B" "megamerge()"];
+        revertt = ["revert" "-d" "trunk()"];
       };
       merge-tools = {
-        difftastic = {
-          program = "${pkgs.difftastic}/bin/difft";
-          diff-args = ["--color=always" "$left" "$right"];
-          conflict-marker-style = "snapshot";
-        };
-        delta = {
-          program = "${pkgs.delta}/bin/delta";
-          diff-args = ["--color-only" "$left" "$right"];
-        };
-        mergiraf = {
-          program = "${pkgs.mergiraf}/bin/mergiraf";
-          merge-args = ["merge" "$base" "$left" "$right" "-o" "$output" "--fast"];
-          merge-conflict-exit-codes = [1];
-          conflict-marker-style = "git";
-        };
         idea = {
           program =
             if pkgs.stdenv.hostPlatform.isDarwin
@@ -409,14 +456,6 @@
           edit-args = ["diff" "$left" "$right"];
           merge-args = ["merge" "$left" "$right" "$base" "$output"];
         };
-      };
-      signing = {
-        backend = "gpg";
-        key = config.programs.gpg.settings.default-key;
-      };
-      git = {
-        subprocess = true;
-        sign-on-push = config.programs.gpg.enable;
       };
       fix.tools = {
         alejandra = {
