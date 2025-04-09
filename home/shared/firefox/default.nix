@@ -20,7 +20,7 @@
       default = {
         isDefault = true;
         userChrome = pkgs.lib.readFile ./userChrome.css;
-        extensions = with pkgs.nur.repos.rycee.firefox-addons;
+        extensions.packages = with pkgs.nur.repos.rycee.firefox-addons;
           [
             bitwarden
             decentraleyes
@@ -66,56 +66,56 @@
         };
         search = {
           force = true;
-          default = "DuckDuckGo";
+          default = "ddg";
           engines = {
             # Default search engines.
-            "DuckDuckGo".metaData.alias = "@d";
-            "Google".metaData.alias = "@g";
-            "Wikipedia (en)".metaData.alias = "@wk";
-            "Amazon.com".metaData.hidden = true;
-            "Bing".metaData.hidden = true;
-            "eBay".metaData.hidden = true;
+            "ddg".metaData.alias = "@d";
+            "google".metaData.alias = "@g";
+            "wikipedia".metaData.alias = "@wk";
+            "amazondotcom-us".metaData.hidden = true;
+            "bing".metaData.hidden = true;
+            "ebay".metaData.hidden = true;
 
             "YouTube" = {
               urls = [{template = "https://www.youtube.com/results?search_query={searchTerms}";}];
               definedAliases = ["@yt"];
-              iconUpdateURL = "https://www.youtube.com/favicon.ico";
+              icon = "https://www.youtube.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Code)" = {
               urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
               definedAliases = ["@ghc"];
-              iconUpdateURL = "https://github.com/favicon.ico";
+              icon = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Issues)" = {
               urls = [{template = "https://github.com/search?q={searchTerms}&type=issues";}];
               definedAliases = ["@ghi"];
-              iconUpdateURL = "https://github.com/favicon.ico";
+              icon = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "GitHub (Repositories)" = {
               urls = [{template = "https://github.com/search?q={searchTerms}&type=repositories";}];
               definedAliases = ["@ghr"];
-              iconUpdateURL = "https://github.com/favicon.ico";
+              icon = "https://github.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Twitter" = {
               urls = [{template = "https://twitter.com/search?q={searchTerms}";}];
               definedAliases = ["@tw"];
-              iconUpdateURL = "https://abs.twimg.com/favicons/favicon.ico";
+              icon = "https://abs.twimg.com/favicons/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Genius" = {
               urls = [{template = "https://genius.com/search?q={searchTerms}";}];
               definedAliases = ["@gen"];
-              iconUpdateURL = "https://genius.com/favicon.ico";
+              icon = "https://genius.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "Stack Overflow" = {
               urls = [{template = "https://stackoverflow.com/search?q={searchTerms}";}];
               definedAliases = ["@so"];
-              iconUpdateURL = "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico";
+              icon = "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "NixOS Packages" = {
@@ -141,27 +141,27 @@
             "npm" = {
               urls = [{template = "https://www.npmjs.com/search?q={searchTerms}";}];
               definedAliases = ["@npm"];
-              iconUpdateURL = "https://static.npmjs.com/favicon-16x16.png";
+              icon = "https://static-production.npmjs.com/b0f1a8318363185cc2ea6a40ac23eeb2.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "bundlephobia" = {
               urls = [{template = "https://bundlephobia.com/package/{searchTerms}";}];
               definedAliases = ["@bp"];
-              iconUpdateURL = "https://bundlephobia.com/favicon-32x32.png";
+              icon = "https://bundlephobia.com/favicon-32x32.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
             "caniuse" = {
               urls = [{template = "http://caniuse.com/?search={searchTerms}";}];
               definedAliases = ["@cani"];
-              iconUpdateURL = "https://caniuse.com/img/favicon-16.png";
+              icon = "https://caniuse.com/img/favicon-16.png";
               updateInterval = 24 * 60 * 60 * 1000;
             };
           };
           order = [
-            "DuckDuckGo"
-            "Google"
+            "ddg"
+            "google"
             "YouTube"
-            "Wikipedia (en)"
+            "wikipedia"
             "GitHub (Code)"
             "GitHub (Issues)"
             "GitHub (Repositories)"

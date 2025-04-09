@@ -45,15 +45,13 @@
     vlc-bin
   ];
 
-  services.nix-daemon.enable = true;
-
   services.karabiner-elements = {
     enable = true;
     package = pkgs.karabiner-elements;
   };
 
   # Use TouchID for `sudo`.
-  security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 
   system.defaults = {
     trackpad = {
