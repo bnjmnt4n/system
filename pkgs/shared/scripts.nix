@@ -49,15 +49,34 @@
       exit 1
     fi
 
-    if ! [[ $1 =~ ^[[:alnum:]_-]+/[[:alnum:]_.-]+$ ]]; then
+    url=$1
+    host=""
+    path=""
+
+    if [[ $url =~ ^[[:alnum:]_-]+/[[:alnum:]_.-]+$ ]]; then
+      host="github.com"
+      path=$url
+      url="git@github.com:$path.git"
+    elif [[ $url =~ ^https://([[:alnum:]_.-]+)/(.+)$ ]]; then
+      host="''${BASH_REMATCH[1]}"
+      path="''${BASH_REMATCH[2]%.git}"
+    elif [[ $url =~ ^(ssh://)?[[:alnum:]_-]+@([[:alnum:]_.-]+):(.+)$ ]]; then
+      host="''${BASH_REMATCH[2]}"
+      path="''${BASH_REMATCH[3]%.git}"
+    else
       echo "Usage: clone-repo username/repository"
       exit 1
     fi
 
-    ${pkgs.jujutsu}/bin/jj git clone --colocate "git@github.com:$1.git" $1
-    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo repo.github-url "https://github.com/$1"
-    TRUNK=$(${pkgs.jujutsu}/bin/jj --repository $1 config get "revset-aliases.'trunk()'")
-    ${pkgs.jujutsu}/bin/jj --repository $1 config set --repo "revset-aliases.'trunk()'" "present($TRUNK)"
+    repo_path="$host/$path"
+
+    cd "$HOME/code"
+    ${pkgs.jujutsu}/bin/jj git clone --colocate $url $repo_path
+    if [[ $host = "github.com" ]]; then
+      ${pkgs.jujutsu}/bin/jj --repository $repo_path config set --repo repo.github-url "https://github.com/$repo_path"
+    fi
+    trunk=$(${pkgs.jujutsu}/bin/jj --repository $repo_path config get "revset-aliases.'trunk()'")
+    ${pkgs.jujutsu}/bin/jj --repository $repo_path config set --repo "revset-aliases.'trunk()'" "present($trunk)"
   '';
 
   setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''

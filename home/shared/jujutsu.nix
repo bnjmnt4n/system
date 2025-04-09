@@ -201,7 +201,7 @@
           if(config("repo.github-url").as_string(),
             bookmarks.map(
               |bookmark| if(
-                bookmark.remote() == "origin" || bookmark.remote() == "",
+                bookmark.remote() == "origin" || !bookmark.remote(),
                 hyperlink(concat(config("repo.github-url").as_string(), "/tree/", bookmark.name()), bookmark),
                 bookmark
               )
@@ -214,7 +214,7 @@
           if(config("repo.github-url").as_string(),
             tags.map(
               |tag| if(
-                tag.remote() == "origin" || tag.remote() == "",
+                tag.remote() == "origin" || !tag.remote(),
                 hyperlink(concat(config("repo.github-url").as_string(), "/releases/tag/", tag.name()), tag),
                 tag
               )
@@ -376,6 +376,22 @@
         short-prefixes = "trunk()..";
       };
       aliases = {
+        add-parent = [
+          "util"
+          "exec"
+          "--"
+          "${pkgs.writeShellScriptBin "jj-add-parent" ''
+            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "all:$1-" -d $2
+          ''}/bin/jj-add-parent"
+        ];
+        remove-parent = [
+          "util"
+          "exec"
+          "--"
+          "${pkgs.writeShellScriptBin "jj-remove-parent" ''
+            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "all:$1- ~ $2"
+          ''}/bin/jj-remove-parent"
+        ];
         annotate = ["file" "annotate" "-T" "annotate_header"];
         annotated = ["file" "annotate"];
         bl = ["bookmark" "list"];
@@ -434,7 +450,7 @@
         summary- = ["show" "--summary" "@-"];
         sq = ["squash"];
         sq- = ["squash" "-r" "@-"];
-        sync = ["rebase" "-d" "trunk()" "--skip-emptied"];
+        sync = ["rebase" "-s" "roots(trunk()..@) & mutable()" "-d" "trunk()" "--skip-emptied"];
         synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied"];
         rebaseb = ["rebase" "-B" "@"];
         rebasem = ["rebase" "-A" "trunk()" "-B" "megamerge()"];
@@ -539,4 +555,8 @@
       };
     };
   };
+
+  home.packages = with pkgs; [
+    jjui
+  ];
 }

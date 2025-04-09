@@ -29,13 +29,15 @@
     ];
     casks = [
       "aldente"
-      "betterdisplay"
+      "bitwarden"
+      "calibre"
       "docker"
       "dropbox"
       "figma"
       "firefox"
       "ghostty"
       "handbrake"
+      "imageoptim"
       "mullvadvpn"
       "mullvad-browser"
       "google-chrome"
@@ -47,7 +49,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    monitorcontrol
     vlc-bin
   ];
 

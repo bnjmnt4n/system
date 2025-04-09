@@ -26,8 +26,8 @@
   # Bash shell.
   programs.bash.enable = true;
 
-  # Nushell.
-  programs.nushell.enable = true;
+  # # Nushell.
+  # programs.nushell.enable = true;
 
   # Switch environments easily.
   programs.direnv = {

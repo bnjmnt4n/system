@@ -26,6 +26,7 @@
     dos2unix
     eza
     fd
+    fdupes
     file
     fzf
     htop
