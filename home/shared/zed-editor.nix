@@ -1,27 +1,14 @@
-{...}: let
-  inlay_hints_lsp_initialization_options = {
-    preferences = {
-      includeInlayParameterNameHints = "all";
-      includeInlayParameterNameHintsWhenArgumentMatchesName = false;
-      includeInlayFunctionParameterTypeHints = true;
-      includeInlayVariableTypeHints = true;
-      includeInlayVariableTypeHintsWhenTypeMatchesName = false;
-      includeInlayPropertyDeclarationTypeHints = true;
-      includeInlayFunctionLikeReturnTypeHints = true;
-      includeInlayEnumMemberValueHints = true;
-    };
-  };
-in {
+{...}: {
   programs.zed-editor = {
     enable = true;
     extensions = [
-      "html"
-      "toml"
-      "git-firefly"
-      "sql"
-      "lua"
       "astro"
+      "git-firefly"
+      "html"
+      "lua"
       "nix"
+      "sql"
+      "toml"
     ];
 
     # https://zed.dev/docs/configuring-zed
@@ -33,12 +20,9 @@ in {
         use_smartcase_find = true;
         toggle_relative_line_numbers = true;
       };
-      cursor_blink = false;
-      buffer_font_size = 20;
-      buffer_font_family = "Iosevka";
-      buffer_font_features = {
-        calt = true;
-        liga = true;
+      load_direnv = "shell_hook";
+      features = {
+        edit_prediction_provider = "zed";
       };
       soft_wrap = "editor_width";
       relative_line_numbers = true;
@@ -51,9 +35,13 @@ in {
         show_type_hints = true;
         show_parameter_hints = true;
         show_other_hints = true;
+        edit_debounce_ms = 500;
       };
-      inline_completions = {
-        disabled_globs = [".env" "*.journal"];
+      edit_predictions = {
+        mode = "eager";
+        disabled_globs = [
+          "**/*.journal"
+        ];
       };
       languages = {
         JavaScript = {
@@ -76,40 +64,153 @@ in {
         rust-analyzer = {
           binary.path_lookup = true;
         };
-        typescript-language-server = {
-          initialization_options = inlay_hints_lsp_initialization_options;
-        };
-        vstls = {
-          initialization_options = inlay_hints_lsp_initialization_options;
+      };
+      diagnostics = {
+        enable = true;
+        inline = {
+          enabled = true;
+          padding = 4;
         };
       };
-      tab_bar.show = false;
-      gutter.code_actions = false;
-      project_panel.scrollbar.show = "never";
       assistant = {
         default_model = {
           provider = "zed.dev";
-          model = "claude-3-5-sonnet-latest";
+          model = "claude-3-7-sonnet-latest";
         };
         version = "2";
       };
-      calls.mute_on_join = true;
+      terminal.env = {
+        EDITOR = "zeditor --wait";
+        VISUAL = "zeditor --wait";
+      };
       telemetry = {
         diagnostics = false;
         metrics = false;
       };
+
+      # UI
+      cursor_blink = false;
+      buffer_font_size = 20;
+      buffer_font_family = "Iosevka";
+      buffer_font_features = {
+        calt = true;
+        liga = true;
+      };
+      theme = {
+        "mode" = "system";
+        "light" = "One Light";
+        "dark" = "One Dark";
+      };
+      gutter.code_actions = false;
+      project_panel.scrollbar.show = "never";
+      show_call_status_icon = false;
+      calls.mute_on_join = true;
       collaboration_panel.button = false;
       notification_panel.button = false;
-      chat_panel.button = false;
-      terminal.env = {
-        EDITOR = "zed --wait";
-        VISUAL = "zed --wait";
-      };
+      chat_panel.button = "when_in_call";
     };
 
     # For reference:
     # https://github.com/zed-industries/zed/blob/main/assets/keymaps/default-macos.json
     # https://github.com/zed-industries/zed/blob/main/assets/keymaps/vim.json
-    # userKeymaps = {};
+    userKeymaps = [
+      {
+        "context" = "EmptyPane || SharedScreen || Editor && VimControl && !VimWaiting && !menu";
+        "bindings" = {
+          "space space" = "file_finder::Toggle";
+          "space f f" = "file_finder::Toggle";
+          "space ," = "tab_switcher::Toggle";
+          "space /" = "workspace::NewSearch";
+          "space o l" = "workspace::ToggleLeftDock";
+          "space o r" = "workspace::ToggleRightDock";
+          "space o a" = "assistant::ToggleFocus";
+          "space o c" = "collab_panel::ToggleFocus";
+          "space o o" = "outline_panel::ToggleFocus";
+          "space o f" = "project_panel::ToggleFocus";
+          "space o p" = "projects::OpenRecent";
+          "space o t" = "terminal_panel::ToggleFocus";
+          "space g g" = "git::Diff";
+          "space w v" = "pane::SplitRight";
+          "space w h" = "workspace::ActivatePaneLeft";
+          "space w l" = "workspace::ActivatePaneRight";
+          "space w k" = "workspace::ActivatePaneUp";
+          "space w j" = "workspace::ActivatePaneDown";
+          "space w z" = "workspace::ToggleZoom";
+          "space q q" = "zed::Quit";
+          "ctrl-w z" = "workspace::ToggleZoom";
+          "ctrl-w t" = "terminal_panel::ToggleFocus";
+          "ctrl-`" = "workspace::ToggleBottomDock";
+        };
+      }
+      {
+        "context" = "Dock || Terminal || Editor";
+        "bindings" = {
+          "ctrl-h" = "workspace::ActivatePaneLeft";
+          "ctrl-l" = "workspace::ActivatePaneRight";
+          "ctrl-k" = "workspace::ActivatePaneUp";
+          "ctrl-j" = "workspace::ActivatePaneDown";
+          "ctrl-`" = "workspace::ToggleBottomDock";
+        };
+      }
+      {
+        "context" = "Editor && VimControl && !VimWaiting && !VimCount && !menu";
+        "bindings" = {
+          "j" = ["vim::Down" {"display_lines" = true;}];
+          "k" = ["vim::Up" {"display_lines" = true;}];
+        };
+      }
+      {
+        "context" = "Editor && VimControl && !VimWaiting && !menu";
+        "bindings" = {
+          "enter" = "editor::SelectLargerSyntaxNode";
+          "backspace" = "editor::SelectSmallerSyntaxNode";
+          "g p d" = "editor::GoToDefinitionSplit";
+          "g p t" = "editor::GoToTypeDefinitionSplit";
+          "g r" = "editor::FindAllReferences";
+          "shift-k" = "editor::Hover";
+          "alt-j" = "editor::MoveLineDown";
+          "alt-k" = "editor::MoveLineUp";
+          "ctrl-]" = "editor::NextEditPrediction";
+          "ctrl-[" = "editor::PreviousEditPrediction";
+          "space c a" = "editor::ToggleCodeActions";
+          "space c f" = "editor::Format";
+          "space c r" = "editor::Rename";
+          "space f s" = "workspace::Save";
+          "space h b" = "git::Blame";
+          "space d" = "diagnostics::Deploy";
+          "space g y" = "editor::CopyPermalinkToLine";
+          "space g shift-y" = "editor::OpenPermalinkToLine";
+        };
+      }
+      {
+        "context" = "vim_mode == insert && !menu";
+        "bindings" = {
+          "ctrl-]" = "editor::NextEditPrediction";
+          "ctrl-[" = "editor::PreviousEditPrediction";
+          "ctrl-n" = "editor::ShowCompletions";
+        };
+      }
+      {
+        "context" = "vim_mode == visual";
+        "bindings" = {
+          "shift-s" = ["vim::PushAddSurrounds" {}];
+        };
+      }
+      {
+        "context" = "Terminal";
+        "bindings" = {
+          "ctrl-u" = "terminal::Clear";
+        };
+      }
+      {
+        "context" = "OutlinePanel && not_editing";
+        "bindings" = {
+          "j" = "menu::SelectNext";
+          "k" = "menu::SelectPrevious";
+          "shift-g" = "menu::SelectLast";
+          "g g" = "menu::SelectFirst";
+        };
+      }
+    ];
   };
 }
