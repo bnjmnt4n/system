@@ -19,6 +19,7 @@ in {
     ../../home/shared/shell.nix
     ../../home/shared/atuin.nix
     ../../home/shared/bat.nix
+    ../../home/shared/firefox.nix
     ../../home/shared/git.nix
     ../../home/shared/gpg.nix
     ../../home/shared/helix.nix
@@ -28,12 +29,10 @@ in {
     ../../home/shared/zed-editor.nix
 
     ../../home/shared/ghostty
-    ../../home/shared/firefox
   ];
 
   home.packages = with pkgs; [
     ffmpeg
-    gg-jj
     jetbrains.idea-community
     restic
     yt-dlp
@@ -50,7 +49,6 @@ in {
   };
 
   # Shell aliases.
-  programs.fish.shellAliases.gg = "gg &; disown";
   programs.fish.shellAliases.setup-restic-env = "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
   home.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 

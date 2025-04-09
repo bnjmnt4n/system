@@ -49,7 +49,7 @@
       exit 1
     fi
 
-    if ! [[ $1 =~ ^[[:alnum:]_-]+/[[:alnum:]_-]+$ ]]; then
+    if ! [[ $1 =~ ^[[:alnum:]_-]+/[[:alnum:]_.-]+$ ]]; then
       echo "Usage: clone-repo username/repository"
       exit 1
     fi

@@ -106,27 +106,37 @@
     };
 
     extraConfig = {
+      column.ui = "auto";
       init.defaultBranch = "main";
+      fetch = {
+        prune = true;
+        pruneTags = true;
+      };
+      pull.rebase = "interactive";
       push = {
         autoSetupRemote = true;
         followTags = true;
       };
-      pull.rebase = "interactive";
       rebase = {
         updateRefs = true;
         autoSquash = true;
         autoStash = true;
       };
-      rerere.enabled = true;
-      diff.algorithm = "histogram";
-      merge.conflictStyle = "zdiff3";
-
-      fetch = {
-        prune = true;
-        pruneTags = true;
+      rerere = {
+        enabled = true;
+        autoupdate = true;
       };
+      diff = {
+        algorithm = "histogram";
+        colorMoved = "plain";
+        mnemonicPrefix = true;
+        renames = true;
+      };
+      merge.conflictStyle = "zdiff3";
+      commit.verbose = true;
+
       branch.sort = "-committerdate";
-      tag.sort = "-taggerdate";
+      tag.sort = "version:refname";
       transfer.fsckObjects = true;
     };
   };

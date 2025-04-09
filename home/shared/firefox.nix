@@ -8,10 +8,10 @@
     package =
       if pkgs.stdenv.hostPlatform.isDarwin
       # Installed in `environment.systemPackages` for Darwin.
-      then pkgs.emptyDirectory
+      then null
       else pkgs.firefox;
 
-    policies = {
+    policies = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
       EnterprisePoliciesEnabled = true;
       DisableAppUpdate = true;
     };
@@ -19,14 +19,11 @@
     profiles = {
       default = {
         isDefault = true;
-        userChrome = pkgs.lib.readFile ./userChrome.css;
         extensions.packages = with pkgs.nur.repos.rycee.firefox-addons;
           [
             bitwarden
-            decentraleyes
             multi-account-containers
             temporary-containers
-            privacy-badger
             react-devtools
             ublock-origin
             vimium
@@ -40,29 +37,38 @@
               ]
           );
         settings = {
-          "app.update.auto" = false;
+          "app.update.auto" = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) false;
+          "browser.shell.checkDefaultBrowser" = false;
           "browser.startup.page" = 3; # Restore previous tabs
-          "browser.ctrlTab.recentlyUsedOrder" = false;
-          "browser.search.hiddenOneOffs" = "";
+          "browser.aboutConfig.showWarning" = false;
+
+          # Disabled features
           "browser.urlbar.suggest.searches" = false;
-          "browser.uidensity" = 1; # Compact density
           "experiments.activeExperiment" = false;
           "experiments.enabled" = false;
           "experiments.supported" = false;
-          "extensions.pocket.enabled" = false;
           "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+
+          # Accessibility
+          "findbar.highlightAll" = true;
+          "browser.ctrlTab.recentlyUsedOrder" = false;
+          "browser.tabs.insertAfterCurrent" = true;
+          "browser.bookmarks.openInTabClosesMenu" = false;
+          "browser.search.context.loadInBackground" = true;
+
+          # Privacy
+          "browser.send_pings" = false;
+          "dom.battery.enabled" = false;
+          "dom.security.https_only_mode" = true;
+          "extensions.pocket.enabled" = false;
+          "datareporting.healthreport.uploadEnabled" = false;
+          "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features" = false;
+          "browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons" = false;
+          "network.captive-portal-service.enabled" = false;
 
           # Reduce File IO / SSD abuse.
           # This forces it to write every 1 minute, rather than 15 seconds.
           "browser.sessionstore.interval" = "60000";
-
-          # TODO: Make Linux only
-          # Hardware acceleration related settings.
-          # "gfx.webrender.all" = true;
-          # "widget.wayland-dmabuf-vaapi.enabled" = true;
-          # "media.ffmpeg.vaapi.enabled" = true;
-          # "media.ffmpeg.vaapi-drm-display.enabled" = true;
         };
         search = {
           force = true;

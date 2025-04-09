@@ -44,9 +44,10 @@
     mergiraf
 
     # Code tools
-    # ast-grep
+    ast-grep
     codespell
     git-sizer
+    git-who
     # comby
     tokei
     scripts.cloneRepo

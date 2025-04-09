@@ -12,7 +12,7 @@
     in {
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
-          nodejs_20
+          nodejs
           prettierd
           nodePackages.vscode-langservers-extracted
           nodePackages."@tailwindcss/language-server"

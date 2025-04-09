@@ -12,6 +12,11 @@ in {
     jetbrains
     ;
 
+  # Avoid running tests since they take a long time.
+  jujutsu = prev.jujutsu.overrideAttrs (old: {
+    doCheck = false;
+  });
+
   # Karabiner Elements 15.0 is not supported yet in nix-darwin.
   # https://github.com/LnL7/nix-darwin/issues/1041
   karabiner-elements = prev.karabiner-elements.overrideAttrs (old: {

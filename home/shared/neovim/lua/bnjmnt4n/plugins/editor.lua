@@ -17,6 +17,15 @@ return {
     },
   },
 
+  -- Undo tree
+  {
+    'mbbill/undotree',
+    cmd = 'GitLink',
+    keys = {
+      { '<leader>tu', '<cmd>UndotreeToggle<cr>', desc = 'Toggle undotree' },
+    },
+  },
+
   -- Git links
   {
     'linrongbin16/gitlinker.nvim',

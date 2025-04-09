@@ -23,6 +23,9 @@
       upgrade = true;
     };
     global.brewfile = true;
+    brews = [
+      "comby" # Currently broken on darwin
+    ];
     casks = [
       "aldente"
       "betterdisplay"
@@ -33,9 +36,11 @@
       "ghostty"
       "handbrake"
       "mullvadvpn"
+      "mullvad-browser"
       "google-chrome"
       "safari-technology-preview"
       "spotify"
+      "tor-browser"
       "transmission"
     ];
   };
@@ -54,6 +59,11 @@
   security.pam.services.sudo_local.touchIdAuth = true;
 
   system.defaults = {
+    NSGlobalDomain = {
+      NSDocumentSaveNewDocumentsToCloud = false;
+      # Full keyboard control.
+      AppleKeyboardUIMode = 3;
+    };
     trackpad = {
       Clicking = true;
       TrackpadRightClick = true;
@@ -61,17 +71,21 @@
     dock = {
       autohide = true;
       show-recents = false;
-      tilesize = 72;
+      tilesize = 64;
       showhidden = true;
       mru-spaces = false;
       persistent-apps = [
+        {spacer = {small = true;};}
         "/Applications/Firefox.app/"
-        "/Applications/Ghostty.app/"
-        "${pkgs.zed-editor}/Applications/Zed.app/"
-        "/Applications/Figma.app/"
-        "/Applications/Spotify.app/"
+        "/Applications/Mullvad Browser.app/"
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"
+        {spacer = {small = true;};}
+        "/Applications/Ghostty.app/"
+        "${pkgs.zed-editor}/Applications/Zed.app/"
+        {spacer = {small = true;};}
+        "/Applications/Figma.app/"
+        "/Applications/Spotify.app/"
       ];
     };
   };

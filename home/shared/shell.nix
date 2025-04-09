@@ -32,7 +32,6 @@
   # Switch environments easily.
   programs.direnv = {
     enable = true;
-    enableBashIntegration = true;
 
     nix-direnv.enable = true;
     stdlib = pkgs.lib.readFile ./.direnvrc;
@@ -44,8 +43,6 @@
   # Fast Rust-powered shell prompt.
   programs.starship = {
     enable = true;
-    enableBashIntegration = true;
-    enableFishIntegration = true;
     settings = {
       format = "$all$linebreak$character";
       # Add indicator for bash shell.
@@ -62,7 +59,5 @@
   # Directory switcher.
   programs.zoxide = {
     enable = true;
-    enableBashIntegration = true;
-    enableFishIntegration = true;
   };
 }
