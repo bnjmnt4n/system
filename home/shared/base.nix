@@ -49,6 +49,7 @@
     codespell
     git-sizer
     git-who
+    gh-pr-versions
     # comby
     tokei
     scripts.cloneRepo

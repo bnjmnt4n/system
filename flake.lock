@@ -210,6 +210,26 @@
         "type": "indirect"
       }
     },
+    "gh-pr-versions": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1747904707,
+        "narHash": "sha256-44jwuxfOIaKVfu+TqfGALz7tdMq5pMnHcCDheKqjFuY=",
+        "owner": "bnjmnt4n",
+        "repo": "gh-pr-versions",
+        "rev": "fc864fb63e5d6138aea85980cb3af2f05bc860d0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bnjmnt4n",
+        "repo": "gh-pr-versions",
+        "type": "github"
+      }
+    },
     "git-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -591,6 +611,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "gh-pr-versions": "gh-pr-versions",
         "home-manager": "home-manager_2",
         "jujutsu": "jujutsu",
         "lazy-nvim": "lazy-nvim",
