@@ -15,9 +15,6 @@ vim.diagnostic.config {
   virtual_lines = true,
   signs = signs,
   severity_sort = true,
-  float = {
-    border = 'rounded',
-  },
 }
 
 -- FIX: https://github.com/folke/lazy.nvim/issues/620
@@ -35,9 +32,7 @@ M.inlay_hint_disabled_filetypes = {
 local function on_attach(client, bufnr)
   -- Only override default "K" and "gd" keymaps if LSP supports the corresponding methods.
   if client:supports_method(methods.textDocument_hover) then
-    vim.keymap.set('n', 'K', function()
-      vim.lsp.buf.hover { border = 'rounded' }
-    end, { buffer = bufnr, desc = 'Hover' })
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = bufnr, desc = 'Hover' })
   end
   if client:supports_method(methods.textDocument_definition) then
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { buffer = bufnr, desc = 'Go to definition' })

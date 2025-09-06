@@ -54,3 +54,6 @@ vim.opt.fillchars = {
   foldsep = ' ',
   foldclose = '',
 }
+
+-- Border for floating windows
+vim.o.winborder = 'rounded'

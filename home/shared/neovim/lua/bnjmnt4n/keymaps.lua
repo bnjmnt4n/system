@@ -265,7 +265,6 @@ lmap({ 'i', 's' }, '<c-k>', function()
     require('blink.cmp').hide()
   end
   vim.lsp.buf.signature_help {
-    border = 'rounded',
     focusable = false,
   }
 end, { desc = 'Signature help' })

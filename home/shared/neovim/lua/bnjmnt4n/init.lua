@@ -13,7 +13,6 @@ require 'bnjmnt4n.lsp'
 
 -- Load plugins
 require('lazy').setup('bnjmnt4n.plugins', {
-  ui = { border = 'rounded' },
   change_detection = { notify = false },
   performance = {
     rtp = {

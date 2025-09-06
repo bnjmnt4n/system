@@ -233,15 +233,6 @@ return {
     'mrcjkb/rustaceanvim',
     version = '^5',
     lazy = false,
-    init = function()
-      vim.g.rustaceanvim = {
-        tools = {
-          float_win_config = {
-            border = 'rounded',
-          },
-        },
-      }
-    end,
   },
 
   -- JSON schemas
