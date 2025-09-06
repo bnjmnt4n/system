@@ -35,10 +35,6 @@ return {
       },
     },
     config = function()
-      local runtime_path = vim.split(package.path, ';')
-      table.insert(runtime_path, 'lua/?.lua')
-      table.insert(runtime_path, 'lua/?/init.lua')
-
       local servers = {
         astro = {},
         clangd = {},
@@ -64,7 +60,9 @@ return {
               format = { enable = false },
             },
           },
-          on_new_config = function(config)
+          before_init = function(_, config)
+            -- Can't assign new table because of
+            -- https://github.com/neovim/neovim/issues/27740#issuecomment-1978629315
             config.settings.json.schemas = config.settings.json.schemas or {}
             vim.list_extend(config.settings.json.schemas, require('schemastore').json.schemas())
           end,
@@ -74,16 +72,17 @@ return {
             Lua = {
               runtime = {
                 version = 'LuaJIT',
-                path = runtime_path,
-              },
-              diagnostics = {
-                globals = {
-                  'vim', -- Neovim
+                path = {
+                  'lua/?.lua',
+                  'lua/?/init.lua',
                 },
               },
               workspace = {
-                library = vim.api.nvim_get_runtime_file('', true),
                 checkThirdParty = false,
+                library = {
+                  vim.env.VIMRUNTIME,
+                  vim.api.nvim_get_runtime_file('', true),
+                },
               },
               format = { enable = false },
               telemetry = { enable = false },
@@ -128,7 +127,9 @@ return {
               },
             },
           },
-          on_new_config = function(config)
+          before_init = function(_, config)
+            -- Can't assign new table because of
+            -- https://github.com/neovim/neovim/issues/27740#issuecomment-1978629315
             config.settings.yaml.schemas = config.settings.yaml.schemas or {}
             vim.list_extend(config.settings.yaml.schemas, require('schemastore').yaml.schemas())
           end,
@@ -136,15 +137,18 @@ return {
         zls = {},
       }
 
-      local nvim_lsp = require 'lspconfig'
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
 
       for server, settings in pairs(servers) do
-        nvim_lsp[server].setup(vim.tbl_deep_extend('error', {
-          capabilities = capabilities,
-          silent = true,
-        }, settings))
+        vim.lsp.config(
+          server,
+          vim.tbl_deep_extend('error', {
+            capabilities = capabilities,
+            silent = true,
+          }, settings)
+        )
+        vim.lsp.enable(server)
       end
     end,
   },
@@ -165,6 +169,7 @@ return {
   {
     'smjonas/inc-rename.nvim',
     config = true,
+    cmd = 'IncRename',
     keys = {
       {
         '<leader>cr',

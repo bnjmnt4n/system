@@ -172,7 +172,7 @@ return {
 
   -- Improved text-objects
   {
-    'echasnovski/mini.ai',
+    'nvim-mini/mini.ai',
     event = 'VeryLazy',
     dependencies = 'nvim-treesitter/nvim-treesitter-textobjects',
     opts = function()
@@ -354,7 +354,7 @@ return {
         auto_trigger = false,
         keymap = {
           -- Handled in <tab> keybinding in blink.cmp configuration.
-          accept = false,
+          -- accept = false,
           accept = '<m-enter>',
           accept_word = '<m-w>',
           accept_line = '<m-l>',
@@ -392,7 +392,7 @@ return {
 
   -- Auto pairs
   {
-    'echasnovski/mini.pairs',
+    'nvim-mini/mini.pairs',
     event = 'InsertEnter',
     config = true,
   },
