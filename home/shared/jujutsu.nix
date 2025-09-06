@@ -38,9 +38,9 @@
             if(!self, label("elided", "⇋")),
             if(current_working_copy, label("working_copy", "@")),
             if(immutable, label("immutable", "◆")),
-            if(conflict, label("conflict", "×")),
+            if(conflict, label("conflicted", "×")),
             if(is_wip_commit_description(description), label("wip", "○")),
-            "○"
+            label("mutable", "○"),
           )
         '';
         bookmark_list = ''
@@ -95,8 +95,9 @@
               if(commit.current_working_copy(), "working_copy"),
               if(commit.contained_in("trunk()"), "trunk"),
               if(commit.immutable(), "immutable"),
-              if(commit.conflict(), "conflict"),
+              if(commit.conflict(), "conflicted"),
               if(is_wip_commit_description(commit.description()), "wip"),
+              "mutable",
             ),
             if(commit.hidden(),
               label("hidden",
@@ -121,7 +122,7 @@
             if(commit.empty(),
               label(
                 separate(" ",
-                  if(commit.immutable(), "immutable"),
+                  if(commit.immutable(), "immutable", "mutable"),
                   if(commit.hidden(), "hidden"),
                   if(commit.contained_in("trunk()"), "trunk"),
                   if(is_wip_commit_description(commit.description()), "wip"),
@@ -133,11 +134,13 @@
             if(commit.description(),
               label(
                 separate(" ",
+                  if(commit.immutable(), "immutable", "mutable"),
                   if(commit.contained_in("trunk()"), "trunk"),
                   if(is_wip_commit_description(commit.description()), "wip")),
                 commit.description().first_line()),
               label(
                 separate(" ",
+                  if(commit.immutable(), "immutable", "mutable"),
                   if(commit.contained_in("trunk()"), "trunk"),
                   "wip",
                   if(commit.empty(), "empty")),
@@ -177,7 +180,7 @@
             format_short_change_id_with_hidden_and_divergent_info(commit),
             format_commit_id(commit),
             separate(" ",
-              if(commit.conflict(), label("conflict", "(conflict)")),
+              if(commit.conflict(), label("conflicted", "(conflict)")),
               format_commit_description(commit),
             ),
           )
@@ -190,7 +193,7 @@
               format_commit_bookmarks(bookmarks),
               format_commit_tags(tags),
               separate(" ",
-                if(commit.conflict(), label("conflict", "(conflict)")),
+                if(commit.conflict(), label("conflicted", "(conflict)")),
                 format_commit_description(commit),
               ),
             ),
@@ -236,7 +239,9 @@
         draft_commit_description = ''
           concat(
             coalesce(description, "\n"),
+            "\nJJ: Change ID: " ++ format_short_change_id(change_id),
             surround(
+              "\nJJ:" ++
               "\nJJ: This commit contains the following changes:\n", "",
               indent("JJ:     ", diff.summary()),
             ),
@@ -245,7 +250,9 @@
         draft_commit_description_verbose = ''
           concat(
             coalesce(description, "\n"),
+            "\nJJ: Change ID: " ++ format_short_change_id(change_id),
             surround(
+              "\nJJ:" ++
               "\nJJ: This commit contains the following changes:\n", "",
               indent("JJ:     ", diff.summary()),
             ),
@@ -346,7 +353,9 @@
             if(signature, "Signature: " ++ format_detailed_cryptographic_signature(signature) ++ "\n"),
             "\n",
             indent("    ",
-              coalesce(description, label(if(empty, "empty"), description_placeholder) ++ "\n")),
+              if(description,
+                description.trim_end(),
+                label(if(empty, "empty"), description_placeholder)) ++ "\n"),
             "\n",
           )
         '';
@@ -362,7 +371,7 @@
         "tree(x)" = "reachable(x, ~ ::trunk())";
         "stack(x)" = "trunk()..x";
         "overview()" = "@ | ancestors(remote_bookmarks(), 2) | trunk() | root()";
-        "megamerge()" = "heads(trunk()..@ & (empty() | merges() | description(exact:'')) ~ @)";
+        "megamerge()" = "heads(trunk()..@ & coalesce(merges(), empty() | description(exact:'')) ~ @)";
         "my_unmerged()" = "mine() ~ ::trunk()";
         "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_bookmarks()";
         "not_pushed()" = "remote_bookmarks()..";
@@ -372,7 +381,8 @@
       };
       revsets = {
         log = "ancestors(unarchived(tree(@)), 2) | trunk()";
-        simplify-parents = "reachable(@, ~ ::trunk())";
+        fix = "unarchived(tree(@))";
+        simplify-parents = "unarchived(tree(@))";
         short-prefixes = "trunk()..";
       };
       aliases = {
@@ -381,7 +391,7 @@
           "exec"
           "--"
           "${pkgs.writeShellScriptBin "jj-add-parent" ''
-            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "all:$1-" -d $2
+            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "$1-" -d $2
           ''}/bin/jj-add-parent"
         ];
         remove-parent = [
@@ -389,14 +399,24 @@
           "exec"
           "--"
           "${pkgs.writeShellScriptBin "jj-remove-parent" ''
-            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "all:$1- ~ $2"
+            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "$1- ~ $2"
           ''}/bin/jj-remove-parent"
         ];
+        toggle-parent = [
+          "util"
+          "exec"
+          "--"
+          "${pkgs.writeShellScriptBin "jj-toggle-parent" ''
+            ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "($1- | $2) ~ ($1- & $2)"
+          ''}/bin/jj-remove-parent"
+        ];
+        absorb- = ["absorb" "-f" "@-"];
         annotate = ["file" "annotate" "-T" "annotate_header"];
         annotated = ["file" "annotate"];
         bl = ["bookmark" "list"];
-        bump = ["describe" "--reset-author" "--no-edit"];
-        bumpt = ["describe" "--reset-author" "--no-edit" "tree(@)"];
+        bump = ["metaedit" "--update-author" "--update-author-timestamp"];
+        bump- = ["metaedit" "--update-author" "--update-author-timestamp" "@-"];
+        bumpt = ["metaedit" "--update-author" "--update-author-timestamp" "tree(@)"];
         conflicts = ["resolve" "--list"];
         d = ["diff"];
         d- = ["diff" "-r" "@-"];
@@ -411,6 +431,7 @@
         desc- = ["describe" "@-"];
         descd = ["describe" "--config=templates.draft_commit_description=draft_commit_description"];
         descd- = ["describe" "--config=templates.draft_commit_description=draft_commit_description" "@-"];
+        desct = ["describe" "tree(@)"];
         diffg = ["diff" "--tool" "idea"];
         diffg- = ["diff" "--tool" "idea" "-r" "@-"];
         diffedit- = ["diffedit" "-r" "@-"];
@@ -419,6 +440,7 @@
         duplicateb = ["duplicate" "-B" "@"];
         duplicatet = ["duplicate" "-d" "trunk()"];
         duplicatem = ["duplicate" "-A" "trunk()" "-B" "megamerge()"];
+        edit- = ["edit" "@-"];
         g = ["git"];
         gf = ["git" "fetch"];
         gp = ["git" "push"];
@@ -438,7 +460,9 @@
         lpatch = ["log" "-T" "log_compact_no_summary" "--patch"];
         lsummary = ["log" "-T" "log_compact_no_summary" "--summary"];
         n = ["new"];
+        n- = ["new" "@-"];
         newt = ["new" "trunk()"];
+        new- = ["new" "@-"];
         s = ["show"];
         sg = ["show" "--tool" "idea"];
         sg- = ["show" "--tool" "idea" "@-"];
@@ -448,8 +472,11 @@
         showg- = ["show" "--tool" "idea" "@-"];
         summary = ["show" "--summary"];
         summary- = ["show" "--summary" "@-"];
+        split- = ["split" "-r" "@-"];
+        splitb = ["split" "-B" "@"];
         sq = ["squash"];
         sq- = ["squash" "-r" "@-"];
+        squash- = ["squash" "-r" "@-"];
         sync = ["rebase" "-s" "roots(trunk()..@) & mutable()" "-d" "trunk()" "--skip-emptied"];
         synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied"];
         rebaseb = ["rebase" "-B" "@"];
@@ -479,7 +506,7 @@
           patterns = ["glob:'**/*.nix'"];
         };
         rustfmt = {
-          command = ["rustfmt" "--emit" "stdout"];
+          command = ["rustfmt"];
           patterns = ["glob:'**/*.rs'"];
         };
         prettier = {
@@ -493,8 +520,9 @@
         "trunk change_id" = "cyan";
         "working_copy change_id" = "green";
         "immutable change_id" = "default";
-        "conflict change_id" = "red";
+        "conflicted change_id" = "red";
         "wip change_id" = "yellow";
+        "mutable wip change_id" = "yellow";
         "hidden change_id" = "black";
 
         # Commit IDs.
