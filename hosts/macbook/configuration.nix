@@ -31,13 +31,15 @@
       "aldente"
       "bitwarden"
       "calibre"
-      "docker"
+      "cursor"
+      # "docker"
       "dropbox"
       "figma"
       "firefox"
       "ghostty"
-      "handbrake"
+      # "handbrake"
       "imageoptim"
+      "monodraw"
       "mullvad-browser"
       "mullvad-vpn"
       "google-chrome"
@@ -45,12 +47,9 @@
       "spotify"
       "tor-browser"
       "transmission"
+      "vlc"
     ];
   };
-
-  environment.systemPackages = with pkgs; [
-    vlc-bin
-  ];
 
   services.karabiner-elements = {
     enable = true;
