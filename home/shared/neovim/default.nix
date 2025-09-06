@@ -145,10 +145,6 @@ in {
     '';
   };
 
-  home.packages =
-    lib.mkIf (pkgs.stdenv.hostPlatform.isDarwin)
-    [pkgs.dark-notify];
-
   xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
 
   xdg.configFile."nvim/after".source = ./after;

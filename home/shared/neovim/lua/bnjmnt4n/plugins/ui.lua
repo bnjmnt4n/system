@@ -51,15 +51,6 @@ return {
   -- Terminal background color sync
   'typicode/bg.nvim',
 
-  -- Dark mode detection
-  {
-    'cormacrelf/dark-notify',
-    config = function()
-      require('dark_notify').run()
-    end,
-    enabled = vim.g.is_mac,
-  },
-
   -- Statusline
   {
     'nvim-lualine/lualine.nvim',
