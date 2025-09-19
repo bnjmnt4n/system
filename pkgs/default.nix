@@ -6,11 +6,6 @@ in {
     inherit inputs;
   };
   inherit nixpkgs-stable;
-  inherit
-    (nixpkgs-stable)
-    # IDEA Community's merge tool seems to be missing some buttons?
-    jetbrains
-    ;
 
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {

@@ -71,11 +71,6 @@
         show = "log_detailed";
       };
       template-aliases = {
-        "hyperlink(url, text)" = ''
-          raw_escape_sequence("\e]8;;" ++ url ++ "\e\\") ++
-          text ++
-          raw_escape_sequence("\e]8;;\e\\")
-        '';
         "is_wip_commit_description(description)" = ''
           !description ||
           description.first_line().lower().starts_with("wip:") ||
