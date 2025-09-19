@@ -132,7 +132,7 @@
                   if(commit.immutable(), "immutable", "mutable"),
                   if(commit.contained_in("trunk()"), "trunk"),
                   if(is_wip_commit_description(commit.description()), "wip")),
-                commit.description().first_line()),
+                format_commit_description_first_line(commit.description().first_line())),
               label(
                 separate(" ",
                   if(commit.immutable(), "immutable", "mutable"),
@@ -141,6 +141,18 @@
                   if(commit.empty(), "empty")),
                 description_placeholder))
           )
+        '';
+        "format_commit_description_first_line(description)" = ''
+          if(config("repo.github-url").as_string() && description.match(regex:'^.+ \(#\d+\)$'),
+            description.replace(regex:' \(#\d+\)$', "") ++
+              label("description",
+                " (" ++ hyperlink(
+                  concat(config("repo.github-url").as_string(),
+                    "/pull/",
+                    description.replace(regex:'^.+ \(#(\d+)\)$', "$1")),
+                  description.replace(regex:'^.+ \((#\d+)\)$', "$1")
+                ) ++ ")"),
+            description)
         '';
         "format_commit_id(commit)" = ''
           if(config("repo.github-url").as_string() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
@@ -349,7 +361,8 @@
             "\n",
             indent("    ",
               if(description,
-                description.trim_end(),
+                format_commit_description_first_line(description.first_line()) ++
+                  description.remove_prefix(description.first_line()).trim_end(),
                 label(if(empty, "empty"), description_placeholder)) ++ "\n"),
             "\n",
           )
@@ -378,7 +391,7 @@
         log = "ancestors(unarchived(tree(@)), 2) | trunk()";
         fix = "unarchived(tree(@))";
         simplify-parents = "unarchived(tree(@))";
-        short-prefixes = "trunk()..";
+        short-prefixes = "~ ::trunk()";
       };
       aliases = {
         add-parent = [
