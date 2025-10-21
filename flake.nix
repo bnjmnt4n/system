@@ -37,6 +37,10 @@
       url = "github:bnjmnt4n/gh-pr-versions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    detect = {
+      url = "github:inanna-malick/detect";
+      flake = false;
+    };
   };
 
   outputs = {nixpkgs, ...} @ inputs: let

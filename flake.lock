@@ -60,6 +60,22 @@
         "type": "github"
       }
     },
+    "detect": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1755290704,
+        "narHash": "sha256-nMdgaCRnlxavCeRkWrvtDiB8nU71PmNYuaekB++W2P4=",
+        "owner": "inanna-malick",
+        "repo": "detect",
+        "rev": "bd58ff6ee302528b31c30a1fb32274b1030bd171",
+        "type": "github"
+      },
+      "original": {
+        "owner": "inanna-malick",
+        "repo": "detect",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -609,6 +625,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "detect": "detect",
         "gh-pr-versions": "gh-pr-versions",
         "home-manager": "home-manager_2",
         "jujutsu": "jujutsu",

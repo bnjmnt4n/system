@@ -23,6 +23,7 @@
     aspell
     aspellDicts.en
     curl
+    detect
     dos2unix
     eza
     fd
