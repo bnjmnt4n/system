@@ -6,11 +6,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "secretive";
-  version = "3.0.2";
+  version = "3.0.3";
 
   src = fetchurl {
     url = "https://github.com/maxgoedjen/secretive/releases/download/v${version}/Secretive.zip";
-    hash = "sha256-A7K3yBv8PgYaoFQoNfA069hh13+PMpi8waxdvR7S1N0=";
+    hash = "sha256-q4p9a1kLMxP3uzg7iB+0CtH/5KuEhYDpsIiZs+YMMj0=";
   };
 
   sourceRoot = "Secretive.app";
