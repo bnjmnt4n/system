@@ -29,7 +29,7 @@
     ];
     casks = [
       "aldente"
-      "bitwarden"
+      # "bitwarden"
       "calibre"
       "cursor"
       # "docker"
@@ -43,7 +43,7 @@
       "mullvad-browser"
       "mullvad-vpn"
       "google-chrome"
-      "safari-technology-preview"
+      # "safari-technology-preview"
       "spotify"
       "tor-browser"
       "transmission"

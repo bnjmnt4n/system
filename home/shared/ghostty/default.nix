@@ -17,7 +17,7 @@
       quick-terminal-animation-duration = "0";
       keybind = "global:super+ctrl+shift+alt+space=toggle_quick_terminal";
       shell-integration = "none"; # Handled by home-manager
-      shell-integration-features = "no-cursor";
+      shell-integration-features = "no-cursor,path";
     };
   };
 

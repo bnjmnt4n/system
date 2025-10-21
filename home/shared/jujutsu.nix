@@ -367,6 +367,23 @@
             "\n",
           )
         '';
+        log_bullet_oneline = ''
+          concat(
+            "- ",
+            description.first_line(),
+            "\n",
+          )
+        '';
+        log_bullet = ''
+          concat(
+            "- ",
+            description.first_line(),
+            "\n",
+            surround("\n", "\n",
+              indent("  ",
+                description.remove_prefix(description.first_line()).trim()))
+          )
+        '';
       };
       revset-aliases = {
         "at" = "@";
@@ -418,7 +435,9 @@
             ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "($1- | $2) ~ ($1- & $2)"
           ''}/bin/jj-remove-parent"
         ];
+        abandon- = ["abandon" "@-"];
         absorb- = ["absorb" "-f" "@-"];
+        aliases = ["config" "list" "--include-defaults" "aliases"];
         annotate = ["file" "annotate" "-T" "annotate_header"];
         annotated = ["file" "annotate"];
         bl = ["bookmark" "list"];
@@ -463,6 +482,7 @@
         lmur = ["log" "-r" "ancestors(unarchived(my_unmerged_remote()), 2) | trunk()"];
         lnp = ["log" "-r" "ancestors(unarchived(not_pushed()), 2) | trunk()"];
         ls = ["log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()"];
+        ldetailed = ["log" "-T" "log_detailed" "--summary"];
         loneline = ["log" "-T" "log_oneline"];
         lp = ["log" "-T" "log_compact_no_summary" "--patch"];
         lpatch = ["log" "-T" "log_compact_no_summary" "--patch"];
