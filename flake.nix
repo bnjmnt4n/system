@@ -103,7 +103,7 @@
             scripts.switchNixos
             agenix
             stylua
-            sumneko-lua-language-server
+            lua-language-server
           ];
         };
         formatter.${system} = pkgs.alejandra;

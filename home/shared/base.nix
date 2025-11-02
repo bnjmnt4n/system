@@ -16,6 +16,13 @@
       "--smart-case"
     ];
   };
+  programs.delta = {
+    enable = true;
+    options = {
+      syntax-theme = "GitHub";
+    };
+    enableGitIntegration = true;
+  };
 
   home.packages = with pkgs; [
     # System
@@ -41,7 +48,6 @@
     xdg-utils
 
     # Diff/merge tools
-    delta
     difftastic
     mergiraf
 
