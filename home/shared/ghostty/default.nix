@@ -11,8 +11,9 @@
       font-size = "20";
       theme = "light:modus_operandi,dark:modus_vivendi";
       cursor-style = "block";
-      window-padding-x = "10";
+      window-padding-x = "8";
       macos-option-as-alt = "true";
+      macos-titlebar-style = "native";
       macos-titlebar-proxy-icon = "visible";
       quick-terminal-animation-duration = "0";
       keybind = "global:super+ctrl+shift+alt+space=toggle_quick_terminal";

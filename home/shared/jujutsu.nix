@@ -2,13 +2,20 @@
   pkgs,
   config,
   ...
-}: {
+}: let
+  idea =
+    if pkgs.stdenv.hostPlatform.isDarwin
+    then "${pkgs.writeShellScriptBin "idea-wrapper" ''
+      ${pkgs.jetbrains.idea-community}/Applications/IntelliJ\ IDEA\ CE.app/Contents/MacOS/idea $@ 2> /dev/null
+    ''}/bin/idea-wrapper"
+    else "${pkgs.jetbrains.idea-community}/bin/idea-community";
+in {
   programs.jujutsu = {
     enable = true;
     settings = {
       user = {
-        name = "Benjamin Tan";
-        email = "benjamin@dev.ofcr.se";
+        name = config.programs.git.settings.user.name;
+        email = config.programs.git.settings.user.email;
       };
       ui = {
         pager = "less -FRX";
@@ -502,6 +509,7 @@
         summary- = ["show" "--summary" "@-"];
         split- = ["split" "-r" "@-"];
         splitb = ["split" "-B" "@"];
+        splitm = ["split" "-A" "trunk()" "-B" "megamerge()"];
         sq = ["squash"];
         sq- = ["squash" "-r" "@-"];
         squash- = ["squash" "-r" "@-"];
@@ -517,12 +525,7 @@
       };
       merge-tools = {
         idea = {
-          program =
-            if pkgs.stdenv.hostPlatform.isDarwin
-            then "${pkgs.writeShellScriptBin "idea-wrapper" ''
-              ${pkgs.jetbrains.idea-community}/Applications/IntelliJ\ IDEA\ CE.app/Contents/MacOS/idea $@ 2> /dev/null
-            ''}/bin/idea-wrapper"
-            else "${pkgs.jetbrains.idea-community}/bin/idea-community";
+          program = idea;
           diff-args = ["diff" "$left" "$right"];
           edit-args = ["diff" "$left" "$right"];
           merge-args = ["merge" "$left" "$right" "$base" "$output"];
@@ -611,6 +614,8 @@
       };
     };
   };
+
+  home.shellAliases.j = "${pkgs.jujutsu}/bin/jj";
 
   home.packages = with pkgs; [
     jjui

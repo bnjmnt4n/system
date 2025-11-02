@@ -4,7 +4,6 @@
   fetchFromGitHub,
   rustPlatform,
 }:
-
 rustPlatform.buildRustPackage (finalAttrs: {
   name = "detect";
   src = src;
@@ -20,6 +19,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     description = "";
     homepage = "https://github.com/inanna-malick/detect";
     license = lib.licenses.mit;
-    maintainers = [ ];
+    maintainers = [];
   };
 })

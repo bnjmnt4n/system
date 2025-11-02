@@ -14,8 +14,9 @@
         buildInputs = with pkgs; [
           nodejs
           prettierd
-          nodePackages.vscode-langservers-extracted
-          nodePackages."@tailwindcss/language-server"
+          vscode-langservers-extracted
+          vtsls
+          tailwindcss-language-server
         ];
       };
     });

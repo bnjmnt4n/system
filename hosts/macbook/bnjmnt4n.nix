@@ -46,6 +46,9 @@ in {
 
   home.sessionVariables = {
     RESTIC_REPOSITORY_PATH = config.age.secrets.restic-repositories.path;
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+    MANPAGER = "nvim +Man!";
   };
 
   # Shell aliases.

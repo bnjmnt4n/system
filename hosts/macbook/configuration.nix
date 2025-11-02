@@ -25,13 +25,12 @@
     };
     global.brewfile = true;
     brews = [
-      "comby" # Currently broken on darwin
+      "comby" # pkgs.comby is currently broken on darwin
     ];
     casks = [
       "aldente"
       # "bitwarden"
       "calibre"
-      "cursor"
       # "docker"
       "dropbox"
       "figma"
@@ -45,7 +44,7 @@
       "google-chrome"
       # "safari-technology-preview"
       "spotify"
-      "tor-browser"
+      # "tor-browser"
       "transmission"
       "vlc"
     ];
@@ -94,8 +93,8 @@
         "/Applications/Ghostty.app/"
         "${pkgs.zed-editor}/Applications/Zed.app/"
         {spacer = {small = true;};}
-        "/Applications/Figma.app/"
         "/Applications/Spotify.app/"
+        "/System/Applications/Stickies.app/"
       ];
     };
   };

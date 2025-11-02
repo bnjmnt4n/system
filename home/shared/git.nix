@@ -18,9 +18,11 @@
 
     ignores = [
       ".DS_Store"
-      ".jj"
       "*~"
       "*.swp"
+      ".jj"
+      ".envrc"
+      ".nvim.lua"
     ];
 
     settings = {
@@ -113,7 +115,6 @@
         # Switch to a branch.
         go = "checkout";
         gonew = "checkout -b";
-        br = "branch";
 
         # Stash.
         z = "stash";
@@ -125,9 +126,6 @@
         reb = "rebase -i origin/HEAD --autosquash";
         # Interactive rebase with the given number of latest commits.
         rebn = "!r() { git rebase -i HEAD~$1 --autosquash; }; r";
-
-        # Remove the old tag with this name and tag the latest commit with it.
-        retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r";
 
         # List contributors with number of commits.
         contributors = "shortlog --summary --numbered";
@@ -148,17 +146,6 @@
   # Shell aliases.
   home.shellAliases = {
     g = "git";
-
-    ga = "git a";
-    gc = "git c";
-    gf = "git f";
-    gp = "git p";
-    gfp = "git fp";
-    gpl = "git pl";
-    gs = "git s";
-    gz = "git z";
-    gzz = "git zz";
-    gl = "git l";
 
     gco = "git co";
     gcom = "git com";

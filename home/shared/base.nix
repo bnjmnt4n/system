@@ -16,6 +16,11 @@
       "--smart-case"
     ];
   };
+  programs.fd = {
+    enable = true;
+    ignores = [".jj/" ".DS_Store"];
+  };
+  programs.fzf.enable = true;
   programs.delta = {
     enable = true;
     options = {
@@ -33,10 +38,8 @@
     detect
     dos2unix
     eza
-    fd
     fdupes
     file
-    fzf
     htop
     hyperfine
     jq

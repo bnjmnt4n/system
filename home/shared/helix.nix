@@ -15,10 +15,6 @@
     languages = {
       language = [
         {
-          name = "html";
-          language-servers = ["vscode-html-language-server" "tailwindcss-ls"];
-        }
-        {
           name = "css";
           language-servers = ["vscode-css-language-server" "tailwindcss-ls"];
         }

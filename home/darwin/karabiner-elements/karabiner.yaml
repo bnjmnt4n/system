@@ -142,6 +142,32 @@ profiles:
               to:
                 - shell_command: open -a "@spotify@"
               type: basic
+        - description: Hyper + p -> Open Browser (Mullvad)
+          manipulators:
+            - from:
+                key_code: p
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: open -a "@mullvad@"
+              type: basic
+        - description: Hyper + s -> Open Stickies
+          manipulators:
+            - from:
+                key_code: s
+                modifiers:
+                  mandatory:
+                    - left_shift
+                    - left_command
+                    - left_option
+                    - left_control
+              to:
+                - shell_command: open -a "@stickies@"
+              type: basic
         - description: Hyper + t -> Open Terminal (Ghostty)
           manipulators:
             - from:
