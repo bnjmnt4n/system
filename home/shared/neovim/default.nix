@@ -73,6 +73,12 @@
     name = "treesitter-parsers";
     paths = nvim-treesitter.dependencies;
   };
+  aliases = {
+    nvim = "nvim";
+    git-diff = "git-jump diff";
+    git-status = "nvim -c 'Telescope git_status'";
+    grep = "rg --vimgrep -- $argv | nvim -q - -c 'copen'";
+  };
 in {
   home.activation.lazyNvimSetup = lib.hm.dag.entryAfter ["installPackages" "linkGeneration" "writeBoundary"] ''
     CUSTOM_PATH="${lib.makeBinPath [config.programs.neovim.package pkgs.bash pkgs.coreutils pkgs.git pkgs.nix]}"
@@ -123,11 +129,10 @@ in {
 
   programs.neovim = {
     enable = true;
-    # TODO: Figure out why nightly overlay is not being applied.
-    package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
     defaultEditor = true;
     withPython3 = false;
     withRuby = false;
+    withNodeJs = false;
 
     extraLuaConfig = ''
       vim.g.is_mac = '${
@@ -151,7 +156,13 @@ in {
   xdg.configFile."nvim/lua".source = ./lua;
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
 
-  home.shellAliases.v = "nvim";
+  home.shellAliases.v = aliases.nvim;
+  home.shellAliases.vd = aliases.git-diff;
+  home.shellAliases.vo = aliases.git-status;
+  home.shellAliases.n = aliases.nvim;
+  home.shellAliases.nd = aliases.git-diff;
+  home.shellAliases.no = aliases.git-status;
 
-  home.sessionVariables.VISUAL = "nvim";
+  programs.fish.functions.vs = aliases.grep;
+  programs.fish.functions.ns = aliases.grep;
 }

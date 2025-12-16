@@ -1,7 +1,5 @@
 local M = {}
 
-local methods = vim.lsp.protocol.Methods
-
 local signs = {
   text = {},
 }
@@ -11,13 +9,14 @@ end
 
 -- Configure diagnostics.
 vim.diagnostic.config {
+  underline = true,
   virtual_text = false,
   virtual_lines = true,
   signs = signs,
   severity_sort = true,
 }
 
--- FIX: https://github.com/folke/lazy.nvim/issues/620
+-- See https://github.com/folke/lazy.nvim/issues/620
 vim.diagnostic.config({ virtual_lines = false }, require('lazy.core.config').ns)
 
 -- Configure inlay hints
@@ -30,14 +29,12 @@ M.inlay_hint_disabled_filetypes = {
 
 -- `on_attach` function to handle LSP setup for buffers.
 local function on_attach(client, bufnr)
-  -- Only override default "K" and "gd" keymaps if LSP supports the corresponding methods.
-  if client:supports_method(methods.textDocument_hover) then
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = bufnr, desc = 'Hover' })
-  end
-  if client:supports_method(methods.textDocument_definition) then
+  -- Unset 'formatexpr' to use conform
+  vim.bo[bufnr].formatexpr = nil
+  if client:supports_method 'textDocument/definition' then
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, { buffer = bufnr, desc = 'Go to definition' })
   end
-  if client:supports_method(methods.textDocument_inlayHint) then
+  if client:supports_method 'textDocument/inlayHint' then
     if vim.lsp.inlay_hint.is_enabled() then
       local filetype = vim.bo[bufnr].filetype
       if M.inlay_hint_disabled_filetypes[filetype] then
@@ -49,9 +46,14 @@ local function on_attach(client, bufnr)
   end
 end
 
+-- `on_detach` function to handle LSP teardown for buffers.
+local function on_detach(bufnr)
+  pcall(vim.keymap.del, 'n', 'gd', { buffer = bufnr })
+end
+
 -- Update mappings when registering dynamic capabilities.
-local register_capability = vim.lsp.handlers[methods.client_registerCapability]
-vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
+local register_capability = vim.lsp.handlers['client/registerCapability']
+vim.lsp.handlers['client/registerCapability'] = function(err, res, ctx)
   local client = vim.lsp.get_client_by_id(ctx.client_id)
   if not client then
     return
@@ -59,15 +61,16 @@ vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
 
   local result = register_capability(err, res, ctx)
 
-  local bufnrs = vim.lsp.get_buffers_by_client_id(ctx.client_id)
-  for _, bufnr in ipairs(bufnrs) do
+  for bufnr, _ in pairs(client.attached_buffers) do
     on_attach(client, bufnr)
   end
 
   return result
 end
 
+local lsp_group = vim.api.nvim_create_augroup('bnjmnt4n/lsp_keymaps', { clear = true })
 vim.api.nvim_create_autocmd('LspAttach', {
+  group = lsp_group,
   desc = 'Configure LSP keymaps',
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -76,6 +79,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     on_attach(client, args.buf)
+  end,
+})
+vim.api.nvim_create_autocmd('LspDetach', {
+  group = lsp_group,
+  desc = 'Configure LSP keymaps',
+  callback = function(args)
+    local clients = vim.lsp.get_clients { bufnr = args.buf }
+    if #clients == 0 then
+      on_detach(args.buf)
+    end
   end,
 })
 

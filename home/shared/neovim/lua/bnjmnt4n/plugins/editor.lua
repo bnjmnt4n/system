@@ -1,38 +1,35 @@
 return {
-  -- Directory viewer
-  'justinmk/vim-dirvish',
-
   -- File explorer
   {
     'stevearc/oil.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
+    lazy = false,
     keys = {
-      { '<leader>-', '<cmd>Oil<cr>', desc = 'Open parent directory in Oil' },
+      { '-', '<cmd>Oil<cr>', desc = 'Open parent directory' },
     },
     opts = {
-      default_file_explorer = false,
+      keymaps = {
+        ['<C-h>'] = false,
+        ['<C-l>'] = false,
+        ['<C-v>'] = { 'actions.select', opts = { vertical = true } },
+        ['<C-s>'] = { 'actions.select', opts = { horizontal = true } },
+        gR = 'actions.refresh',
+      },
       view_options = {
         show_hidden = true,
       },
     },
   },
 
-  -- Undo tree
-  {
-    'mbbill/undotree',
-    cmd = 'GitLink',
-    keys = {
-      { '<leader>tu', '<cmd>UndotreeToggle<cr>', desc = 'Toggle undotree' },
-    },
-  },
-
   -- Git links
   {
     'linrongbin16/gitlinker.nvim',
-    cmd = 'GitLink',
+    cmd = { 'GitLink' },
     keys = {
-      { '<leader>gy', '<cmd>GitLink<cr>', desc = 'Copy link to clipboard', mode = { 'n', 'v' } },
-      { '<leader>gY', '<cmd>GitLink!<cr>', desc = 'Open link in browser', mode = { 'n', 'v' } },
+      { '<leader>gy', '<cmd>GitLink<cr>', desc = 'Copy file link to clipboard', mode = { 'n', 'v' } },
+      { '<leader>gY', '<cmd>GitLink!<cr>', desc = 'Open file link in browser', mode = { 'n', 'v' } },
+      { '<leader>gb', '<cmd>GitLink blame<cr>', desc = 'Copy blame link to clipboard', mode = { 'n', 'v' } },
+      { '<leader>gB', '<cmd>GitLink! blame<cr>', desc = 'Open blame link in browser', mode = { 'n', 'v' } },
     },
     opts = {
       message = false,
@@ -42,8 +39,9 @@ return {
   -- Symbol outlines
   {
     'stevearc/aerial.nvim',
+    cmd = { 'AerialToggle' },
     keys = {
-      { '<leader>os', '<cmd>AerialToggle<cr>', desc = 'Open symbols' },
+      { '<leader>os', '<cmd>AerialToggle<cr>', desc = 'Toggle symbols' },
     },
     opts = {
       attach_mode = 'global',
@@ -62,13 +60,14 @@ return {
   {
     'stevearc/conform.nvim',
     event = { 'LspAttach', 'BufWritePre' },
-    cmd = 'ConformInfo',
+    cmd = { 'ConformInfo' },
     keys = {
       {
         '<leader>cf',
-        function()
-          require('conform').format { async = true, lsp_fallback = true }
-        end,
+        '<cmd>Format<cr>',
+        -- function()
+        --   require('conform').format { async = true, lsp_fallback = true }
+        -- end,
         mode = '',
         desc = 'Format',
       },
@@ -155,10 +154,11 @@ return {
   -- Fuzzy finder
   {
     'nvim-telescope/telescope.nvim',
-    cmd = 'Telescope',
+    cmd = { 'Telescope' },
     dependencies = {
-      { 'nvim-telescope/telescope-file-browser.nvim' },
-      { 'nvim-telescope/telescope-ui-select.nvim' },
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons',
+      'nvim-telescope/telescope-ui-select.nvim',
       {
         'nvim-telescope/telescope-fzf-native.nvim',
         dir = vim.g.telescope_fzf_native_path,
@@ -169,22 +169,20 @@ return {
       { '<leader><space>', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
       {
         '<leader>.',
-        function() require('telescope').extensions.file_browser.file_browser { cwd = vim.fn.expand '%:p:h', hidden = true } end,
-        desc = 'Find in current directory',
+        function() require('telescope.builtin').find_files { cwd = vim.fn.expand '%:p:h' } end,
+        desc = "Find in current file's directory",
       },
       { '<leader>,', function() require('telescope.builtin').buffers { sort_lastused = true } end, desc = 'Find buffer' },
       { '<leader>?', function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
       { '<leader>/', function() require('telescope.builtin').live_grep() end, desc = 'Search in project' },
       { "<leader>'", function() require('telescope.builtin').resume() end, desc = 'Resume previous search' },
-      { '<leader>bi', function() require('telescope.builtin').buffers() end,  desc = 'Find buffer' },
+      { '<leader>bi', function() require('telescope.builtin').buffers() end, desc = 'Find buffer' },
       { '<leader>cb', function() require('telescope.builtin').lsp_document_symbols() end, desc = 'Document symbols' },
-      { '<leader>cx', function() require('telescope.builtin').lsp_diagnostics() end, desc = 'Diagnostics' },
-      { '<leader>ff', function() require('telescope.builtin').find_files() end, desc = 'Find files in folder' },
-      { '<leader>fr', function() require('telescope.builtin').oldfiles() end,     desc = 'Recent files' },
-      { '<leader>gc', function() require('telescope.builtin').git_commits() end,  desc = 'git commits' },
-      { '<leader>gb', function() require('telescope.builtin').git_branches() end, desc = 'git branches' },
-      { '<leader>gs', function() require('telescope.builtin').git_status() end,   desc = 'git status' },
+      { '<leader>dd', function() require('telescope.builtin').diagnostics() end, desc = 'Diagnostics' },
+      { '<leader>ff', function() require('telescope.builtin').find_files() end, desc = 'Find files' },
+      { '<leader>fr', function() require('telescope.builtin').oldfiles() end, desc = 'Recent files' },
       { '<leader>gp', function() require('telescope.builtin').git_bcommits() end, desc = 'git buffer commits' },
+      { '<leader>gs', function() require('telescope.builtin').git_status() end, desc = 'git status' },
       { '<leader>sd', function() require('telescope.builtin').grep_string() end, desc = 'Find current word in project' },
       { '<leader>sh', function() require('telescope.builtin').help_tags() end, desc = 'Find help' },
       { '<leader>ss', function() require('telescope.builtin').current_buffer_fuzzy_find() end, desc = 'Find in buffer' },
@@ -195,11 +193,7 @@ return {
         -- stylua: ignore
         defaults = {
           mappings = {
-            i = {
-              ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
-            },
             n = {
-              ['<c-t>'] = function(...) return require('trouble.providers.telescope').open_with_trouble(...) end,
               ['q'] = function(...) return require('telescope.actions').close(...) end,
             },
           },
@@ -216,7 +210,6 @@ return {
     config = function(_, opts)
       require('telescope').setup(opts)
       require('telescope').load_extension 'fzf'
-      require('telescope').load_extension 'file_browser'
       require('telescope').load_extension 'ui-select'
     end,
   },
@@ -233,15 +226,6 @@ return {
     },
   },
 
-  -- Mass editing of the quickfix list
-  {
-    'Olical/vim-enmasse',
-    cmd = 'EnMasse',
-    keys = {
-      { '<leader>oe', '<cmd>EnMasse<cr>', desc = 'Edit quickfix list' },
-    },
-  },
-
   -- Gitsigns
   {
     'lewis6991/gitsigns.nvim',
@@ -255,12 +239,12 @@ return {
         changedelete = { text = '▎' },
         untracked = { text = '▎' },
       },
-      signcolumn = true,
+      signs_staged_enable = false,
       numhl = true,
       current_line_blame = true,
 
       on_attach = function(bufnr)
-        local gs = package.loaded.gitsigns
+        local gs = require 'gitsigns'
 
         local function map(mode, l, r, opts)
           opts = opts or {}
@@ -278,7 +262,6 @@ return {
           end)
           return '<Ignore>'
         end, { expr = true, desc = 'Next hunk' })
-
         map('n', '[c', function()
           if vim.wo.diff then
             return '[c'
@@ -288,8 +271,6 @@ return {
           end)
           return '<Ignore>'
         end, { expr = true, desc = 'Previous hunk' })
-        map('n', ']h', gs.next_hunk, { desc = 'Next hunk' })
-        map('n', '[h', gs.prev_hunk, { desc = 'Previous hunk' })
 
         -- Actions
         map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage hunk' })
@@ -323,13 +304,15 @@ return {
   -- Git client
   {
     'TimUntersberger/neogit',
-    cmd = 'Neogit',
-    dependencies = 'sindrets/diffview.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+    },
+    cmd = { 'Neogit' },
     keys = {
       { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Neogit' },
     },
     opts = {
-      disable_commit_confirmation = true,
       integrations = {
         diffview = true,
       },
@@ -353,7 +336,7 @@ return {
   -- Git conflict markers
   {
     'akinsho/git-conflict.nvim',
-    event = 'BufReadPost',
+    event = { 'BufReadPost' },
     opts = {
       default_mappings = {
         ours = '<leader>hco',
@@ -366,43 +349,28 @@ return {
     },
   },
 
-  -- Pretty lists
-  {
-    'folke/trouble.nvim',
-    cmd = { 'Trouble', 'TroubleToggle' },
-    -- stylua: ignore
-    keys = {
-      { '<leader>xx', '<cmd>Trouble<cr>',             desc = 'Trouble' },
-      { '<leader>xd', '<cmd>Trouble diagnostics<cr>', desc = 'Trouble Diagnostics' },
-      { '<leader>xl', '<cmd>Trouble loclist<cr>',     desc = 'Trouble Loclist' },
-      { '<leader>xq', '<cmd>Trouble qflist<cr>',      desc = 'Trouble Quickfix' },
-    },
-    config = true,
-  },
-
   -- TODO comments
   {
     'folke/todo-comments.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    cmd = { 'TodoTrouble', 'TodoTelescope', 'TodoQuickFix', 'TodoLocList' },
+    cmd = { 'TodoTelescope', 'TodoQuickFix', 'TodoLocList' },
     event = { 'BufReadPost', 'BufNewFile' },
     -- stylua: ignore
     keys = {
-      { '<leader>xt', '<cmd>TodoTrouble<cr>',                              desc = 'Touble Todos' },
       { '<leader>st', '<cmd>TodoTelescope<cr>',                            desc = 'Find todos' },
-      { ']t',         function() require('todo-comments').jump_next() end, desc = 'Next todo comment' },
-      { '[t',         function() require('todo-comments').jump_prev() end, desc = 'Previous todo comment' },
+      { ']w',         function() require('todo-comments').jump_next() end, desc = 'Next todo comment' },
+      { '[w',         function() require('todo-comments').jump_prev() end, desc = 'Previous todo comment' },
     },
-    config = true,
+    opts = {},
   },
 
   -- Convenient access to nvim terminal
   {
     'akinsho/toggleterm.nvim',
-    cmd = 'ToggleTerm',
+    cmd = { 'ToggleTerm' },
     keys = {
-      { '<m-`>', '<cmd>ToggleTerm<cr>', desc = 'Toggle terminal' },
-      { '<leader>ot', '<cmd>ToggleTerm<cr>', desc = 'Toggle terminal' },
+      { '<m-`>', '<cmd>ToggleTerm<cr>', desc = 'Open terminal' },
+      { '<leader>ot', '<cmd>ToggleTerm<cr>', desc = 'Open terminal' },
     },
     opts = {},
   },
@@ -410,12 +378,15 @@ return {
   -- Async building & commands
   {
     'tpope/vim-dispatch',
-    cmd = { 'Dispatch', 'Make', 'Focus', 'Start' },
+    cmd = { 'Make', 'Copen', 'Dispatch', 'FocusDispatch', 'Start', 'Spawn' },
   },
 
   -- Common UNIX functions
   {
     'tpope/vim-eunuch',
-    event = 'VeryLazy',
+    event = { 'VeryLazy' },
+    keys = {
+      { '<leader>fD', '<cmd>Delete!<cr>', desc = 'Delete file' },
+    },
   },
 }

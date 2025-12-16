@@ -1,29 +1,20 @@
 return {
   -- Sets shiftwidth and tabstop automatically
-  {
-    'tpope/vim-sleuth',
-    event = 'BufReadPre',
-  },
+  'tpope/vim-sleuth',
 
   -- Allow repeating of plugin keymaps
-  {
-    'tpope/vim-repeat',
-    event = 'VeryLazy',
-  },
-
-  -- `[` and `]` keybindings
-  {
-    'tpope/vim-unimpaired',
-    event = 'VeryLazy',
-  },
+  'tpope/vim-repeat',
 
   -- `s` motion
   {
     'ggandor/leap.nvim',
+    lazy = false,
     keys = {
       { 's', '<Plug>(leap-forward)', mode = { 'n', 'x', 'o' }, desc = 'Leap forward' },
-      { 'S', '<Plug>(leap-backward)', mode = { 'n' }, desc = 'Leap backward ' },
-      { 'gs', '<Plug>(leap-from-window)', mode = { 'n', 'x', 'o' }, desc = 'Leap from window' },
+      { 'S', '<Plug>(leap-backward)', mode = { 'n', 'x', 'o' }, desc = 'Leap backward' },
+      -- TODO: conflicts with surround?
+      { 'gs', '<Plug>(leap-from-window)', mode = { 'n' }, desc = 'Leap from window' },
+      -- TODO: native leap tree-sitter?
       {
         'gF',
         function()
@@ -36,6 +27,7 @@ return {
   },
 
   -- Enhanced `f`/`t` motions
+  -- TODO: remove deprecated package
   {
     'ggandor/flit.nvim',
     keys = function()
@@ -59,83 +51,22 @@ return {
   -- `gS` and `gJ` to switch between single/multi-line forms of code
   {
     'Wansmer/treesj',
-    dependencies = 'nvim-treesitter/nvim-treesitter',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     -- stylua: ignore
     keys = {
       { 'gJ', function() require('treesj').join() end, desc = 'Join node' },
-      { 'gS', function() require('treesj').split() end, desc = 'Split node'},
+      { 'gS', function() require('treesj').split() end, desc = 'Split node' },
     },
     opts = {
       use_default_keymaps = false,
     },
   },
 
-  -- 'gc' to comment visual regions/lines
+  -- Better commentstring detection
   {
-    'numToStr/Comment.nvim',
-    dependencies = {
-      -- Better comment type detection
-      {
-        'JoosepAlviste/nvim-ts-context-commentstring',
-        opts = {
-          enable_autocmd = false,
-        },
-      },
-    },
-    keys = {
-      { 'gc', mode = { 'n', 'x', 'o' } },
-      { 'gb', mode = { 'n', 'x', 'o' } },
-      -- Comment text object. Taken from https://github.com/numToStr/Comment.nvim/issues/22#issuecomment-1272569139
-      {
-        'gc',
-        function()
-          local utils = require 'Comment.utils'
-
-          local row = vim.api.nvim_win_get_cursor(0)[1]
-
-          local comment_str = require('Comment.ft').calculate {
-            ctype = utils.ctype.linewise,
-            range = {
-              srow = row,
-              scol = 0,
-              erow = row,
-              ecol = 0,
-            },
-            cmotion = utils.cmotion.line,
-            cmode = utils.cmode.toggle,
-          } or vim.bo.commentstring
-          local l_comment_str, r_comment_str = utils.unwrap_cstr(comment_str)
-
-          local is_commented = utils.is_commented(l_comment_str, r_comment_str, true)
-
-          local line = vim.api.nvim_buf_get_lines(0, row - 1, row, false)
-          if next(line) == nil or not is_commented(line[1]) then
-            return
-          end
-
-          local comment_start, comment_end = row, row
-          repeat
-            comment_start = comment_start - 1
-            line = vim.api.nvim_buf_get_lines(0, comment_start - 1, comment_start, false)
-          until next(line) == nil or not is_commented(line)
-          comment_start = comment_start + 1
-          repeat
-            comment_end = comment_end + 1
-            line = vim.api.nvim_buf_get_lines(0, comment_end - 1, comment_end, false)
-          until next(line) == nil or not is_commented(line)
-          comment_end = comment_end - 1
-
-          vim.cmd(string.format('normal! %dGV%dG', comment_start, comment_end))
-        end,
-        mode = 'o',
-        desc = 'Comment',
-      },
-    },
-    opts = function()
-      return {
-        pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-      }
-    end,
+    'folke/ts-comments.nvim',
+    event = { 'VeryLazy' },
+    opts = {},
   },
 
   -- References
@@ -144,14 +75,14 @@ return {
     event = { 'BufReadPost', 'BufNewFile' },
     -- stylua: ignore
     keys = {
-      { "]]", function() require("illuminate").goto_next_reference(false) end, desc = "Next reference", },
-      { "[[", function() require("illuminate").goto_prev_reference(false) end, desc = "Previous reference" },
+      { ']]', function() require('illuminate').goto_next_reference(false) end, desc = 'Next reference' },
+      { '[[', function() require('illuminate').goto_prev_reference(false) end, desc = 'Previous reference' },
     },
     opts = {
       delay = 200,
       filetypes_denylist = {
         '',
-        'dirvish',
+        'bigfile',
         'help',
         'TelescopePrompt',
         'NeogitStatus',
@@ -173,8 +104,8 @@ return {
   -- Improved text-objects
   {
     'nvim-mini/mini.ai',
-    event = 'VeryLazy',
-    dependencies = 'nvim-treesitter/nvim-treesitter-textobjects',
+    event = { 'VeryLazy' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     opts = function()
       local ai = require 'mini.ai'
       return {
@@ -199,6 +130,11 @@ return {
     end,
     config = function(_, opts)
       require('mini.ai').setup(opts)
+
+      local is_wk_enabled, wk = pcall(require, 'which-key')
+      if not is_wk_enabled then
+        return
+      end
 
       local objects = {
         { ' ', desc = 'whitespace' },
@@ -255,7 +191,7 @@ return {
           ret[#ret + 1] = { prefix .. obj[1], desc = obj.desc }
         end
       end
-      require('which-key').add(ret, { notify = false })
+      wk.add(ret, { notify = false })
     end,
   },
 
@@ -275,14 +211,14 @@ return {
 
         ['<tab>'] = {
           function(cmp)
-            local copilot = require 'copilot.suggestion'
+            local is_copilot_enabled, copilot = pcall(require, 'copilot.suggestion')
 
             local has_words_before = function()
               local line, col = unpack(vim.api.nvim_win_get_cursor(0))
               return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
             end
 
-            if copilot.is_visible() then
+            if is_copilot_enabled and copilot.is_visible() then
               copilot.accept()
               return true
             elseif cmp.is_visible() then
@@ -337,8 +273,10 @@ return {
   -- Copilot
   {
     'zbirenbaum/copilot.lua',
-    cmd = 'Copilot',
-    event = 'InsertEnter',
+    enabled = false,
+    -- TODO: Disable by default: https://github.com/zbirenbaum/copilot.lua/issues/302
+    cmd = { 'Copilot' },
+    event = { 'InsertEnter' },
     keys = {
       {
         '<leader>ta',
@@ -373,10 +311,10 @@ return {
       require('copilot').setup(opts)
 
       -- Hide suggestions when the completion menu is open.
-      local copilot = require 'copilot.suggestion'
       vim.api.nvim_create_autocmd('User', {
         pattern = 'BlinkCmpMenuOpen',
         callback = function()
+          local copilot = require 'copilot.suggestion'
           copilot.dismiss()
           vim.b.copilot_suggestion_hidden = true
         end,
@@ -393,14 +331,14 @@ return {
   -- Auto pairs
   {
     'nvim-mini/mini.pairs',
-    event = 'InsertEnter',
-    config = true,
+    event = { 'InsertEnter' },
+    opts = {},
   },
 
   -- Deal with surroundings tags/quotes/brackets
   {
     'kylechui/nvim-surround',
-    event = 'VeryLazy',
+    event = { 'VeryLazy' },
     opts = {
       keymaps = {
         insert = false,
@@ -421,7 +359,7 @@ return {
   -- Remove whitespace
   {
     'lewis6991/spaceless.nvim',
-    event = 'InsertEnter',
-    config = true,
+    event = { 'InsertEnter' },
+    opts = {},
   },
 }

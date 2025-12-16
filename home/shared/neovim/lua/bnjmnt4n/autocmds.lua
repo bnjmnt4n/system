@@ -16,7 +16,7 @@ vim.api.nvim_create_autocmd('FileType', {
   desc = 'Close with <q>',
   pattern = {
     'help',
-    'man',
+    'nvim-undotree',
     'qf',
     'query',
   },
@@ -51,7 +51,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter', 'FocusGained', 'InsertLeave', 'Cmdline
   group = line_numbers_group,
   desc = 'Toggle relative line numbers on',
   callback = function()
-    if vim.wo.nu and not vim.startswith(vim.api.nvim_get_mode().mode, 'i') and vim.bo.filetype ~= 'qf' then
+    if vim.wo.number and not vim.startswith(vim.api.nvim_get_mode().mode, 'i') and vim.bo.filetype ~= 'qf' then
       vim.wo.relativenumber = true
     end
   end,
@@ -60,7 +60,7 @@ vim.api.nvim_create_autocmd({ 'BufLeave', 'FocusLost', 'InsertEnter', 'CmdlineEn
   group = line_numbers_group,
   desc = 'Toggle relative line numbers off',
   callback = function(args)
-    if vim.wo.nu then
+    if vim.wo.number then
       vim.wo.relativenumber = false
     end
 
@@ -82,12 +82,12 @@ vim.api.nvim_create_autocmd('FileType', {
       vim.api.nvim_buf_call(bufnr, function()
         vim.wo[0][0].foldmethod = 'expr'
         vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-        vim.wo[0][0].foldtext = 'v:lua.vim.treesitter.foldtext()'
         vim.cmd.normal 'zx'
       end)
     else
-      -- Else just fallback to using indentation.
-      vim.wo[0][0].foldmethod = 'indent'
+      -- Else just fallback to manual folding.
+      vim.wo[0][0].foldmethod = 'manual'
+      vim.wo[0][0].foldexpr = '0'
     end
   end,
 })

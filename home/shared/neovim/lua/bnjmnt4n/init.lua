@@ -1,6 +1,7 @@
 -- Based on:
 -- - https://github.com/LazyVim/LazyVim
 -- - https://github.com/MariaSolOs/dotfiles
+-- - https://codeberg.org/gpanders/dotfiles
 -- and probably many others.
 
 vim.g.lazy_path = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -14,12 +15,13 @@ require 'bnjmnt4n.lsp'
 -- Load plugins
 require('lazy').setup('bnjmnt4n.plugins', {
   change_detection = { notify = false },
+  -- TODO: Remove once lazy uses `winborder`
+  ui = { border = 'rounded' },
   performance = {
     rtp = {
       disabled_plugins = {
         'gzip',
         'matchit',
-        'netrw',
         'netrwPlugin',
         'tarPlugin',
         'tohtml',
@@ -29,3 +31,5 @@ require('lazy').setup('bnjmnt4n.plugins', {
     },
   },
 })
+
+vim.keymap.set('n', '<leader>nl', '<cmd>Lazy<cr>', { desc = 'Lazy' })

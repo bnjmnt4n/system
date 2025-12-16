@@ -2,11 +2,11 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Allow per-directory nvim configuration
+vim.o.exrc = true
+
 -- Expand tabs to spaces
 vim.o.expandtab = true
-
--- Set highlight on search
-vim.o.hlsearch = false
 
 -- Use relative line numbers
 vim.wo.number = true
@@ -27,6 +27,9 @@ vim.o.smartcase = true
 
 -- Decrease update time
 vim.o.updatetime = 250
+
+-- Decrease timeout to wait for sequences to complete
+vim.o.timeoutlen = 400
 
 -- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes:1'

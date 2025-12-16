@@ -1,8 +1,9 @@
 -- Treesitter
 return {
+  -- TODO: Switch to `main` branch
   {
     'nvim-treesitter/nvim-treesitter',
-    event = 'BufReadPre',
+    lazy = false,
     dir = vim.g.nvim_treesitter_path,
     dependencies = {
       -- Better auto-completion of HTML tags
@@ -18,7 +19,14 @@ return {
           mode = 'cursor',
         },
         keys = {
-          { '<leader>tc', '<cmd>TSContextToggle<cr>', desc = 'Toggle treesitter context' },
+          { '<leader>tc', '<cmd>TSContext toggle<cr>', desc = 'Toggle treesitter context' },
+          {
+            '[C',
+            function()
+              require('treesitter-context').go_to_context(vim.v.count1)
+            end,
+            desc = 'Parent context',
+          },
         },
       },
     },
@@ -35,9 +43,7 @@ return {
       },
       indent = { enable = true },
       textobjects = {
-        select = {
-          enable = false,
-        },
+        select = { enable = false },
         swap = {
           enable = true,
           swap_next = {
@@ -66,8 +72,8 @@ return {
         lsp_interop = {
           enable = true,
           peek_definition_code = {
-            ['<leader>df'] = '@function.outer',
-            ['<leader>dF'] = '@class.outer',
+            ['<leader>cdf'] = '@function.outer',
+            ['<leader>cdc'] = '@class.outer',
           },
         },
       },

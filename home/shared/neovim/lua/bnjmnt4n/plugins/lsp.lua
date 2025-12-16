@@ -7,15 +7,10 @@ return {
       {
         'yorickpeterse/nvim-dd',
         main = 'dd',
-        config = true,
-      },
-
-      -- Diagnostic lines
-      {
-        'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
-        config = true,
+        opts = {},
       },
     },
+    event = { 'VeryLazy' },
     cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
     -- stylua: ignore
     keys = {
@@ -35,6 +30,18 @@ return {
       },
     },
     config = function()
+      local jsts_settings = {
+        suggest = { completeFunctionCalls = true },
+        inlayHints = {
+          parameterNames = { enabled = 'all' },
+          parameterTypes = { enabled = true },
+          variableTypes = { enabled = true },
+          propertyDeclarationTypes = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          enumMemberValues = { enabled = true },
+        },
+      }
+
       local servers = {
         astro = {},
         clangd = {},
@@ -57,7 +64,7 @@ return {
           settings = {
             json = {
               validate = { enable = true },
-              format = { enable = false },
+              format = { enable = true },
             },
           },
           before_init = function(_, config)
@@ -92,25 +99,25 @@ return {
         nixd = {
           settings = {
             nixd = {
-              options = {
-                home_manager = {
-                  -- TODO: does this need to be platform specific?
-                  expr = '(builtins.getFlake "my").homeConfigurations."bnjmnt4n@macbook".options',
-                },
+              formatting = {
+                command = { 'alejandra' },
               },
             },
           },
         },
         pyright = {},
-        tailwindcss = {
+        tailwindcss = {},
+        -- tsgo = {},
+        vtsls = {
           settings = {
-            tailwindCSS = {
+            typescript = jsts_settings,
+            javascript = jsts_settings,
+            vtsls = {
+              autoUseWorkspaceTsdk = true,
               experimental = {
-                classRegex = {
-                  { 'classNames\\(([^)]*)\\)', '"([^"]*)"' },
-                  { 'cva\\(([^)]*)\\)', '["\'`]([^"\'`]*).*?["\'`]' },
-                  { 'cx\\(([^)]*)\\)', "(?:'|\"|`)([^']*)(?:'|\"|`)" },
-                },
+                maxInlayHintLength = 30,
+                -- For completion performance.
+                completion = { enableServerSideFuzzyMatch = true },
               },
             },
           },
@@ -119,7 +126,7 @@ return {
           settings = {
             yaml = {
               validate = { enable = true },
-              format = { enable = false },
+              format = { enable = true },
               schemastore = {
                 -- Using the schemastore plugin instead.
                 enable = false,
@@ -137,18 +144,9 @@ return {
         zls = {},
       }
 
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = require('blink.cmp').get_lsp_capabilities(capabilities)
-
-      for server, settings in pairs(servers) do
-        vim.lsp.config(
-          server,
-          vim.tbl_deep_extend('error', {
-            capabilities = capabilities,
-            silent = true,
-          }, settings)
-        )
-        vim.lsp.enable(server)
+      for server_name, config in pairs(servers) do
+        vim.lsp.config(server_name, config)
+        vim.lsp.enable(server_name)
       end
     end,
   },
@@ -156,7 +154,7 @@ return {
   -- LSP status
   {
     'j-hui/fidget.nvim',
-    event = 'LspAttach',
+    event = { 'LspAttach' },
     opts = {
       progress = {
         poll_rate = 0.5,
@@ -168,8 +166,7 @@ return {
   -- Incremental rename
   {
     'smjonas/inc-rename.nvim',
-    config = true,
-    cmd = 'IncRename',
+    cmd = { 'IncRename' },
     keys = {
       {
         '<leader>cr',
@@ -180,11 +177,13 @@ return {
         expr = true,
       },
     },
+    opts = {},
   },
 
   -- Code actions preview
   {
     'aznhe21/actions-preview.nvim',
+    dependencies = { 'nvim-telescope/telescope.nvim' },
     -- stylua: ignore
     keys = {
       { '<leader>ca', function() require('actions-preview').code_actions() end, mode = { 'n', 'x' }, desc = 'Code actions' },
@@ -204,39 +203,14 @@ return {
             end,
           },
         },
-        highlight_command = {
-          require('actions-preview.highlight').delta(),
-        },
       }
     end,
-  },
-
-  -- TypeScript
-  {
-    'pmizio/typescript-tools.nvim',
-    ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-    opts = {
-      settings = {
-        expose_as_code_action = 'all',
-        tsserver_file_preferences = {
-          includeInlayParameterNameHints = 'all',
-          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayVariableTypeHints = true,
-          includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayEnumMemberValueHints = true,
-        },
-      },
-    },
   },
 
   -- Rust
   {
     'mrcjkb/rustaceanvim',
-    version = '^5',
+    version = '^6',
     lazy = false,
   },
 
