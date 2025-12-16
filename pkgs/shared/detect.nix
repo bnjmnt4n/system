@@ -1,19 +1,12 @@
 {
   src,
   lib,
-  fetchFromGitHub,
   rustPlatform,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   name = "detect";
   src = src;
-
-  postPatch = ''
-    ln -s ${./Cargo.lock} Cargo.lock
-  '';
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-  };
+  cargoLock.lockFile = "${src}/Cargo.lock";
 
   meta = {
     description = "";

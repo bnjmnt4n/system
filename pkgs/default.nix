@@ -12,7 +12,7 @@ in {
     doCheck = false;
   });
 
-  detect = prev.callPackage ./shared/detect {
+  detect = prev.callPackage ./shared/detect.nix {
     src = inputs.detect;
   };
 
