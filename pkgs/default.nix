@@ -27,11 +27,4 @@ in {
     system = "x86_64-darwin";
     config.allowUnfree = true;
   };
-
-  otf2bdf = prev.callPackage ./linux/otf2bdf {};
-  ttf-console-font = prev.callPackage ./linux/ttf-console-font.nix {};
-  argonone-rpi4 = prev.callPackage ./linux/raspberry-pi-4/argonone-rpi4.nix {
-    rpi-gpio = prev.python3Packages.callPackage ./linux/raspberry-pi-4/rpi-gpio.nix {};
-    smbus2 = prev.python3.pkgs.callPackage ./linux/raspberry-pi-4/smbus2.nix {};
-  };
 }

@@ -17,7 +17,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     mac-app-util.url = "github:hraban/mac-app-util";
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
     nur.url = "github:nix-community/NUR";
     agenix = {
       url = "github:ryantm/agenix";
@@ -52,15 +51,6 @@
       macbook = {
         system = "aarch64-darwin";
         users = ["bnjmnt4n"];
-      };
-      windows = {
-        system = "x86_64-linux";
-        users = ["bnjmnt4n"];
-      };
-      raspy = {
-        system = "aarch64-linux";
-        users = ["bnjmnt4n" "guest"];
-        nixosModules = [inputs.nixos-hardware.nixosModules.raspberry-pi-4];
       };
     }
     // {

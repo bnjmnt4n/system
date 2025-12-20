@@ -116,10 +116,4 @@
       export RESTIC_PASSWORD_COMMAND="echo $PASSWORD"
     end
   '';
-
-  backupDirectory = tarsnap:
-    pkgs.writeShellScriptBin "backup-directory" ''
-      set -euox pipefail
-      ${tarsnap}/bin/tarsnap -c -f "$(basename "$1")-$(uname -n)-$(date +%Y-%m-%d_%H-%M-%S)" $1
-    '';
 }
