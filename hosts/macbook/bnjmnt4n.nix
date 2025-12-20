@@ -33,7 +33,7 @@ in {
 
   home.packages = with pkgs; [
     ffmpeg
-    jetbrains.idea-community
+    jetbrains.idea
     restic
     yt-dlp
   ];

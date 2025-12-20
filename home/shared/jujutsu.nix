@@ -6,9 +6,9 @@
   idea =
     if pkgs.stdenv.hostPlatform.isDarwin
     then "${pkgs.writeShellScriptBin "idea-wrapper" ''
-      ${pkgs.jetbrains.idea-community}/Applications/IntelliJ\ IDEA\ CE.app/Contents/MacOS/idea $@ 2> /dev/null
+      ${pkgs.jetbrains.idea}/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea $@ 2> /dev/null
     ''}/bin/idea-wrapper"
-    else "${pkgs.jetbrains.idea-community}/bin/idea-community";
+    else "${pkgs.jetbrains.idea}/bin/idea-community";
 in {
   programs.jujutsu = {
     enable = true;
