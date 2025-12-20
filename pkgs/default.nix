@@ -22,7 +22,6 @@ in {
 
   clop = prev.callPackage ./darwin/clop.nix {};
   cleanshot = prev.callPackage ./darwin/cleanshot.nix {};
-  secretive = prev.callPackage ./darwin/secretive.nix {};
   # Add access to x86 packages if system is running Apple Silicon.
   pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
     system = "x86_64-darwin";

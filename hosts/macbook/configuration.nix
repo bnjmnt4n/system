@@ -46,6 +46,7 @@
       "obsidian"
       "google-chrome"
       # "safari-technology-preview"
+      "secretive"
       "spotify"
       # "tor-browser"
       "transmission"
