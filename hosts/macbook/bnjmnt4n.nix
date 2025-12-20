@@ -26,7 +26,7 @@ in {
     ../../home/shared/neovim
     ../../home/shared/jujutsu.nix
     ../../home/shared/tmux.nix
-    ../../home/shared/zed-editor.nix
+    # ../../home/shared/zed-editor.nix
 
     ../../home/shared/ghostty
   ];

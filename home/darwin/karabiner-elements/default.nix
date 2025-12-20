@@ -5,7 +5,7 @@
     mullvad = "/Applications/Mullvad Browser.app";
     spotify = "/Applications/Spotify.app";
     stickies = "/System/Applications/Stickies.app";
-    zed = "${pkgs.zed-editor}/Applications/Zed.app";
+    # zed = "${pkgs.zed-editor}/Applications/Zed.app";
   };
 in {
   xdg.configFile."karabiner/karabiner.json".source =
