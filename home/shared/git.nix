@@ -12,8 +12,9 @@
     lfs.enable = true;
 
     signing = {
-      key = config.programs.gpg.settings.default-key;
-      signByDefault = config.programs.gpg.enable;
+      format = "ssh";
+      key = "~/.ssh/signing.pub";
+      signByDefault = true;
     };
 
     ignores = [
@@ -30,6 +31,7 @@
         name = "Benjamin Tan";
         email = "benjamin@dev.ofcr.se";
       };
+      gpg.ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowedsigners";
       column.ui = "auto";
       init.defaultBranch = "main";
       fetch = {

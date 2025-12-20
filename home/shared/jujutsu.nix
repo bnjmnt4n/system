@@ -30,11 +30,12 @@ in {
         auto-track = "glob:'**/*.*'";
       };
       signing = {
-        backend = "gpg";
-        key = config.programs.gpg.settings.default-key;
+        backend = "ssh";
+        key = "~/.ssh/signing.pub";
         behavior = "drop";
+        backends.ssh.allowed-signers = "${config.xdg.configHome}/git/allowedsigners";
       };
-      git.sign-on-push = config.programs.gpg.enable;
+      git.sign-on-push = true;
       hints.resolving-conflicts = false;
       # Used to link to repository branches and commits.
       repo.github-url = "";
