@@ -12,10 +12,6 @@ in {
     doCheck = false;
   });
 
-  detect = prev.callPackage ./shared/detect.nix {
-    src = inputs.detect;
-  };
-
   telescope-fzf-native = prev.callPackage ./shared/telescope-fzf-native.nix {
     src = inputs.telescope-fzf-native;
   };
