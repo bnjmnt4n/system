@@ -1,8 +1,17 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     ./dig.nix
     ./ssh.nix
   ];
+
+  targets.darwin = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+    linkApps.enable = false;
+    copyApps.enable = true;
+  };
 
   xdg.configFile."nixpkgs/config.nix".text = ''
     { allowUnfree = true; }

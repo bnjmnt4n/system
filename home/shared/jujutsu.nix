@@ -6,7 +6,7 @@
   idea =
     if pkgs.stdenv.hostPlatform.isDarwin
     then "${pkgs.writeShellScriptBin "idea-wrapper" ''
-      ${pkgs.jetbrains.idea}/Applications/IntelliJ\ IDEA.app/Contents/MacOS/idea $@ 2> /dev/null
+      ${config.home.homeDirectory}/Applications/Home\ Manager\ Apps/IntelliJ\ IDEA.app/Contents/MacOS/idea $@ 2> /dev/null
     ''}/bin/idea-wrapper"
     else "${pkgs.jetbrains.idea}/bin/idea-community";
 in {

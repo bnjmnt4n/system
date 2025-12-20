@@ -124,7 +124,6 @@ in rec {
         ++ [
           home-manager.darwinModules.home-manager
           inputs.nix-index-database.darwinModules.nix-index
-          inputs.mac-app-util.darwinModules.default
           {
             # Before changing this value read the documentation for this option
             # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
@@ -152,7 +151,6 @@ in rec {
                   imports = [
                     (./hosts + "/${hostname}/${user}.nix")
                     inputs.agenix.homeManagerModules.default
-                    inputs.mac-app-util.homeManagerModules.default
                   ];
 
                   home = {
