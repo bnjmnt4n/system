@@ -46,14 +46,11 @@ in {
 
   home.sessionVariables = {
     RESTIC_REPOSITORY_PATH = config.age.secrets.restic-repositories.path;
-    EDITOR = "nvim";
-    VISUAL = "nvim";
     MANPAGER = "nvim +Man!";
   };
 
   # Shell aliases.
   programs.fish.shellAliases.setup-restic-env = "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
-  home.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
   # Setup Dock.
   home.activation.setupMacosDock = lib.hm.dag.entryAfter ["writeBoundary"] ''

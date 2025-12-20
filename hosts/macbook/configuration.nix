@@ -31,6 +31,7 @@
       "aldente"
       # "bitwarden"
       "calibre"
+      "cursor"
       # "docker"
       "dropbox"
       "figma"
@@ -44,6 +45,7 @@
       "mullvad-browser"
       "mullvad-vpn"
       "obsidian"
+      "oversight"
       "google-chrome"
       # "safari-technology-preview"
       "secretive"
@@ -102,6 +104,8 @@
       ];
     };
   };
+
+  environment.shellAliases.tailscale = "/Applications/Tailscale.app/Contents/MacOS/Tailscale";
 
   fonts.packages = with pkgs; [
     inter

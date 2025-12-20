@@ -533,8 +533,12 @@ in {
           command = ["alejandra" "--quiet" "-"];
           patterns = ["glob:'**/*.nix'"];
         };
+        gofmt = {
+          command = ["gofmt"];
+          patterns = ["glob:'**/*.go'"];
+        };
         rustfmt = {
-          command = ["rustfmt"];
+          command = ["rustfmt" "--emit" "stdout" "--edition" "2024"];
           patterns = ["glob:'**/*.rs'"];
         };
         prettier = {

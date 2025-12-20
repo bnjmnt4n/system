@@ -32,6 +32,7 @@
   '';
 
   nixFlakeInit = pkgs.writeShellScriptBin "nix-flake-init" ''
+    set -euo pipefail
     ${pkgs.nix}/bin/nix flake init -t "${inputs.self}#''${1:-default}"
     ${pkgs.nix}/bin/nix flake lock --override-input nixpkgs github:NixOS/nixpkgs/${inputs.nixpkgs.rev}
     ${pkgs.coreutils}/bin/echo "use flake" >> .envrc
@@ -39,11 +40,13 @@
   '';
 
   nixFlakeSync = pkgs.writeShellScriptBin "nix-flake-sync" ''
+    set -euo pipefail
     ${pkgs.nix}/bin/nix flake lock --override-input nixpkgs github:NixOS/nixpkgs/${inputs.nixpkgs.rev}
     [ -f .envrc ] && ${pkgs.direnv}/bin/direnv allow .
   '';
 
   cloneRepo = pkgs.writeShellScriptBin "clone-repo" ''
+    set -euo pipefail
     if [ $# -eq 0 ]; then
       echo "Usage: clone-repo username/repository"
       exit 1
