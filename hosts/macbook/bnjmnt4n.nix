@@ -35,6 +35,7 @@ in {
     ffmpeg
     jetbrains.idea
     restic
+    syncthing-macos
     yt-dlp
   ];
 
