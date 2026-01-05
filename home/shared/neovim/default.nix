@@ -36,7 +36,6 @@
     "jsdoc"
     "json"
     "json5"
-    "jsonc"
     "latex"
     "ledger"
     "lua"
@@ -69,8 +68,8 @@
   nvim-treesitter = pkgs.vimPlugins.nvim-treesitter.withPlugins (
     pkgs: (map (language: pkgs.${language}) treeSitterLanguages)
   );
-  treesitter-parsers = pkgs.symlinkJoin {
-    name = "treesitter-parsers";
+  nvim-treesitter-dependencies = pkgs.symlinkJoin {
+    name = "nvim-treesitter-dependencies";
     paths = nvim-treesitter.dependencies;
   };
   aliases = {
@@ -150,7 +149,8 @@ in {
     '';
   };
 
-  xdg.configFile."nvim/parser".source = "${treesitter-parsers}/parser";
+  xdg.configFile."nvim/parser".source = "${nvim-treesitter-dependencies}/parser";
+  xdg.configFile."nvim/queries".source = "${nvim-treesitter-dependencies}/queries";
 
   xdg.configFile."nvim/after".source = ./after;
   xdg.configFile."nvim/lua".source = ./lua;

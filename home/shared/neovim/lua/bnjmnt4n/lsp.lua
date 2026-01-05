@@ -23,6 +23,7 @@ vim.diagnostic.config({ virtual_lines = false }, require('lazy.core.config').ns)
 vim.lsp.inlay_hint.enable()
 
 M.inlay_hint_disabled_filetypes = {
+  lua = true,
   typescriptreact = true,
   typescript = true,
 }

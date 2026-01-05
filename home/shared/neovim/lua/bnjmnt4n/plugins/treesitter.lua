@@ -1,15 +1,68 @@
 -- Treesitter
 return {
-  -- TODO: Switch to `main` branch
   {
     'nvim-treesitter/nvim-treesitter',
     lazy = false,
     dir = vim.g.nvim_treesitter_path,
     dependencies = {
       -- Better auto-completion of HTML tags
-      'windwp/nvim-ts-autotag',
+      { 'windwp/nvim-ts-autotag', opts = {} },
       -- Text object mappings
-      'nvim-treesitter/nvim-treesitter-textobjects',
+      {
+        'nvim-treesitter/nvim-treesitter-textobjects',
+        branch = 'main',
+        keys = {
+          -- Swap
+          {
+            ']z',
+            function()
+              require('nvim-treesitter-textobjects.swap').swap_next '@parameter.inner'
+            end,
+            desc = 'Swap next parameter',
+          },
+          {
+            '[z',
+            function()
+              require('nvim-treesitter-textobjects.swap').swap_previous '@parameter.inner'
+            end,
+            desc = 'Swap previous parameter',
+          },
+          -- Move
+          {
+            ']m',
+            function()
+              require('nvim-treesitter-textobjects.move').goto_next_start('@function.outer', 'textobjects')
+            end,
+            mode = { 'n', 'x', 'o' },
+          },
+          {
+            ']M',
+            function()
+              require('nvim-treesitter-textobjects.move').goto_next_end('@function.outer', 'textobjects')
+            end,
+            mode = { 'n', 'x', 'o' },
+          },
+          {
+            '[m',
+            function()
+              require('nvim-treesitter-textobjects.move').goto_previous_start('@function.outer', 'textobjects')
+            end,
+            mode = { 'n', 'x', 'o' },
+          },
+          {
+            '[M',
+            function()
+              require('nvim-treesitter-textobjects.move').goto_previous_end('@function.outer', 'textobjects')
+            end,
+            mode = { 'n', 'x', 'o' },
+          },
+        },
+        opts = {
+          move = {
+            set_jumps = true,
+          },
+        },
+      },
       -- Display code context
       {
         'nvim-treesitter/nvim-treesitter-context',
@@ -31,7 +84,7 @@ return {
       },
     },
     opts = {
-      highlight = { enable = true },
+      -- TODO: https://github.com/neovim/neovim/pull/36993
       incremental_selection = {
         enable = true,
         keymaps = {
@@ -41,47 +94,6 @@ return {
           node_decremental = '<bs>',
         },
       },
-      indent = { enable = true },
-      textobjects = {
-        select = { enable = false },
-        swap = {
-          enable = true,
-          swap_next = {
-            [']z'] = '@parameter.inner',
-          },
-          swap_previous = {
-            ['[z'] = '@parameter.inner',
-          },
-        },
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            [']m'] = '@function.outer',
-          },
-          goto_next_end = {
-            [']M'] = '@function.outer',
-          },
-          goto_previous_start = {
-            ['[m'] = '@function.outer',
-          },
-          goto_previous_end = {
-            ['[M'] = '@function.outer',
-          },
-        },
-        lsp_interop = {
-          enable = true,
-          peek_definition_code = {
-            ['<leader>cdf'] = '@function.outer',
-            ['<leader>cdc'] = '@class.outer',
-          },
-        },
-      },
-      matchup = { enable = true },
-      autotag = { enable = true },
     },
-    config = function(_, opts)
-      require('nvim-treesitter.configs').setup(opts)
-    end,
   },
 }

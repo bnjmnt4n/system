@@ -7,6 +7,18 @@ in {
   };
   inherit nixpkgs-stable;
 
+  neovim-unwrapped = prev.neovim-unwrapped.overrideAttrs (old: {
+    patches =
+      (old.patches or [])
+      ++ [
+        # Tree-sitter incremental selection: https://github.com/neovim/neovim/pull/36993
+        (prev.fetchpatch {
+          url = "https://github.com/neovim/neovim/commit/95c6ea8511be8dadd58508b89ac52a6f7ecf059a.patch";
+          sha256 = "sha256-hSvPmNkUsHzcLTAdxHBXRNBgGq1iGd+GnYmP86iYL3A=";
+        })
+      ];
+  });
+
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {
     doCheck = false;

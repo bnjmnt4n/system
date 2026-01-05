@@ -282,3 +282,19 @@ map('n', '<leader>tu', function()
   end
   vim.cmd.Undotree()
 end, { desc = 'Toggle undotree' })
+
+map({ 'n', 'x', 'o' }, '<cr>', function()
+  if vim.treesitter.get_parser(nil, nil, { error = false }) then
+    for _ = 1, vim.v.count1 do
+      require('vim._treeselect').select_parent()
+    end
+  end
+end, { desc = 'Select parent treesitter node' })
+
+map({ 'x', 'o' }, '<bs>', function()
+  if vim.treesitter.get_parser(nil, nil, { error = false }) then
+    for _ = 1, vim.v.count1 do
+      require('vim._treeselect').select_child()
+    end
+  end
+end, { desc = 'Select child treesitter node' })
