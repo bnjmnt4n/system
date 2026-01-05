@@ -44,7 +44,7 @@
     templates = ["default" "go" "mariadb" "postgresql" "python" "web"];
   in
     lib.makeHostsConfigurations {
-      macbook = {
+      veracity = {
         system = "aarch64-darwin";
         users = ["bnjmnt4n"];
       };
