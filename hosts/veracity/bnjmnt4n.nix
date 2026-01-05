@@ -35,7 +35,6 @@ in {
     ffmpeg
     jetbrains.idea
     restic
-    syncthing-macos
     yt-dlp
   ];
 
@@ -46,7 +45,6 @@ in {
   age.secrets.restic-repositories.file = ../../secrets/restic-repositories.age;
 
   home.sessionVariables = {
-    RESTIC_REPOSITORY_PATH = config.age.secrets.restic-repositories.path;
     MANPAGER = "nvim +Man!";
   };
 

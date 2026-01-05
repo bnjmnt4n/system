@@ -53,19 +53,11 @@
     ];
   };
 
-  services.karabiner-elements = {
-    enable = true;
-    # Karabiner Elements 15.0 is not supported yet in nix-darwin.
-    # https://github.com/LnL7/nix-darwin/issues/1041
-    package = pkgs.karabiner-elements.overrideAttrs (old: {
-      version = "14.13.0";
-      src = pkgs.fetchurl {
-        inherit (old.src) url;
-        hash = "sha256-gmJwoht/Tfm5qMecmq1N6PSAIfWOqsvuHU8VDJY8bLw=";
-      };
-      dontFixup = true;
-    });
-  };
+  environment.systemPackages = with pkgs; [
+    syncthing-macos
+  ];
+
+  services.karabiner-elements.enable = true;
 
   # Use TouchID for `sudo`.
   security.pam.services.sudo_local.touchIdAuth = true;

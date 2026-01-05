@@ -179,7 +179,7 @@ in rec {
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       modules = [
-        inputs.nix-index-database.homeManagerModules.nix-index
+        inputs.nix-index-database.homeModules.nix-index
         inputs.agenix.homeManagerModules.default
         {
           nixpkgs = {
