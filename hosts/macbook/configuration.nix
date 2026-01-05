@@ -3,10 +3,7 @@
     ../../os/shared/nix.nix
   ];
 
-  nixpkgs.hostPlatform = "aarch64-darwin";
-  networking.hostName = "macbook";
   time.timeZone = "Asia/Singapore";
-  system.primaryUser = "bnjmnt4n";
 
   environment.shells = [pkgs.fish];
   programs.fish = {

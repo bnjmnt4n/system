@@ -84,8 +84,10 @@ in rec {
             nix.registry.my.flake = self;
             # Use our custom instance of nixpkgs.
             nixpkgs = {inherit pkgs;};
+            home-manager.extraSpecialArgs = {inherit inputs;};
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            networking.hostName = hostname;
           }
           (./hosts + "/${hostname}/configuration.nix")
           (nixpkgs.lib.foldl'
@@ -138,6 +140,8 @@ in rec {
             home-manager.extraSpecialArgs = {inherit inputs;};
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            networking.hostName = hostname;
+            system.primaryUser = builtins.elemAt users 0;
           }
           (./hosts + "/${hostname}/configuration.nix")
           (nixpkgs.lib.foldl'
