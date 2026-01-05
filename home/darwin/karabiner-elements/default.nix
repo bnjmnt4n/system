@@ -1,11 +1,10 @@
 {pkgs, ...}: let
   yaml = pkgs.replaceVars ./karabiner.yaml {
-    firefox = "/Applications/Firefox.app";
-    ghostty = "/Applications/Ghostty.app";
-    mullvad = "/Applications/Mullvad Browser.app";
-    spotify = "/Applications/Spotify.app";
-    stickies = "/System/Applications/Stickies.app";
-    # zed = "${pkgs.zed-editor}/Applications/Zed.app";
+    browser = "/Applications/Firefox.app";
+    terminal = "/Applications/Ghostty.app";
+    privatebrowser = "/Applications/Mullvad Browser.app";
+    music = "/Applications/Spotify.app";
+    notes = "/System/Applications/Stickies.app";
   };
 in {
   xdg.configFile."karabiner/karabiner.json".source =

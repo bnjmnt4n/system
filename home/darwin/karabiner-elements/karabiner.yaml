@@ -77,7 +77,7 @@ profiles:
               to:
                 - key_code: delete_forward
               type: basic
-        - description: Hyper + Enter -> Open Terminal (Ghostty)
+        - description: Hyper + Enter -> Open Terminal
           manipulators:
             - from:
                 key_code: return_or_enter
@@ -88,9 +88,9 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@ghostty@"
+                - shell_command: open -a "@terminal@"
               type: basic
-        - description: Hyper + b -> Open Browser (Firefox)
+        - description: Hyper + b -> Open Browser
           manipulators:
             - from:
                 key_code: b
@@ -101,21 +101,8 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@firefox@"
+                - shell_command: open -a "@browser@"
               type: basic
-        # - description: Hyper + c -> Open Code Editor (Zed)
-        #   manipulators:
-        #     - from:
-        #         key_code: c
-        #         modifiers:
-        #           mandatory:
-        #             - left_shift
-        #             - left_command
-        #             - left_option
-        #             - left_control
-        #       to:
-        #         - shell_command: open -a "zed"
-        #       type: basic
         - description: Hyper + f -> Open Finder
           manipulators:
             - from:
@@ -129,7 +116,7 @@ profiles:
               to:
                 - shell_command: open -a Finder.app
               type: basic
-        - description: Hyper + m -> Open Music Player (Spotify)
+        - description: Hyper + m -> Open Music Player
           manipulators:
             - from:
                 key_code: m
@@ -140,9 +127,9 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@spotify@"
+                - shell_command: open -a "@music@"
               type: basic
-        - description: Hyper + p -> Open Browser (Mullvad)
+        - description: Hyper + p -> Open Private Browser
           manipulators:
             - from:
                 key_code: p
@@ -153,9 +140,9 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@mullvad@"
+                - shell_command: open -a "@privatebrowser@"
               type: basic
-        - description: Hyper + s -> Open Stickies
+        - description: Hyper + s -> Open Notes
           manipulators:
             - from:
                 key_code: s
@@ -166,9 +153,9 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@stickies@"
+                - shell_command: open -a "@notes@"
               type: basic
-        - description: Hyper + t -> Open Terminal (Ghostty)
+        - description: Hyper + t -> Open Terminal
           manipulators:
             - from:
                 key_code: t
@@ -179,7 +166,7 @@ profiles:
                     - left_option
                     - left_control
               to:
-                - shell_command: open -a "@ghostty@"
+                - shell_command: open -a "@terminal@"
               type: basic
     devices:
       - disable_built_in_keyboard_if_exists: false

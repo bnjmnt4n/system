@@ -94,7 +94,6 @@
         "/System/Cryptexes/App/System/Applications/Safari.app"
         {spacer = {small = true;};}
         "/Applications/Ghostty.app/"
-        # "${pkgs.zed-editor}/Applications/Zed.app/"
         {spacer = {small = true;};}
         "/Applications/Spotify.app/"
         "/System/Applications/Stickies.app/"
