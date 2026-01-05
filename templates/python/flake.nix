@@ -5,9 +5,9 @@
 
   outputs = {nixpkgs, ...}: let
     systems = ["aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux"];
-    forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
+    forEach = list: f: builtins.foldl' (acc: item: nixpkgs.lib.recursiveUpdate acc (f item)) {} list;
   in
-    forEachSystem systems (system: let
+    forEach systems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
     in {
       devShells.${system}.default = pkgs.mkShell {

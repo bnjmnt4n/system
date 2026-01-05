@@ -5,9 +5,9 @@
 
   outputs = {nixpkgs, ...}: let
     systems = ["aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux"];
-    forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
+    forEach = list: f: builtins.foldl' (acc: item: nixpkgs.lib.recursiveUpdate acc (f item)) {} list;
   in
-    forEachSystem systems (system: let
+    forEach systems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       startMariadbScript = pkgs.writeScriptBin "start-mariadb" ''
         mysqld --datadir=$MYSQL_DATADIR --pid-file=$MYSQL_PID_FILE \
@@ -37,7 +37,7 @@
           if [ ! -d "$MYSQL_HOME" ]; then
             # Make sure to use normal authentication method otherwise we can only
             # connect with unix account. But users do not actually exists in nix.
-            mysql_install_db --auth-root-authentication-method=normal \
+            mariadb-install-db --auth-root-authentication-method=normal \
               --datadir=$MYSQL_DATADIR --basedir=$MYSQL_BASEDIR \
               --pid-file=$MYSQL_PID_FILE
           fi

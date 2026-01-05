@@ -39,8 +39,9 @@
 
   outputs = {nixpkgs, ...} @ inputs: let
     lib = import ./lib.nix inputs;
+    forEach = list: f: builtins.foldl' (acc: item: nixpkgs.lib.recursiveUpdate acc (f item)) {} list;
     systems = ["aarch64-darwin" "aarch64-linux" "x86_64-linux"];
-    forEachSystem = systems: f: builtins.foldl' (acc: system: nixpkgs.lib.recursiveUpdate acc (f system)) {} systems;
+    templates = ["default" "go" "mariadb" "postgresql" "python" "web"];
   in
     lib.makeHostsConfigurations {
       macbook = {
@@ -48,40 +49,18 @@
         users = ["bnjmnt4n"];
       };
     }
-    // {
-      templates = {
-        default = {
-          path = ./templates/default;
-          description = "Default";
-        };
-        go = {
-          path = ./templates/go;
-          description = "Go";
-        };
-        mariadb = {
-          path = ./templates/mariadb;
-          description = "MariaDB";
-        };
-        postgres = {
-          path = ./templates/postgres;
-          description = "PostgreSQL";
-        };
-        python = {
-          path = ./templates/python;
-          description = "Python";
-        };
-        web = {
-          path = ./templates/web;
-          description = "Web";
-        };
+    // forEach templates (name: {
+      templates.${name} = {
+        path = ./templates + "/${name}";
+        description = name;
       };
-    }
-    // forEachSystem systems (
+    })
+    // forEach systems (
       system: let
         pkgs = lib.makePkgs system;
       in {
         # Custom version of nixpkgs with overlays.
-        packages.${system}.nixpkgs = pkgs;
+        # packages.${system}.nixpkgs = pkgs;
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             scripts.switchHome
