@@ -83,17 +83,5 @@ return {
         },
       },
     },
-    opts = {
-      -- TODO: https://github.com/neovim/neovim/pull/36993
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = '<cr>',
-          node_incremental = '<cr>',
-          scope_incremental = ';',
-          node_decremental = '<bs>',
-        },
-      },
-    },
   },
 }

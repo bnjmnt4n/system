@@ -104,14 +104,18 @@ in {
             ),
             if(commit.hidden(),
               label("hidden",
-                format_short_change_id(commit.change_id()) ++ " hidden"
+                format_short_change_id(commit.change_id()) ++ format_change_offset(commit) ++ " hidden"
               ),
-              label(if(commit.divergent(), "divergent"),
-                format_short_change_id(commit.change_id()) ++ if(commit.divergent(), "??")
+              if(commit.divergent(),
+                label("divergent",
+                  format_short_change_id(commit.change_id()) ++ format_change_offset(commit) ++ " divergent"
+                ),
+                format_short_change_id(commit.change_id())
               )
             )
           )
         '';
+        "format_change_offset(commit)" = ''surround(label("change_offset", "/"), "", commit.change_offset())'';
         "format_root_commit(root)" = ''
           separate(" ",
             label("immutable", format_short_change_id(root.change_id())),

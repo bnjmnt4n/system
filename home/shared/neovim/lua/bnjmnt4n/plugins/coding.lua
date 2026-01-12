@@ -211,17 +211,12 @@ return {
 
         ['<tab>'] = {
           function(cmp)
-            local is_copilot_enabled, copilot = pcall(require, 'copilot.suggestion')
-
             local has_words_before = function()
               local line, col = unpack(vim.api.nvim_win_get_cursor(0))
               return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match '%s' == nil
             end
 
-            if is_copilot_enabled and copilot.is_visible() then
-              copilot.accept()
-              return true
-            elseif cmp.is_visible() then
+            if cmp.is_visible() then
               return cmp.select_next()
             elseif has_words_before() then
               return cmp.show()
@@ -268,64 +263,6 @@ return {
         },
       },
     },
-  },
-
-  -- Copilot
-  {
-    'zbirenbaum/copilot.lua',
-    enabled = false,
-    -- TODO: Disable by default: https://github.com/zbirenbaum/copilot.lua/issues/302
-    cmd = { 'Copilot' },
-    event = { 'InsertEnter' },
-    keys = {
-      {
-        '<leader>ta',
-        function()
-          require('copilot.suggestion').toggle_auto_trigger()
-        end,
-        desc = 'Toggle AI auto-suggestions',
-      },
-    },
-    opts = {
-      panel = { enabled = false },
-      suggestion = {
-        auto_trigger = false,
-        keymap = {
-          -- Handled in <tab> keybinding in blink.cmp configuration.
-          -- accept = false,
-          accept = '<m-enter>',
-          accept_word = '<m-w>',
-          accept_line = '<m-l>',
-          next = '<c-]>',
-          prev = '<c-[>',
-          dismiss = '<c-c>',
-        },
-      },
-      filetypes = {
-        markdown = true,
-        ledger = false,
-      },
-      copilot_node_command = vim.g.node_binary_path,
-    },
-    config = function(_, opts)
-      require('copilot').setup(opts)
-
-      -- Hide suggestions when the completion menu is open.
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'BlinkCmpMenuOpen',
-        callback = function()
-          local copilot = require 'copilot.suggestion'
-          copilot.dismiss()
-          vim.b.copilot_suggestion_hidden = true
-        end,
-      })
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'BlinkCmpMenuClose',
-        callback = function()
-          vim.b.copilot_suggestion_hidden = false
-        end,
-      })
-    end,
   },
 
   -- Auto pairs

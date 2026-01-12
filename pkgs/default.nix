@@ -13,8 +13,8 @@ in {
       ++ [
         # Tree-sitter incremental selection: https://github.com/neovim/neovim/pull/36993
         (prev.fetchpatch {
-          url = "https://github.com/neovim/neovim/commit/95c6ea8511be8dadd58508b89ac52a6f7ecf059a.patch";
-          sha256 = "sha256-hSvPmNkUsHzcLTAdxHBXRNBgGq1iGd+GnYmP86iYL3A=";
+          url = "https://github.com/neovim/neovim/commit/9c094d850ee5f5d4ede70afa0de0fba85a2ce6b5.patch";
+          sha256 = "sha256-+gzGMs0EEZ8ZXj8weAiwyx4W3NSKFxTuoEH4H4BfzwM=";
         })
       ];
   });

@@ -286,15 +286,18 @@ end, { desc = 'Toggle undotree' })
 map({ 'n', 'x', 'o' }, '<cr>', function()
   if vim.treesitter.get_parser(nil, nil, { error = false }) then
     for _ = 1, vim.v.count1 do
-      require('vim._treeselect').select_parent()
+      require('vim.treesitter._select').select_parent()
     end
+  else
+    local key = vim.api.nvim_replace_termcodes('<enter>', true, false, true)
+    vim.api.nvim_feedkeys(key, 'n', false)
   end
 end, { desc = 'Select parent treesitter node' })
 
 map({ 'x', 'o' }, '<bs>', function()
   if vim.treesitter.get_parser(nil, nil, { error = false }) then
     for _ = 1, vim.v.count1 do
-      require('vim._treeselect').select_child()
+      require('vim.treesitter._select').select_child()
     end
   end
 end, { desc = 'Select child treesitter node' })

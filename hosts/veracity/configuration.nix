@@ -28,12 +28,12 @@
       "aldente"
       # "bitwarden"
       "calibre"
-      "cursor"
       # "docker"
       "dropbox"
       "figma"
       "firefox"
       "ghostty"
+      "google-chrome"
       # "handbrake"
       "imageoptim"
       "knockknock"
@@ -43,7 +43,6 @@
       "mullvad-vpn"
       "obsidian"
       "oversight"
-      "google-chrome"
       # "safari-technology-preview"
       "secretive"
       "spotify"
@@ -88,6 +87,7 @@
         "/Applications/Ghostty.app/"
         {spacer = {small = true;};}
         "/Applications/Spotify.app/"
+        "/Applications/Obsidian.app/"
         "/System/Applications/Stickies.app/"
       ];
     };
