@@ -80,6 +80,11 @@
     ${pkgs.jujutsu}/bin/jj --repository $repo_path debug index-changed-paths
   '';
 
+  gitRangeDiffMarkdown = pkgs.writeShellScriptBin "git-range-diff-markdown" ''
+    set -euo pipefail
+    ${pkgs.git}/bin/git range-diff "$@" | ${pkgs.gawk}/bin/awk -f ${./git-range-diff-markdown.awk}
+  '';
+
   setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''
     #!/usr/bin/env fish
 

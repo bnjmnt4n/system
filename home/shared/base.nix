@@ -73,6 +73,7 @@
     # comby
     tokei
     scripts.cloneRepo
+    scripts.gitRangeDiffMarkdown
 
     # Nix tools
     nixd
