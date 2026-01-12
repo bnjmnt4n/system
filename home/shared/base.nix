@@ -66,6 +66,7 @@
     # Code tools
     ast-grep
     codespell
+    git-pkgs
     git-sizer
     git-who
     gh-pr-versions

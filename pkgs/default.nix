@@ -18,6 +18,7 @@ in {
         })
       ];
   });
+  git-pkgs = prev.callPackage ./shared/git-pkgs/package.nix {};
 
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {
