@@ -37,8 +37,6 @@ in {
       };
       git.sign-on-push = true;
       hints.resolving-conflicts = false;
-      # Used to link to repository branches and commits.
-      repo.github-url = "";
       templates = {
         log = "log_compact";
         log_node = ''
@@ -61,16 +59,16 @@ in {
               label("bookmark", name ++ "@" ++ remote) ++ format_ref_targets(self),
             ),
             label("bookmark",
-              if(config("repo.github-url").as_string(),
-                hyperlink(concat(config("repo.github-url").as_string(), "/tree/", name), name),
+              if(is_github_remote(),
+                hyperlink(concat(git_web_url(), "/tree/", name), name),
                 name)) ++
             if(present, format_ref_targets(self), " (deleted)"),
           ) ++ "\n"
         '';
         tag_list = ''
           label("tag",
-            if(config("repo.github-url").as_string(),
-              hyperlink(concat(config("repo.github-url").as_string(), "/releases/tag/", name), name),
+            if(is_github_remote(),
+              hyperlink(concat(git_web_url(), "/releases/tag/", name), name),
               name)) ++
           format_ref_targets(self) ++ "\n"
         '';
@@ -79,6 +77,9 @@ in {
         show = "log_detailed";
       };
       template-aliases = {
+        "is_github_remote()" = ''
+          git_web_url().starts_with("https://github.com/")
+        '';
         "is_wip_commit_description(description)" = ''
           !description ||
           description.first_line().lower().starts_with("wip:") ||
@@ -155,11 +156,11 @@ in {
           )
         '';
         "format_commit_description_first_line(description)" = ''
-          if(config("repo.github-url").as_string() && description.match(regex:'^.+ \(#\d+\)$'),
+          if(is_github_remote() && description.match(regex:'^.+ \(#\d+\)$'),
             description.replace(regex:' \(#\d+\)$', "") ++
               label("description",
                 " (" ++ hyperlink(
-                  concat(config("repo.github-url").as_string(),
+                  concat(git_web_url(),
                     "/pull/",
                     description.replace(regex:'^.+ \(#(\d+)\)$', "$1")),
                   description.replace(regex:'^.+ \((#\d+)\)$', "$1")
@@ -167,18 +168,18 @@ in {
             description)
         '';
         "format_commit_id(commit)" = ''
-          if(config("repo.github-url").as_string() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(is_github_remote() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(config("repo.github-url").as_string(), "/commit/", commit.commit_id()),
+              concat(git_web_url(), "/commit/", commit.commit_id()),
               format_short_commit_id(commit.commit_id()),
             ),
             format_short_commit_id(commit.commit_id()),
           )
         '';
         "format_long_commit_id(commit)" = ''
-          if(config("repo.github-url").as_string() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(is_github_remote() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(config("repo.github-url").as_string(), "/commit/", commit.commit_id()),
+              concat(git_web_url(), "/commit/", commit.commit_id()),
               commit.commit_id(),
             ),
             commit.commit_id(),
@@ -220,11 +221,11 @@ in {
         '';
         # TODO: This wrongly links to unpushed local bookmarks.
         "format_commit_bookmarks(bookmarks)" = ''
-          if(config("repo.github-url").as_string(),
+          if(is_github_remote(),
             bookmarks.map(
               |bookmark| if(
                 bookmark.remote() == "origin" || !bookmark.remote(),
-                hyperlink(concat(config("repo.github-url").as_string(), "/tree/", bookmark.name()), bookmark),
+                hyperlink(concat(git_web_url(), "/tree/", bookmark.name()), bookmark),
                 bookmark
               )
             ),
@@ -233,11 +234,11 @@ in {
         '';
         # TODO: This wrongly links to unpushed local tags.
         "format_commit_tags(tags)" = ''
-          if(config("repo.github-url").as_string(),
+          if(is_github_remote(),
             tags.map(
               |tag| if(
                 tag.remote() == "origin" || !tag.remote(),
-                hyperlink(concat(config("repo.github-url").as_string(), "/releases/tag/", tag.name()), tag),
+                hyperlink(concat(git_web_url(), "/releases/tag/", tag.name()), tag),
                 tag
               )
             ),

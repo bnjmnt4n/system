@@ -75,9 +75,6 @@
 
     cd "$HOME/code"
     ${pkgs.jujutsu}/bin/jj git clone $url $repo_path
-    if [[ $host = "github.com" ]]; then
-      ${pkgs.jujutsu}/bin/jj --repository $repo_path config set --repo repo.github-url "https://github.com/$path"
-    fi
     trunk=$(${pkgs.jujutsu}/bin/jj --repository $repo_path config get "revset-aliases.'trunk()'")
     ${pkgs.jujutsu}/bin/jj --repository $repo_path config set --repo "revset-aliases.'trunk()'" "present($trunk)"
     ${pkgs.jujutsu}/bin/jj --repository $repo_path debug index-changed-paths
