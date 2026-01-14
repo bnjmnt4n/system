@@ -7,7 +7,7 @@ return {
 
   -- `s` motion
   {
-    'ggandor/leap.nvim',
+    'https://codeberg.org/andyg/leap.nvim',
     lazy = false,
     keys = {
       { 's', '<Plug>(leap-forward)', mode = { 'n', 'x', 'o' }, desc = 'Leap forward' },
