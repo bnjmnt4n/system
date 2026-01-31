@@ -133,7 +133,7 @@ in {
     withRuby = false;
     withNodeJs = false;
 
-    extraLuaConfig = ''
+    initLua = ''
       vim.g.is_mac = '${
         if pkgs.stdenv.hostPlatform.isDarwin
         then "1"
