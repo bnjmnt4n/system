@@ -66,12 +66,14 @@
     # Code tools
     ast-grep
     codespell
+    # comby
     git-pkgs
     git-sizer
     git-who
     gh-pr-versions
-    # comby
+    pinact
     tokei
+    zizmor
     scripts.cloneRepo
     scripts.gitRangeDiffMarkdown
 

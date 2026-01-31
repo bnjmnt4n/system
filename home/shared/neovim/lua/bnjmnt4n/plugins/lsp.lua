@@ -14,11 +14,11 @@ return {
     cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
     -- stylua: ignore
     keys = {
-      { '<leader>li', '<cmd>LspInfo<cr>', desc = 'LSP information' },
-      { '<leader>ls', '<cmd>LspStart<cr>', desc = 'Start LSP servers' },
-      { '<leader>lt', '<cmd>LspStop<cr>', desc = 'Stop LSP servers' },
-      { '<leader>lr', '<cmd>LspRestart<cr>', desc = 'Restart LSP servers' },
-      { '<leader>ll', '<cmd>LspLog<cr>', desc = 'LSP log' },
+      { '<leader>li', '<cmd>checkhealth vim.lsp<cr>', desc = 'LSP information' },
+      { '<leader>ls', '<cmd>lsp start<cr>', desc = 'Start LSP servers' },
+      { '<leader>lt', '<cmd>lsp stop<cr>', desc = 'Stop LSP servers' },
+      { '<leader>lr', '<cmd>lsp restart<cr>', desc = 'Restart LSP servers' },
+      { '<leader>ll', function() vim.cmd(string.format('tabnew %s', vim.lsp.log.get_filename())) end, desc = 'LSP log' },
       { '<leader>lwa', vim.lsp.buf.add_workspace_folder, desc = 'Add workspace folder' },
       { '<leader>lwr', vim.lsp.buf.remove_workspace_folder, desc = 'Remove workspace folder' },
       {
@@ -140,6 +140,22 @@ return {
             config.settings.yaml.schemas = config.settings.yaml.schemas or {}
             vim.list_extend(config.settings.yaml.schemas, require('schemastore').yaml.schemas())
           end,
+        },
+        zizmor = {
+          cmd = { 'zizmor', '--lsp' },
+          filetypes = { 'yaml' },
+          root_markers = { '.github' },
+          capabilities = {
+            textDocument = {
+              didOpen = { dynamicRegistration = true },
+              didChange = { dynamicRegistration = true },
+              didSave = { dynamicRegistration = true },
+              didClose = { dynamicRegistration = true },
+            },
+            workspace = {
+              didChangeConfiguration = { dynamicRegistration = true },
+            },
+          },
         },
         zls = {},
       }

@@ -9,6 +9,17 @@
       ${config.home.homeDirectory}/Applications/Home\ Manager\ Apps/IntelliJ\ IDEA.app/Contents/MacOS/idea $@ 2> /dev/null
     ''}/bin/idea-wrapper"
     else "${pkgs.jetbrains.idea}/bin/idea-community";
+  dependencies =
+    pkgs.lib.readFile
+    (pkgs.runCommand "dependencies_fileset.txt"
+      {
+        nativeBuildInputs = with pkgs; [
+          git-pkgs
+          jq
+        ];
+      } ''
+        git-pkgs ecosystems -f json | jq 'map([.lockfiles.[]?, .manifest?]) | flatten | map(strings) | map("**/" + . | @sh) | join("|")' --join-output > "$out"
+      '');
 in {
   programs.jujutsu = {
     enable = true;
@@ -20,9 +31,9 @@ in {
       ui = {
         pager = "less -FRX";
         default-command = "log";
-        always-allow-large-revsets = true;
         diff-editor = ":builtin";
         merge-editor = "idea";
+        tag-list-sort-keys = ["committer-date-"];
       };
       diff.color-words.max-inline-alternation = 5;
       snapshot = {
@@ -49,36 +60,32 @@ in {
             label("mutable", "○"),
           )
         '';
-        bookmark_list = ''
-          if(remote,
-            if(tracked,
-              "  " ++ separate(" ",
-                label("bookmark", "@" ++ remote),
-                format_tracked_remote_ref_distances(self),
-              ) ++ format_ref_targets(self),
-              label("bookmark", name ++ "@" ++ remote) ++ format_ref_targets(self),
-            ),
-            label("bookmark",
-              if(is_github_remote(),
-                hyperlink(concat(git_web_url(), "/tree/", name), name),
-                name)) ++
-            if(present, format_ref_targets(self), " (deleted)"),
-          ) ++ "\n"
-        '';
-        tag_list = ''
-          label("tag",
-            if(is_github_remote(),
-              hyperlink(concat(git_web_url(), "/releases/tag/", name), name),
-              name)) ++
-          format_ref_targets(self) ++ "\n"
-        '';
+        bookmark_list = ''format_commit_ref(self, "bookmark") ++ "\n"'';
+        tag_list = ''format_commit_ref(self, "tag") ++ "\n"'';
         commit_summary = "format_commit_summary(self, bookmarks, tags)";
         draft_commit_description = "draft_commit_description_verbose";
         show = "log_detailed";
       };
       template-aliases = {
-        "is_github_remote()" = ''
-          git_web_url().starts_with("https://github.com/")
+        "is_remote_linkable(remote)" = ''
+          git_web_url(remote).starts_with("https://github.com/") ||
+          git_web_url(remote).starts_with("https://codeberg.org/")
+        '';
+        "remote_commit_url(remote, commit_id)" = ''
+          concat(git_web_url(remote), "/commit/", commit_id)
+        '';
+        "remote_pr_url(remote, number)" = ''
+          if(git_web_url(remote).starts_with("https://github.com/"),
+            concat(git_web_url(remote), "/pull/", number),
+            concat(git_web_url(remote), "/pulls/", number))
+        '';
+        "remote_bookmark_url(remote, bookmark_name)" = ''
+          if(git_web_url(remote).starts_with("https://github.com/"),
+            concat(git_web_url(remote), "/tree/", bookmark_name),
+            concat(git_web_url(remote), "/src/branch/", bookmark_name))
+        '';
+        "remote_tag_url(remote, tag_name)" = ''
+          concat(git_web_url(remote), "/releases/tag/", tag_name)
         '';
         "is_wip_commit_description(description)" = ''
           !description ||
@@ -156,30 +163,28 @@ in {
           )
         '';
         "format_commit_description_first_line(description)" = ''
-          if(is_github_remote() && description.match(regex:'^.+ \(#\d+\)$'),
+          if(is_remote_linkable("origin") && description.match(regex:'^.+ \(#\d+\)$'),
             description.replace(regex:' \(#\d+\)$', "") ++
               label("description",
                 " (" ++ hyperlink(
-                  concat(git_web_url(),
-                    "/pull/",
-                    description.replace(regex:'^.+ \(#(\d+)\)$', "$1")),
+                  remote_pr_url("origin", description.replace(regex:'^.+ \(#(\d+)\)$', "$1")),
                   description.replace(regex:'^.+ \((#\d+)\)$', "$1")
                 ) ++ ")"),
             description)
         '';
         "format_commit_id(commit)" = ''
-          if(is_github_remote() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(is_remote_linkable("origin") && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(git_web_url(), "/commit/", commit.commit_id()),
+              remote_commit_url("origin", commit.commit_id()),
               format_short_commit_id(commit.commit_id()),
             ),
             format_short_commit_id(commit.commit_id()),
           )
         '';
         "format_long_commit_id(commit)" = ''
-          if(is_github_remote() && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
+          if(is_remote_linkable("origin") && commit.contained_in("..remote_bookmarks(remote=exact:'origin')"),
             hyperlink(
-              concat(git_web_url(), "/commit/", commit.commit_id()),
+              remote_commit_url("origin", commit.commit_id()),
               commit.commit_id(),
             ),
             commit.commit_id(),
@@ -193,6 +198,43 @@ in {
               ref.added_targets().map(|c| "  + " ++ format_commit_summary(c)).join("\n"),
             ),
             ": " ++ format_commit_summary(ref.normal_target()),
+          )
+        '';
+        "format_commit_ref(ref, type)" = ''
+          if(ref.remote(),
+            if(ref.tracked(),
+              concat(
+                "  ",
+                separate(" ",
+                  label(type,
+                    if(is_remote_linkable(ref.remote()),
+                      hyperlink(
+                        if(type == "bookmark", remote_bookmark_url(ref.remote(), ref.name()), remote_tag_url(ref.remote(), ref.name())),
+                        "@" ++ ref.remote()),
+                      "@" ++ ref.remote())),
+                  if(ref.present(), format_tracked_remote_ref_distances(ref)),
+                ),
+                if(ref.present(), format_ref_targets(ref), " (not created yet)"),
+              ),
+              concat(
+                label(type,
+                  if(is_remote_linkable(ref.remote()),
+                    hyperlink(
+                      if(type == "bookmark", remote_bookmark_url(ref.remote(), ref.name()), remote_tag_url(ref.remote(), ref.name())),
+                      ref.name() ++ "@" ++ ref.remote()),
+                    ref.name() ++ "@" ++ ref.remote())),
+                format_ref_targets(ref),
+              ),
+            ),
+            concat(
+              label(type,
+                if(is_remote_linkable("origin"),
+                  hyperlink(
+                    if(type == "bookmark", remote_bookmark_url("origin", ref.name()), remote_tag_url("origin", ref.name())),
+                    ref.name()),
+                  ref.name())),
+              if(ref.present(), format_ref_targets(ref), " (deleted)"),
+            ),
           )
         '';
         "format_commit_summary(commit)" = ''
@@ -221,28 +263,22 @@ in {
         '';
         # TODO: This wrongly links to unpushed local bookmarks.
         "format_commit_bookmarks(bookmarks)" = ''
-          if(is_github_remote(),
-            bookmarks.map(
-              |bookmark| if(
-                bookmark.remote() == "origin" || !bookmark.remote(),
-                hyperlink(concat(git_web_url(), "/tree/", bookmark.name()), bookmark),
-                bookmark
-              )
-            ),
-            bookmarks
+          bookmarks.map(
+            |bookmark| if(
+              is_remote_linkable(if(bookmark.remote(), bookmark.remote(), "origin")),
+              hyperlink(remote_bookmark_url(if(bookmark.remote(), bookmark.remote(), "origin"), bookmark.name()), bookmark),
+              bookmark
+            )
           )
         '';
         # TODO: This wrongly links to unpushed local tags.
         "format_commit_tags(tags)" = ''
-          if(is_github_remote(),
-            tags.map(
-              |tag| if(
-                tag.remote() == "origin" || !tag.remote(),
-                hyperlink(concat(git_web_url(), "/releases/tag/", tag.name()), tag),
-                tag
-              )
-            ),
-            tags
+          tags.map(
+            |tag| if(
+              is_remote_linkable(if(tag.remote(), tag.remote(), "origin")),
+              hyperlink(remote_tag_url(if(tag.remote(), tag.remote(), "origin"), tag.name()), tag),
+              tag
+            )
           )
         '';
         "format_short_signature(signature)" = ''
@@ -358,6 +394,9 @@ in {
             )
           )
         '';
+        log_tool = ''
+          log_compact_no_summary ++ "\n"
+        '';
         log_detailed = ''
           concat(
             "Commit ID: " ++ format_long_commit_id(self) ++ "\n",
@@ -443,7 +482,7 @@ in {
           "--"
           "${pkgs.writeShellScriptBin "jj-toggle-parent" ''
             ${config.programs.jujutsu.package}/bin/jj rebase -s $1 -d "($1- | $2) ~ ($1- & $2)"
-          ''}/bin/jj-remove-parent"
+          ''}/bin/jj-toggle-parent"
         ];
         abandon- = ["abandon" "@-"];
         absorb- = ["absorb" "-f" "@-"];
@@ -494,9 +533,11 @@ in {
         ls = ["log" "-r" "ancestors(unarchived(stack(@)), 2) | trunk()"];
         ldetailed = ["log" "-T" "log_detailed" "--summary"];
         loneline = ["log" "-T" "log_oneline"];
-        lp = ["log" "-T" "log_compact_no_summary" "--patch"];
-        lpatch = ["log" "-T" "log_compact_no_summary" "--patch"];
-        lsummary = ["log" "-T" "log_compact_no_summary" "--summary"];
+        lp = ["log" "-T" "log_tool" "--patch"];
+        lpatch = ["log" "-T" "log_tool" "--patch"];
+        lsummary = ["log" "-T" "log_tool" "--summary"];
+        ltool = ["log" "-T" "log_tool"];
+        ldependencies = ["log" "-T" "log_tool" "--tool" "git-pkgs" "${dependencies}"];
         n = ["new"];
         n- = ["new" "@-"];
         newt = ["new" "trunk()"];
@@ -532,6 +573,11 @@ in {
           diff-args = ["diff" "$left" "$right"];
           edit-args = ["diff" "$left" "$right"];
           merge-args = ["merge" "$left" "$right" "$base" "$output"];
+        };
+        git-pkgs = {
+          program = "${pkgs.git-pkgs}/bin/git-pkgs";
+          diff-args = ["diff-file" "--color=always" "$left" "$right"];
+          diff-invocation-mode = "file-by-file";
         };
       };
       fix.tools = {
@@ -626,5 +672,6 @@ in {
 
   home.packages = with pkgs; [
     jjui
+    # jj-vine
   ];
 }
