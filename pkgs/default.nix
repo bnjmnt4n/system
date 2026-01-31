@@ -1,7 +1,7 @@
 inputs: final: prev: let
   nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
 in {
-  scripts = import ./shared/scripts.nix {
+  scripts = import ./scripts.nix {
     pkgs = final;
     inherit inputs;
   };
@@ -18,7 +18,7 @@ in {
         })
       ];
   });
-  git-pkgs = prev.callPackage ./shared/git-pkgs/package.nix {};
+  git-pkgs = prev.callPackage ./git-pkgs.nix {};
 
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {
@@ -36,12 +36,12 @@ in {
     dontFixup = true;
   });
 
-  telescope-fzf-native = prev.callPackage ./shared/telescope-fzf-native.nix {
+  telescope-fzf-native = prev.callPackage ./telescope-fzf-native.nix {
     src = inputs.telescope-fzf-native;
   };
 
-  clop = prev.callPackage ./darwin/clop.nix {};
-  cleanshot = prev.callPackage ./darwin/cleanshot.nix {};
+  clop = prev.callPackage ./clop.nix {};
+  cleanshot = prev.callPackage ./cleanshot.nix {};
 
   # Add access to x86 packages if system is running Apple Silicon.
   pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
