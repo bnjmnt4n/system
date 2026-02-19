@@ -29,7 +29,7 @@ in {
         email = config.programs.git.settings.user.email;
       };
       ui = {
-        pager = "less -FRX";
+        pager = "less -iFRX";
         default-command = "log";
         diff-editor = ":builtin";
         merge-editor = "idea";
@@ -100,6 +100,7 @@ in {
             timestamp.ago()
           )
         '';
+        "format_path(path)" = "hyperlink(path.absolute(), path.display())";
         "format_short_change_id_with_hidden_and_divergent_info(commit)" = ''
           label(
             coalesce(
@@ -164,6 +165,7 @@ in {
         '';
         "format_commit_description_first_line(description)" = ''
           if(is_remote_linkable("origin") && description.match(regex:'^.+ \(#\d+\)$'),
+
             description.replace(regex:' \(#\d+\)$', "") ++
               label("description",
                 " (" ++ hyperlink(
@@ -557,15 +559,15 @@ in {
         sq = ["squash"];
         sq- = ["squash" "-r" "@-"];
         squash- = ["squash" "-r" "@-"];
-        sync = ["rebase" "-s" "roots(trunk()..@) & mutable()" "-d" "trunk()" "--skip-emptied"];
-        synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-d" "trunk()" "--skip-emptied"];
+        sync = ["rebase" "-s" "roots(trunk()..@) & mutable()" "-o" "trunk()" "--skip-emptied" "--simplify-parents"];
+        synct = ["rebase" "-s" "children(::trunk()) & mine() & mutable() ~ archived()" "-o" "trunk()" "--skip-emptied"];
         rebaseb = ["rebase" "-B" "@"];
         rebasem = ["rebase" "-A" "trunk()" "-B" "megamerge()"];
-        rebaset = ["rebase" "-d" "trunk()"];
+        rebaset = ["rebase" "-o" "trunk()"];
         revert- = ["revert" "-r" "@-"];
         revertb = ["revert" "-B" "@"];
         revertm = ["revert" "-A" "trunk()" "-B" "megamerge()"];
-        revertt = ["revert" "-d" "trunk()"];
+        revertt = ["revert" "-o" "trunk()"];
       };
       merge-tools = {
         idea = {
@@ -670,8 +672,5 @@ in {
 
   home.shellAliases.j = "${pkgs.jujutsu}/bin/jj";
 
-  home.packages = with pkgs; [
-    jjui
-    # jj-vine
-  ];
+  programs.jjui.enable = true;
 }

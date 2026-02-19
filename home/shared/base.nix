@@ -38,6 +38,8 @@
     enableGitIntegration = true;
   };
 
+  programs.difftastic.enable = true;
+
   home.packages = with pkgs; [
     # System
     age
@@ -60,7 +62,6 @@
     xdg-utils
 
     # Diff/merge tools
-    difftastic
     mergiraf
 
     # Code tools
