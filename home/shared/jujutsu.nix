@@ -63,8 +63,23 @@ in {
         bookmark_list = ''format_commit_ref(self, "bookmark") ++ "\n"'';
         tag_list = ''format_commit_ref(self, "tag") ++ "\n"'';
         commit_summary = "format_commit_summary(self, bookmarks, tags)";
-        draft_commit_description = "draft_commit_description_verbose";
         show = "log_detailed";
+
+        draft_commit_description = "draft_commit_description_verbose";
+        new_description = ''
+          if(parents.len() > 1,
+            "Merge " ++ parents.skip(1).map(|p| if(
+              p.bookmarks(),
+              p.bookmarks().first().name(),
+              p.change_id().shortest(8)
+            )).join(", ") ++ " into " ++ if(
+              parents.first().bookmarks(),
+              parents.first().bookmarks().first().name(),
+              parents.first().change_id().shortest(8)
+            ) ++ "\n",
+            ""
+          )
+        '';
       };
       template-aliases = {
         "is_remote_linkable(remote)" = ''
@@ -105,7 +120,7 @@ in {
           label(
             coalesce(
               if(commit.current_working_copy(), "working_copy"),
-              if(commit.contained_in("trunk()"), "trunk"),
+              if(commit.contained_in("present(trunk())"), "trunk"),
               if(commit.immutable(), "immutable"),
               if(commit.conflict(), "conflicted"),
               if(is_wip_commit_description(commit.description()), "wip"),
@@ -140,7 +155,7 @@ in {
                 separate(" ",
                   if(commit.immutable(), "immutable", "mutable"),
                   if(commit.hidden(), "hidden"),
-                  if(commit.contained_in("trunk()"), "trunk"),
+                  if(commit.contained_in("present(trunk())"), "trunk"),
                   if(is_wip_commit_description(commit.description()), "wip"),
                   "empty",
                   "description",
@@ -151,13 +166,13 @@ in {
               label(
                 separate(" ",
                   if(commit.immutable(), "immutable", "mutable"),
-                  if(commit.contained_in("trunk()"), "trunk"),
+                  if(commit.contained_in("present(trunk())"), "trunk"),
                   if(is_wip_commit_description(commit.description()), "wip")),
                 format_commit_description_first_line(commit.description().first_line())),
               label(
                 separate(" ",
                   if(commit.immutable(), "immutable", "mutable"),
-                  if(commit.contained_in("trunk()"), "trunk"),
+                  if(commit.contained_in("present(trunk())"), "trunk"),
                   "wip",
                   if(commit.empty(), "empty")),
                 description_placeholder))

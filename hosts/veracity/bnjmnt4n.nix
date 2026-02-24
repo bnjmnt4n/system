@@ -35,7 +35,10 @@ in {
     ffmpeg
     jetbrains.idea
     restic
-    yt-dlp
+    # https://github.com/NixOS/nixpkgs/issues/493261
+    (yt-dlp.override {
+      javascriptSupport = false;
+    })
   ];
 
   # Disable login message.
