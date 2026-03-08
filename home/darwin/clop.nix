@@ -31,8 +31,8 @@
     autoCopyToClipboard = true;
     enableDragAndDrop = false;
 
-    imageDirs = ["${config.home.homeDirectory}/Desktop/Clop"];
-    videoDirs = ["${config.home.homeDirectory}/Desktop/Clop"];
-    pdfDirs = ["${config.home.homeDirectory}/Desktop/Clop"];
+    imageDirs = ["${config.home.homeDirectory}/Documents/Clop"];
+    videoDirs = ["${config.home.homeDirectory}/Documents/Clop"];
+    pdfDirs = ["${config.home.homeDirectory}/Documents/Clop"];
   };
 }

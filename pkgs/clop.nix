@@ -2,36 +2,30 @@
   lib,
   fetchurl,
   stdenvNoCC,
-}: let
-  hdiutil = "/usr/bin/hdiutil";
-in
-  stdenvNoCC.mkDerivation rec {
-    pname = "Clop";
-    version = "2.10.7";
+  _7zz,
+}:
+stdenvNoCC.mkDerivation rec {
+  pname = "Clop";
+  version = "2.11.6";
 
-    src = fetchurl {
-      url = "https://github.com/FuzzyIdeas/Clop/releases/download/v${version}/Clop-${version}.dmg";
-      sha256 = "sha256-K41JohlrvVK159DBAvF+07BGW1SyiRzYz/l7tEoRQWk=";
-    };
+  src = fetchurl {
+    url = "https://github.com/FuzzyIdeas/Clop/releases/download/v${version}/Clop-${version}.dmg";
+    sha256 = "sha256-/4CWJKLarboN0c+7NKNmzag4i1YAg3TJsZCnaJEEom4=";
+  };
 
-    sourceRoot = "Clop.app";
+  nativeBuildInputs = [_7zz];
 
-    unpackPhase = ''
-      mkdir -p ./Applications
-      ${hdiutil} attach -readonly -mountpoint mnt $src
-      cp -r "mnt/${sourceRoot}" .
-      ${hdiutil} detach -force mnt
-    '';
+  sourceRoot = "Clop.app";
 
-    installPhase = ''
-      mkdir -p "$out/Applications/${sourceRoot}"
-      cp -R . "$out/Applications/${sourceRoot}"
-    '';
+  installPhase = ''
+    mkdir -p "$out/Applications/${sourceRoot}"
+    cp -R . "$out/Applications/${sourceRoot}"
+  '';
 
-    meta = {
-      homepage = "https://lowtechguys.com/clop/";
-      description = "Clipboard optimizer for macOS";
-      license = lib.licenses.gpl3;
-      platforms = lib.platforms.darwin;
-    };
-  }
+  meta = {
+    homepage = "https://lowtechguys.com/clop/";
+    description = "Clipboard optimizer for macOS";
+    license = lib.licenses.gpl3;
+    platforms = lib.platforms.darwin;
+  };
+}

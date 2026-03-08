@@ -23,6 +23,7 @@
     "browser.ml.chat.menu" = false;
     "browser.ml.linkPreview.enabled" = false;
     "browser.newtabpage.activity-stream.feeds.section.topstories" = false;
+    "browser.newtabpage.activity-stream.showWeather" = false;
     "browser.tabs.groups.smart.enabled" = false;
     "browser.urlbar.suggest.searches" = false;
 

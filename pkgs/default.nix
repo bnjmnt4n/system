@@ -7,6 +7,8 @@ in {
   };
   inherit nixpkgs-stable;
 
+  modus-themes = inputs.modus-themes;
+
   neovim-unwrapped = prev.neovim-unwrapped.overrideAttrs (old: {
     patches =
       (old.patches or [])
@@ -18,7 +20,6 @@ in {
         })
       ];
   });
-  git-pkgs = prev.callPackage ./git-pkgs.nix {};
 
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {

@@ -9,17 +9,18 @@
       ${config.home.homeDirectory}/Applications/Home\ Manager\ Apps/IntelliJ\ IDEA.app/Contents/MacOS/idea $@ 2> /dev/null
     ''}/bin/idea-wrapper"
     else "${pkgs.jetbrains.idea}/bin/idea-community";
-  dependencies =
-    pkgs.lib.readFile
-    (pkgs.runCommand "dependencies_fileset.txt"
-      {
-        nativeBuildInputs = with pkgs; [
-          git-pkgs
-          jq
-        ];
-      } ''
-        git-pkgs ecosystems -f json | jq 'map([.lockfiles.[]?, .manifest?]) | flatten | map(strings) | map("**/" + . | @sh) | join("|")' --join-output > "$out"
-      '');
+  dependency_files =
+    pkgs.runCommand "deps"
+    {
+      nativeBuildInputs = with pkgs; [
+        git-pkgs
+        jq
+      ];
+    } ''
+      mkdir "$out"
+      git-pkgs ecosystems -f json | jq 'map(.manifest?) | map(strings) | map("**/" + . | @sh) | join("|")' --join-output > "$out/package_manifests.txt"
+      git-pkgs ecosystems -f json | jq 'map(.lockfiles.[]?) | map(strings) | map("**/" + . | @sh) | join("|")' --join-output > "$out/lockfiles.txt"
+    '';
 in {
   programs.jujutsu = {
     enable = true;
@@ -462,13 +463,29 @@ in {
         "tree(x)" = "reachable(x, ~ ::trunk())";
         "stack(x)" = "trunk()..x";
         "overview()" = "@ | ancestors(remote_bookmarks(), 2) | trunk() | root()";
-        "megamerge()" = "heads(trunk()..@ & coalesce(merges(), empty() | description(exact:'')) ~ @)";
+        "megamerge()" = "exactly(heads(trunk()..@ & merges() & description(exact:'')), 1)";
         "my_unmerged()" = "mine() ~ ::trunk()";
         "my_unmerged_remote()" = "mine() ~ ::trunk() & remote_bookmarks()";
         "not_pushed()" = "remote_bookmarks()..";
         "archived()" = "(mine() & description(regex:'^archive($|:)'))::";
         "unarchived(x)" = "x ~ archived()";
         "diverge(x)" = "fork_point(x)::x";
+
+        "subject:x" = "subject(substring-i:x)";
+        "description:x" = "description(substring-i:x)";
+        "diff_lines:x" = "diff_lines(substring-i:x)";
+        "diff_lines_added:x" = "diff_lines_added(substring-i:x)";
+        "diff_lines_removed:x" = "diff_lines_removed(substring-i:x)";
+
+        "tree:x" = "tree(x)";
+        "stack:x" = "stack(x)";
+        "unarchived:x" = "unarchived(x)";
+        "diverge:x" = "diverge(x)";
+      };
+      fileset-aliases = {
+        "package_manifests()" = pkgs.lib.readFile "${dependency_files}/package_manifests.txt";
+        "lockfiles()" = pkgs.lib.readFile "${dependency_files}/package_manifests.txt";
+        "dependency_files()" = "package_manifests() | lockfiles()";
       };
       revsets = {
         log = "ancestors(unarchived(tree(@)), 2) | trunk()";
@@ -542,6 +559,7 @@ in {
         la = ["log" "-r" "::@"];
         lar = ["log" "-r" "ancestors(mutable() & archived(), 2)"];
         lall = ["log" "-r" "all()"];
+        lconflicts = ["log" "-r" "conflicts()"];
         lo = ["log" "-r" "overview()"];
         lm = ["log" "-r" "ancestors(unarchived(mutable()), 2) | trunk()"];
         lmu = ["log" "-r" "ancestors(unarchived(my_unmerged()), 2) | trunk()"];
@@ -554,7 +572,7 @@ in {
         lpatch = ["log" "-T" "log_tool" "--patch"];
         lsummary = ["log" "-T" "log_tool" "--summary"];
         ltool = ["log" "-T" "log_tool"];
-        ldependencies = ["log" "-T" "log_tool" "--tool" "git-pkgs" "${dependencies}"];
+        ldependencies = ["log" "-T" "log_tool" "--tool" "git-pkgs" "dependency_files()"];
         n = ["new"];
         n- = ["new" "@-"];
         newt = ["new" "trunk()"];
@@ -688,4 +706,8 @@ in {
   home.shellAliases.j = "${pkgs.jujutsu}/bin/jj";
 
   programs.jjui.enable = true;
+
+  home.packages = with pkgs; [
+    # jj-vine
+  ];
 }

@@ -15,7 +15,7 @@
           nodejs
           prettierd
           vscode-langservers-extracted
-          vtsls
+          typescript-go
           tailwindcss-language-server
         ];
       };

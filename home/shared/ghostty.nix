@@ -9,7 +9,7 @@
     settings = {
       font-family = "Iosevka";
       font-size = "20";
-      theme = "light:modus_operandi,dark:modus_vivendi";
+      theme = "light:modus_operandi_tinted,dark:modus_vivendi_tinted";
       cursor-style = "block";
       window-padding-x = "8";
       macos-option-as-alt = "true";
@@ -22,5 +22,5 @@
     };
   };
 
-  xdg.configFile."ghostty/themes".source = ./themes;
+  xdg.configFile."ghostty/themes".source = "${pkgs.modus-themes}/extras/ghostty";
 }

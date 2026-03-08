@@ -11,11 +11,9 @@ return {
       },
     },
     event = { 'VeryLazy' },
-    cmd = { 'LspInfo', 'LspStart', 'LspStop', 'LspRestart', 'LspLog' },
     -- stylua: ignore
     keys = {
       { '<leader>li', '<cmd>checkhealth vim.lsp<cr>', desc = 'LSP information' },
-      { '<leader>ls', '<cmd>lsp start<cr>', desc = 'Start LSP servers' },
       { '<leader>lt', '<cmd>lsp stop<cr>', desc = 'Stop LSP servers' },
       { '<leader>lr', '<cmd>lsp restart<cr>', desc = 'Restart LSP servers' },
       { '<leader>ll', function() vim.cmd(string.format('tabnew %s', vim.lsp.log.get_filename())) end, desc = 'LSP log' },
@@ -105,23 +103,11 @@ return {
             },
           },
         },
+        oxfmt = {},
+        oxlint = {},
         pyright = {},
         tailwindcss = {},
-        -- tsgo = {},
-        vtsls = {
-          settings = {
-            typescript = jsts_settings,
-            javascript = jsts_settings,
-            vtsls = {
-              autoUseWorkspaceTsdk = true,
-              experimental = {
-                maxInlayHintLength = 30,
-                -- For completion performance.
-                completion = { enableServerSideFuzzyMatch = true },
-              },
-            },
-          },
-        },
+        tsgo = {},
         yamlls = {
           settings = {
             yaml = {

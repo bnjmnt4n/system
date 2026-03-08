@@ -26,15 +26,15 @@
       url = "github:folke/lazy.nvim/stable";
       flake = false;
     };
+    modus-themes = {
+      url = "github:miikanissi/modus-themes.nvim";
+      flake = false;
+    };
     telescope-fzf-native = {
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
     jujutsu.url = "github:jj-vcs/jj";
-    gh-pr-versions = {
-      url = "github:bnjmnt4n/gh-pr-versions";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs = {nixpkgs, ...} @ inputs: let

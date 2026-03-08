@@ -16,7 +16,6 @@ in rec {
     inputs.neovim-nightly-overlay.overlays.default
     inputs.nur.overlays.default
     inputs.jujutsu.overlays.default
-    inputs.gh-pr-versions.overlays.default
     (import ./pkgs inputs)
   ];
 

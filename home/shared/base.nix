@@ -71,7 +71,6 @@
     git-pkgs
     git-sizer
     git-who
-    gh-pr-versions
     pinact
     tokei
     zizmor

@@ -21,14 +21,13 @@ in {
     ../../home/shared/bat.nix
     ../../home/shared/firefox.nix
     ../../home/shared/git.nix
+    ../../home/shared/ghostty.nix
     ../../home/shared/gpg.nix
     ../../home/shared/helix.nix
     ../../home/shared/neovim
     ../../home/shared/jujutsu.nix
     ../../home/shared/tmux.nix
     # ../../home/shared/zed-editor.nix
-
-    ../../home/shared/ghostty
   ];
 
   home.packages = with pkgs; [
@@ -36,9 +35,7 @@ in {
     jetbrains.idea
     restic
     # https://github.com/NixOS/nixpkgs/issues/493261
-    (yt-dlp.override {
-      javascriptSupport = false;
-    })
+    yt-dlp
   ];
 
   # Disable login message.

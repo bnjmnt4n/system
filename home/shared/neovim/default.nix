@@ -15,6 +15,7 @@
     "css"
     "csv"
     "diff"
+    # "ecma"
     "dockerfile"
     "editorconfig"
     "fish"
@@ -141,6 +142,7 @@ in {
       }'
 
       vim.g.lazy_rev = '${inputs.lazy-nvim.rev}'
+      vim.g.modus_themes_path = '${pkgs.modus-themes}'
       vim.g.nvim_treesitter_path = '${nvim-treesitter}'
       vim.g.telescope_fzf_native_path = '${pkgs.telescope-fzf-native}'
       vim.g.node_binary_path = '${pkgs.nodejs}/bin/node'
@@ -150,7 +152,8 @@ in {
   };
 
   xdg.configFile."nvim/parser".source = "${nvim-treesitter-dependencies}/parser";
-  xdg.configFile."nvim/queries".source = "${nvim-treesitter-dependencies}/queries";
+  # HACK
+  xdg.configFile."nvim/queries".source = "${pkgs.vimPlugins.nvim-treesitter.src}/runtime/queries";
 
   xdg.configFile."nvim/after".source = ./after;
   xdg.configFile."nvim/lua".source = ./lua;

@@ -2,8 +2,10 @@ return {
   -- Modus theme
   {
     'miikanissi/modus-themes.nvim',
+    dir = vim.g.modus_themes_path,
     priority = 1000,
     opts = {
+      variant = 'tinted',
       styles = {
         comments = { italic = false },
       },
