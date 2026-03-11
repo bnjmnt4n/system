@@ -15,6 +15,8 @@
       macos-option-as-alt = "true";
       macos-titlebar-style = "native";
       macos-titlebar-proxy-icon = "visible";
+      notify-on-command-finish = "unfocused";
+      notify-on-command-finish-action = "bell,notify";
       quick-terminal-animation-duration = "0";
       keybind = "global:super+ctrl+shift+alt+space=toggle_quick_terminal";
       shell-integration = "none"; # Handled by home-manager

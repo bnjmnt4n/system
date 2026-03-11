@@ -28,6 +28,7 @@
       "aldente"
       # "bitwarden"
       "calibre"
+      "cursor"
       # "docker"
       "dropbox"
       "figma"

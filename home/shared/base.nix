@@ -71,11 +71,17 @@
     git-pkgs
     git-sizer
     git-who
-    pinact
+    kondo
     tokei
-    zizmor
     scripts.cloneRepo
     scripts.gitRangeDiffMarkdown
+
+    # Rust tools
+    cargo-sweep
+
+    # GitHub Actions tools
+    pinact
+    zizmor
 
     # Nix tools
     nixd

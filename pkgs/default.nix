@@ -9,18 +9,6 @@ in {
 
   modus-themes = inputs.modus-themes;
 
-  neovim-unwrapped = prev.neovim-unwrapped.overrideAttrs (old: {
-    patches =
-      (old.patches or [])
-      ++ [
-        # Tree-sitter incremental selection: https://github.com/neovim/neovim/pull/36993
-        (prev.fetchpatch {
-          url = "https://github.com/neovim/neovim/commit/9c094d850ee5f5d4ede70afa0de0fba85a2ce6b5.patch";
-          sha256 = "sha256-+gzGMs0EEZ8ZXj8weAiwyx4W3NSKFxTuoEH4H4BfzwM=";
-        })
-      ];
-  });
-
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (old: {
     doCheck = false;
