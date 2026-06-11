@@ -73,38 +73,4 @@
     set -euo pipefail
     ${pkgs.git}/bin/git range-diff "$@" | ${pkgs.gawk}/bin/awk -f ${./git-range-diff-markdown.awk}
   '';
-
-  setupResticEnv = pkgs.writeScriptBin "setup-restic-env" ''
-    #!/usr/bin/env fish
-
-    set yq ${pkgs.yq-go}/bin/yq
-    set REPO $argv[1]
-
-    if isatty stdin
-      echo "Please provide repository listings"
-      exit 1
-    else
-      cat - | read -z FILE
-    end
-
-    if test -z "$REPO"
-      echo "Please specify repository name"
-      exit 1
-    end
-
-    if [ (echo $FILE | REPO="$REPO" $yq "has(env(REPO))") != "true" ]
-      echo "Could not find repository $REPO"
-      exit 1
-    end
-
-    echo $FILE | REPO="$REPO" $yq ".[env(REPO)].env" -o shell | read -z ENV_VARS
-    export (echo $ENV_VARS | xargs -L 1)
-
-    export RESTIC_REPOSITORY=(echo $FILE | REPO="$REPO" $yq ".[env(REPO)].repository")
-
-    if [ (echo $FILE | REPO="$REPO" $yq '.[env(REPO)] | has("password")') = "true" ]
-      set PASSWORD (echo $FILE | REPO="$REPO" $yq ".[env(REPO)].password")
-      export RESTIC_PASSWORD_COMMAND="echo $PASSWORD"
-    end
-  '';
 }

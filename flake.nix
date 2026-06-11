@@ -52,9 +52,8 @@
       veracity = {
         system = "aarch64-darwin";
         users = {
-          "bnjmnt4n" = [];
+          bnjmnt4n = [];
         };
-        primaryUser = "bnjmnt4n";
       };
     }
     // {
@@ -68,10 +67,8 @@
     })
     // forEach systems (
       system: let
-        pkgs = lib.makePkgs system;
+        pkgs = lib.makePkgs {inherit system;};
       in {
-        # Custom version of nixpkgs with overlays.
-        packages.${system}.nixpkgs = pkgs;
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             scripts.switchHome

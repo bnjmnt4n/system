@@ -324,6 +324,7 @@ return {
           { '<leader>h', group = 'hunk' },
           { '<leader>l', group = 'lsp' },
           { '<leader>lw', group = 'workspace' },
+          { '<leader>m', group = 'conflict markers' },
           { '<leader>n', group = 'neovim' },
           { '<leader>o', group = 'open' },
           { '<leader>q', group = 'quit' },

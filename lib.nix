@@ -11,16 +11,22 @@
   darwinStateVersion = 4;
   homeStateVersion = "26.05";
 in rec {
-  overlays = [
-    inputs.agenix.overlays.default
-    inputs.nur.overlays.default
-    inputs.jujutsu.overlays.default
-    (import ./pkgs inputs)
-  ];
+  makeOverlays = overlays:
+    [
+      inputs.agenix.overlays.default
+      inputs.nur.overlays.default
+      inputs.jujutsu.overlays.default
+      (import ./pkgs inputs)
+    ]
+    ++ overlays;
 
-  makePkgs = system:
+  makePkgs = {
+    system,
+    overlays ? [],
+  }:
     import nixpkgs {
-      inherit system overlays;
+      inherit system;
+      overlays = makeOverlays overlays;
       config = import ./home/shared/nix/nixpkgs-config.nix;
     };
 
@@ -29,21 +35,29 @@ in rec {
     (attrs: hostname: let
       inherit (hosts.${hostname}) system users;
       isDarwin = nixpkgs.lib.hasSuffix "-darwin" system;
-      pkgs = makePkgs system;
+      pkgs = makePkgs {
+        inherit system;
+        overlays = hosts.${hostname}.overlays or [];
+      };
     in (nixpkgs.lib.foldl' nixpkgs.lib.recursiveUpdate attrs [
       (
         if isDarwin
         then {
           darwinConfigurations.${hostname} = makeDarwinConfiguration {
             inherit pkgs hostname users;
-            modules = hosts.${hostname}.darwinModules or [];
-            primaryUser = hosts.${hostname}.primaryUser;
+            modules = hosts.${hostname}.modules or [];
+            primaryUser =
+              hosts.${
+                hostname
+              }.primaryUser or (
+                builtins.elemAt (builtins.attrNames users) 0
+              );
           };
         }
         else {
           nixosConfigurations.${hostname} = makeNixosConfiguration {
             inherit pkgs hostname users;
-            modules = hosts.${hostname}.nixosModules or [];
+            modules = hosts.${hostname}.modules or [];
           };
         }
       )
@@ -52,6 +66,7 @@ in rec {
           nixpkgs.lib.recursiveUpdate attrs {
             homeConfigurations."${username}@${hostname}" = makeHomeManagerConfiguration {
               inherit pkgs hostname username;
+              overlays = hosts.${hostname}.overlays or [];
               modules = users.${username};
             };
           })
@@ -64,7 +79,7 @@ in rec {
   makeNixosConfiguration = {
     pkgs,
     hostname,
-    modules ? [],
+    modules,
     users,
   }:
     nixpkgs.lib.nixosSystem {
@@ -115,7 +130,7 @@ in rec {
   makeDarwinConfiguration = {
     pkgs,
     hostname,
-    modules ? [],
+    modules,
     users,
     primaryUser,
   }:
@@ -173,7 +188,8 @@ in rec {
     pkgs,
     hostname,
     username,
-    modules ? [],
+    modules,
+    overlays,
   }:
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
@@ -184,7 +200,8 @@ in rec {
           inputs.agenix.homeManagerModules.default
           {
             nixpkgs = {
-              inherit overlays;
+              # TODO: Can this be obtained from `pkgs`?
+              overlays = makeOverlays overlays;
               config = import ./home/shared/nix/nixpkgs-config.nix;
             };
             nix.registry.nixpkgs.flake = nixpkgs;

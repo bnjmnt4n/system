@@ -1,6 +1,6 @@
 inputs: final: prev: {
   scripts = import ./scripts.nix {
-    pkgs = final;
+    pkgs = prev;
     inherit inputs;
   };
 

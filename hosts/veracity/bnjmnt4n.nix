@@ -38,16 +38,10 @@ in {
   # Disable login message.
   home.file.".hushlogin".text = "";
 
-  age.identityPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
-  age.secrets.restic-repositories.file = ../../secrets/restic-repositories.age;
-
   programs.neovim.defaultEditor = true;
   home.sessionVariables = {
     MANPAGER = "nvim +Man!";
   };
-
-  # Shell aliases.
-  programs.fish.shellAliases.setup-restic-env = "${pkgs.coreutils}/bin/cat ${config.age.secrets.restic-repositories.path} | source ${pkgs.scripts.setupResticEnv}/bin/setup-restic-env";
 
   # Setup Dock.
   home.activation.setupMacosDock = lib.hm.dag.entryAfter ["writeBoundary"] ''

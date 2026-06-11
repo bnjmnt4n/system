@@ -334,18 +334,52 @@ return {
     },
   },
 
-  -- Git conflict markers
+  -- VCS conflict markers
   {
-    'akinsho/git-conflict.nvim',
-    event = { 'BufReadPost' },
-    opts = {
-      default_mappings = {
-        ours = '<leader>hco',
-        theirs = '<leader>hct',
-        none = '<leader>hcn',
-        both = '<leader>hcb',
-        next = ']x',
-        prev = '[x',
+    'algmyr/vcmarkers.nvim',
+    opts = {},
+    keys = {
+      {
+        '[x',
+        function()
+          require('vcmarkers').actions.prev_marker(0, vim.v.count1)
+        end,
+        desc = 'Go to previous marker',
+      },
+      {
+        ']x',
+        function()
+          require('vcmarkers').actions.next_marker(0, vim.v.count1)
+        end,
+        desc = 'Go to next marker',
+      },
+      {
+        '<space>ms',
+        function()
+          require('vcmarkers').actions.select_section_verbatim(0)
+        end,
+        desc = 'Replace marker with section contents',
+      },
+      {
+        '<space>mS',
+        function()
+          require('vcmarkers').actions.select_all_plus(0)
+        end,
+        desc = 'Replace marker with plus parts of marker',
+      },
+      {
+        '<space>mf',
+        function()
+          require('vcmarkers').fold.toggle(0)
+        end,
+        desc = 'Fold outside markers',
+      },
+      {
+        '<space>mc',
+        function()
+          require('vcmarkers').actions.cycle_marker(0)
+        end,
+        desc = 'Cycle marker representations',
       },
     },
   },
