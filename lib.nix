@@ -5,15 +5,14 @@
   nix-darwin,
   ...
 } @ inputs: let
-  homeStateVersion = "20.09";
-  mkIf = cond: attrs:
-    if cond
-    then attrs
-    else {};
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  nixosStateVersion = "20.03";
+  darwinStateVersion = 4;
+  homeStateVersion = "26.05";
 in rec {
   overlays = [
     inputs.agenix.overlays.default
-    inputs.neovim-nightly-overlay.overlays.default
     inputs.nur.overlays.default
     inputs.jujutsu.overlays.default
     (import ./pkgs inputs)
@@ -29,25 +28,29 @@ in rec {
     nixpkgs.lib.foldl'
     (attrs: hostname: let
       inherit (hosts.${hostname}) system users;
-      isDarwin = system == "aarch64-darwin";
+      isDarwin = nixpkgs.lib.hasSuffix "-darwin" system;
+      pkgs = makePkgs system;
     in (nixpkgs.lib.foldl' nixpkgs.lib.recursiveUpdate attrs [
-      (mkIf (!isDarwin) {
-        nixosConfigurations.${hostname} = makeNixosConfiguration {
-          inherit system hostname users;
-          modules = hosts.${hostname}.nixosModules or [];
-        };
-      })
-      (mkIf isDarwin {
-        darwinConfigurations.${hostname} = makeDarwinConfiguration {
-          inherit system hostname users;
-          modules = hosts.${hostname}.darwinModules or [];
-        };
-      })
+      (
+        if isDarwin
+        then {
+          darwinConfigurations.${hostname} = makeDarwinConfiguration {
+            inherit pkgs hostname users;
+            modules = hosts.${hostname}.darwinModules or [];
+          };
+        }
+        else {
+          nixosConfigurations.${hostname} = makeNixosConfiguration {
+            inherit pkgs hostname users;
+            modules = hosts.${hostname}.nixosModules or [];
+          };
+        }
+      )
       (nixpkgs.lib.foldl'
         (attrs: username:
           nixpkgs.lib.recursiveUpdate attrs {
             homeConfigurations."${username}@${hostname}" = makeHomeManagerConfiguration {
-              inherit system hostname username;
+              inherit pkgs hostname username;
             };
           })
         {}
@@ -57,15 +60,12 @@ in rec {
     (builtins.attrNames hosts);
 
   makeNixosConfiguration = {
-    system,
+    pkgs,
     hostname,
     modules ? [],
     users,
-  }: let
-    pkgs = makePkgs system;
-  in
+  }:
     nixpkgs.lib.nixosSystem {
-      inherit system;
       modules =
         modules
         ++ [
@@ -73,16 +73,14 @@ in rec {
           inputs.agenix.nixosModules.age
           inputs.nix-index-database.nixosModules.nix-index
           {
-            # Before changing this value read the documentation for this option
-            # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-            system.stateVersion = "20.03";
+            system.stateVersion = nixosStateVersion;
             system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
             nix.nixPath = ["nixpkgs=${nixpkgs}"];
             nix.registry.nixpkgs.flake = nixpkgs;
-            nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
             nix.registry.my.flake = self;
             # Use our custom instance of nixpkgs.
-            nixpkgs = {inherit pkgs;};
+            nixpkgs.pkgs = pkgs;
+            nixpkgs.hostPlatform = pkgs.stdenv.hostPlatform.system;
             home-manager.extraSpecialArgs = {inherit inputs;};
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -110,15 +108,12 @@ in rec {
     };
 
   makeDarwinConfiguration = {
-    system,
+    pkgs,
     hostname,
     modules ? [],
     users,
-  }: let
-    pkgs = makePkgs system;
-  in
+  }:
     nix-darwin.lib.darwinSystem {
-      inherit system;
       specialArgs = {inherit inputs;};
       modules =
         modules
@@ -126,16 +121,14 @@ in rec {
           home-manager.darwinModules.home-manager
           inputs.nix-index-database.darwinModules.nix-index
           {
-            # Before changing this value read the documentation for this option
-            # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-            system.stateVersion = 4;
+            system.stateVersion = darwinStateVersion;
             system.configurationRevision = nixpkgs.lib.mkIf (self ? rev) self.rev;
             nix.nixPath = ["nixpkgs=${nixpkgs}"];
             nix.registry.nixpkgs.flake = nixpkgs;
-            nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
             nix.registry.my.flake = self;
             # Use our custom instance of nixpkgs.
-            nixpkgs = {inherit pkgs;};
+            nixpkgs.pkgs = pkgs;
+            nixpkgs.hostPlatform = pkgs.stdenv.hostPlatform.system;
             home-manager.extraSpecialArgs = {inherit inputs;};
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -169,14 +162,13 @@ in rec {
     };
 
   makeHomeManagerConfiguration = {
-    system,
+    pkgs,
     hostname,
     username,
-  }: let
-    pkgs = makePkgs system;
-  in
+  }:
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
+      extraSpecialArgs = {inherit inputs;};
       modules = [
         inputs.nix-index-database.homeModules.nix-index
         inputs.agenix.homeManagerModules.default
@@ -186,12 +178,11 @@ in rec {
             config.allowUnfree = true;
           };
           nix.registry.nixpkgs.flake = nixpkgs;
-          nix.registry.nixpkgs-stable.flake = inputs.nixpkgs-stable;
           nix.registry.my.flake = self;
           home = {
             inherit username;
             homeDirectory =
-              if system == "aarch64-darwin"
+              if pkgs.stdenv.hostPlatform.isDarwin
               then "/Users/${username}"
               else "/home/${username}";
             stateVersion = homeStateVersion;
@@ -200,6 +191,5 @@ in rec {
         }
         (./hosts + "/${hostname}/${username}.nix")
       ];
-      extraSpecialArgs = {inherit inputs;};
     };
 }

@@ -5,17 +5,11 @@
 }: {
   programs.git = {
     enable = true;
-    package =
+    package = with pkgs;
       if pkgs.stdenv.hostPlatform.isDarwin
-      then pkgs.git
-      else pkgs.gitFull;
+      then git
+      else gitFull;
     lfs.enable = true;
-
-    signing = {
-      format = "ssh";
-      key = "~/.ssh/signing.pub";
-      signByDefault = true;
-    };
 
     ignores = [
       ".DS_Store"
@@ -163,4 +157,11 @@
     gbr = "git br";
     gsh = "git show";
   };
+
+  home.packages = [
+    (pkgs.writeShellScriptBin "get-pr-commit" ''
+      set -euo pipefail
+      ${pkgs.gh}/bin/gh pr view "$1" --json mergeCommit --jq .mergeCommit.oid
+    '')
+  ];
 }

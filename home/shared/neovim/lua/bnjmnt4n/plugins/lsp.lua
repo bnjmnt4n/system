@@ -28,18 +28,6 @@ return {
       },
     },
     config = function()
-      local jsts_settings = {
-        suggest = { completeFunctionCalls = true },
-        inlayHints = {
-          parameterNames = { enabled = 'all' },
-          parameterTypes = { enabled = true },
-          variableTypes = { enabled = true },
-          propertyDeclarationTypes = { enabled = true },
-          functionLikeReturnTypes = { enabled = true },
-          enumMemberValues = { enabled = true },
-        },
-      }
-
       local servers = {
         astro = {},
         clangd = {},
@@ -212,7 +200,7 @@ return {
   -- Rust
   {
     'mrcjkb/rustaceanvim',
-    version = '^6',
+    version = '^8',
     lazy = false,
   },
 

@@ -23,8 +23,8 @@ stdenvNoCC.mkDerivation rec {
   '';
 
   meta = {
+    description = "Image, video, PDF and clipboard optimiser";
     homepage = "https://lowtechguys.com/clop/";
-    description = "Clipboard optimizer for macOS";
     license = lib.licenses.gpl3;
     platforms = lib.platforms.darwin;
   };

@@ -180,14 +180,21 @@ in {
           )
         '';
         "format_commit_description_first_line(description)" = ''
-          if(is_remote_linkable("origin") && description.match(regex:'^.+ \(#\d+\)$'),
-
-            description.replace(regex:' \(#\d+\)$', "") ++
-              label("description",
-                " (" ++ hyperlink(
-                  remote_pr_url("origin", description.replace(regex:'^.+ \(#(\d+)\)$', "$1")),
-                  description.replace(regex:'^.+ \((#\d+)\)$', "$1")
-                ) ++ ")"),
+          if(is_remote_linkable("origin"),
+            replace(
+              regex:' \(#(?P<number>\d+)\)$',
+              description,
+              |c| " (" ++ hyperlink(remote_pr_url("origin", c.name("number")), "#" ++ c.name("number")) ++ ")",
+            ),
+            description)
+        '';
+        "format_commit_description_body(description)" = ''
+          if(is_remote_linkable("origin"),
+            replace(
+              regex:'(^|\W)#(?P<number>\d+)\b',
+              description,
+              |c| c.get(1) ++ hyperlink(remote_pr_url("origin", c.name("number")), "#" ++ c.name("number")),
+            ),
             description)
         '';
         "format_commit_id(commit)" = ''
@@ -429,7 +436,7 @@ in {
             indent("    ",
               if(description,
                 format_commit_description_first_line(description.first_line()) ++
-                  description.remove_prefix(description.first_line()).trim_end(),
+                  format_commit_description_body(description.remove_prefix(description.first_line()).trim_end()),
                 label(if(empty, "empty"), description_placeholder)) ++ "\n"),
             "\n",
           )
@@ -453,6 +460,7 @@ in {
         '';
       };
       revset-aliases = {
+        "/" = "trunk()";
         "at" = "@";
         "AT" = "@";
 

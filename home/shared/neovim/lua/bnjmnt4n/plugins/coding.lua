@@ -1,3 +1,16 @@
+local function ft(key_specific_args)
+  require('leap').leap(vim.tbl_deep_extend('keep', key_specific_args, {
+    inputlen = 1,
+    inclusive = true,
+    opts = {
+      -- Force autojump.
+      labels = '',
+      -- Match the modes where you don't need labels (`:h mode()`).
+      safe_labels = vim.fn.mode(1):match 'o' and '' or nil,
+    },
+  }))
+end
+
 return {
   -- Sets shiftwidth and tabstop automatically
   'tpope/vim-sleuth',
@@ -5,13 +18,49 @@ return {
   -- Allow repeating of plugin keymaps
   'tpope/vim-repeat',
 
-  -- `s` motion
+  -- `s` motion and enhanced `f`/`t` motions
   {
     'https://codeberg.org/andyg/leap.nvim',
     lazy = false,
     keys = {
       { 's', '<Plug>(leap-forward)', mode = { 'n', 'x', 'o' }, desc = 'Leap forward' },
       { 'S', '<Plug>(leap-backward)', mode = { 'n', 'x', 'o' }, desc = 'Leap backward' },
+      {
+        'f',
+        function()
+          local clever = require('leap.user').with_traversal_keys
+          local clever_f = clever('f', 'F')
+          ft { opts = clever_f }
+        end,
+        mode = { 'n', 'x', 'o' },
+      },
+      {
+        'F',
+        function()
+          local clever = require('leap.user').with_traversal_keys
+          local clever_f = clever('f', 'F')
+          ft { backward = true, opts = clever_f }
+        end,
+        mode = { 'n', 'x', 'o' },
+      },
+      {
+        't',
+        function()
+          local clever = require('leap.user').with_traversal_keys
+          local clever_t = clever('t', 'T')
+          ft { offset = -1, opts = clever_t }
+        end,
+        mode = { 'n', 'x', 'o' },
+      },
+      {
+        'T',
+        function()
+          local clever = require('leap.user').with_traversal_keys
+          local clever_t = clever('t', 'T')
+          ft { backward = true, offset = 1, opts = clever_t }
+        end,
+        mode = { 'n', 'x', 'o' },
+      },
       -- TODO: conflicts with surround?
       { 'gs', '<Plug>(leap-from-window)', mode = { 'n' }, desc = 'Leap from window' },
       -- TODO: native leap tree-sitter?
@@ -23,22 +72,6 @@ return {
         mode = { 'n', 'x', 'o' },
         desc = 'Leap with treesitter',
       },
-    },
-  },
-
-  -- Enhanced `f`/`t` motions
-  -- TODO: remove deprecated package
-  {
-    'ggandor/flit.nvim',
-    keys = function()
-      local ret = {}
-      for _, key in ipairs { 'f', 'F', 't', 'T' } do
-        ret[#ret + 1] = { key, mode = { 'n', 'v' }, desc = key }
-      end
-      return ret
-    end,
-    opts = {
-      labeled_modes = 'nv',
     },
   },
 

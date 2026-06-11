@@ -15,7 +15,6 @@
     "css"
     "csv"
     "diff"
-    # "ecma"
     "dockerfile"
     "editorconfig"
     "fish"
@@ -81,23 +80,25 @@
   };
 in {
   home.activation.lazyNvimSetup = lib.hm.dag.entryAfter ["installPackages" "linkGeneration" "writeBoundary"] ''
-    CUSTOM_PATH="${lib.makeBinPath [config.programs.neovim.package pkgs.bash pkgs.coreutils pkgs.git pkgs.nix]}"
+    GIT_CMD=${pkgs.git}/bin/git
+    NIX_HASH_CMD=${pkgs.nix}/bin/nix-hash
+    NVIM_CMD=${config.programs.neovim.package}/bin/nvim
 
     LAZY_DIR=$HOME/.local/share/nvim/lazy/lazy.nvim
     if [ ! -d $LAZY_DIR/.git ]; then
       echo "Initializing lazy.nvim repository"
-      $DRY_RUN_CMD mkdir -p $LAZY_DIR
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR init
+      run mkdir -p $LAZY_DIR
+      run $GIT_CMD -C $LAZY_DIR init
     else
-      $VERBOSE_ECHO "lazy.nvim repository exists, skipping"
+      verboseEcho "lazy.nvim repository exists, skipping"
     fi
 
-    if [ $(git -C $LAZY_DIR rev-parse HEAD) != "${inputs.lazy-nvim.rev}" ]; then
+    if [ $($GIT_CMD -C $LAZY_DIR rev-parse HEAD) != "${inputs.lazy-nvim.rev}" ]; then
       echo "Updating lazy.nvim"
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR fetch --force --filter=blob:none https://github.com/folke/lazy.nvim.git
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD git -C $LAZY_DIR checkout ${inputs.lazy-nvim.rev}
+      run $GIT_CMD -C $LAZY_DIR fetch --force --filter=blob:none https://github.com/folke/lazy.nvim.git
+      run $GIT_CMD -C $LAZY_DIR checkout ${inputs.lazy-nvim.rev}
     else
-      $VERBOSE_ECHO "lazy.nvim is up to date, skipping"
+      verboseEcho "lazy.nvim is up to date, skipping"
     fi
 
     STATE_DIR=~/.local/state/nix/
@@ -106,7 +107,7 @@ in {
 
     if [ ! -f $LOCK_FILE ]; then
       echo "Copying initial lazy.nvim lockfile"
-      $DRY_RUN_CMD cat ${./lazy-lock.json} > $LOCK_FILE
+      run cat ${./lazy-lock.json} > $LOCK_FILE
     fi
 
     if [ ! -d $STATE_DIR ]; then
@@ -117,19 +118,18 @@ in {
       touch $STATE_FILE
     fi
 
-    HASH=$(PATH=$CUSTOM_PATH nix-hash --flat $LOCK_FILE)
+    HASH=$($NIX_HASH_CMD --flat $LOCK_FILE)
     if [ "$(cat $STATE_FILE)" != "$HASH" ]; then
       echo "Syncing neovim plugins"
-      PATH=$CUSTOM_PATH $DRY_RUN_CMD nvim --headless "+Lazy! restore" +qa
-      $DRY_RUN_CMD echo $HASH > $STATE_FILE
+      run $NVIM_CMD --headless "+Lazy! restore" +qa
+      run echo $HASH > $STATE_FILE
     else
-      $VERBOSE_ECHO "Neovim plugins already up to date, skipping"
+      verboseEcho "Neovim plugins already up to date, skipping"
     fi
   '';
 
   programs.neovim = {
     enable = true;
-    defaultEditor = true;
     withPython3 = false;
     withRuby = false;
     withNodeJs = false;

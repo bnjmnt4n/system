@@ -19,41 +19,30 @@
       autoUpdate = false;
       cleanup = "zap";
       upgrade = true;
+      extraFlags = ["--force-cleanup"];
     };
     global.brewfile = true;
-    brews = [
-      "comby" # pkgs.comby is currently broken on darwin
-    ];
     casks = [
-      "aldente"
       # "bitwarden"
       "calibre"
-      "cursor"
-      # "docker"
+      "docker"
       "dropbox"
       "figma"
       "firefox"
-      "ghostty"
       "google-chrome"
-      # "handbrake"
-      "imageoptim"
-      "knockknock"
       "lulu"
-      "monodraw"
       "mullvad-browser"
       "mullvad-vpn"
-      "obsidian"
       "oversight"
       # "safari-technology-preview"
-      "secretive"
       "spotify"
       # "tor-browser"
-      "transmission"
-      "vlc"
     ];
   };
 
   environment.systemPackages = with pkgs; [
+    ghostty-bin
+    obsidian
     syncthing-macos
   ];
 
@@ -85,10 +74,10 @@
         "/Applications/Google Chrome.app/"
         "/System/Cryptexes/App/System/Applications/Safari.app"
         {spacer = {small = true;};}
-        "/Applications/Ghostty.app/"
+        "/Applications/Nix Apps/Ghostty.app/"
         {spacer = {small = true;};}
         "/Applications/Spotify.app/"
-        "/Applications/Obsidian.app/"
+        "/Applications/Nix Apps/Obsidian.app/"
         "/System/Applications/Stickies.app/"
       ];
     };

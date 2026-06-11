@@ -164,11 +164,11 @@
 in {
   programs.firefox = {
     enable = true;
-    package =
+    package = with pkgs;
       if pkgs.stdenv.hostPlatform.isDarwin
       # Installed in `environment.systemPackages` for Darwin.
       then null
-      else pkgs.firefox;
+      else firefox;
 
     policies = lib.mkIf (!pkgs.stdenv.hostPlatform.isDarwin) {
       EnterprisePoliciesEnabled = true;

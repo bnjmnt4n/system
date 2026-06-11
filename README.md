@@ -44,7 +44,8 @@ $ ./result/activate
 
 MacOS:
 
-1. Install the [standalone variant of Tailscale](https://tailscale.com/kb/1065/macos-variants).
+1. Install [Homebrew](https://brew.sh/).
+2. Install the [standalone variant of Tailscale](https://tailscale.com/kb/1065/macos-variants).
 
 Windows:
 
@@ -55,7 +56,7 @@ Windows:
 I've gotten inspiration, and in some cases drawn liberally from the following places:
 
 - [@andywhite37's guide on dual-booting Windows and NixOS](https://github.com/andywhite37/nixos/blob/9a3c13be14d3de4104322bb09efbf74245acffbd/DUAL_BOOT_WINDOWS_GUIDE.md)
-- [@jethrokuan's][jethrokuan] [NixOS configuration](https://github.com/jethrokuan/nix-config) and [dotfiles](https://github.com/jethrokuan/dots)
+- @jethrokuan's [NixOS configuration](https://github.com/jethrokuan/nix-config) and [dotfiles](https://github.com/jethrokuan/dots)
 - [@mathiasbynens's dotfiles](https://github.com/mathiasbynens/dotfiles)
 - [@k-vernooy's dotfiles](https://github.com/k-vernooy/dotfiles)
 - [@bqv's NixOS configuration](https://github.com/bqv/nixrc)

@@ -3,7 +3,9 @@
   pkgs,
   ...
 }: {
-  home.packages = [pkgs.rectangle];
+  home.packages = with pkgs; [
+    rectangle
+  ];
 
   launchd.agents.rectangle = {
     enable = true;

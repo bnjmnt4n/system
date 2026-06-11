@@ -18,16 +18,16 @@
         else ""
       }
     '';
-    interactiveShellInit = ''
-      ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-    '';
   };
 
   # Bash shell.
   programs.bash.enable = true;
 
-  # # Nushell.
-  # programs.nushell.enable = true;
+  # Use nix commands with any shell.
+  programs.nix-your-shell = {
+    enable = true;
+    nix-output-monitor.enable = true;
+  };
 
   # Switch environments easily.
   programs.direnv = {
@@ -66,7 +66,5 @@
   };
 
   # Directory switcher.
-  programs.zoxide = {
-    enable = true;
-  };
+  programs.zoxide.enable = true;
 }

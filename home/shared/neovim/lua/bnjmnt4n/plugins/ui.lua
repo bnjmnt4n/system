@@ -5,7 +5,10 @@ return {
     dir = vim.g.modus_themes_path,
     priority = 1000,
     opts = {
-      variant = 'tinted',
+      variants = {
+        modus_operandi = 'tinted',
+        modus_vivendi = 'tinted',
+      },
       styles = {
         comments = { italic = false },
       },

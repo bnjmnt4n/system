@@ -8,34 +8,32 @@
 in {
   imports = [
     # Mac apps
-    ../../home/darwin/karabiner-elements
-    ../../home/darwin/rectangle.nix
+    ../../home/darwin/aldente.nix
     ../../home/darwin/cleanshot.nix
     ../../home/darwin/clop.nix
+    ../../home/darwin/karabiner-elements
+    ../../home/darwin/knockknock.nix
+    ../../home/darwin/rectangle.nix
     ../../home/darwin/secretive.nix
+    ../../home/darwin/transmission.nix
+    ../../home/darwin/tuna-launcher.nix
+    ../../home/darwin/vlc.nix
+
+    ../../home/shared/firefox.nix
+    ../../home/shared/ghostty.nix
+    ../../home/shared/helix.nix
+    # ../../home/shared/zed-editor.nix
 
     ../../home/shared/base.nix
-
-    ../../home/shared/shell.nix
-    ../../home/shared/atuin.nix
-    ../../home/shared/bat.nix
-    ../../home/shared/firefox.nix
-    ../../home/shared/git.nix
-    ../../home/shared/ghostty.nix
-    ../../home/shared/gpg.nix
-    ../../home/shared/helix.nix
-    ../../home/shared/neovim
-    ../../home/shared/jujutsu.nix
-    ../../home/shared/tmux.nix
-    # ../../home/shared/zed-editor.nix
   ];
 
+  # Mac apps
   home.packages = with pkgs; [
-    ffmpeg
+    caffeine
+    imageoptim
     jetbrains.idea
-    restic
-    # https://github.com/NixOS/nixpkgs/issues/493261
-    yt-dlp
+    monodraw
+    net-news-wire
   ];
 
   # Disable login message.
@@ -44,6 +42,7 @@ in {
   age.identityPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
   age.secrets.restic-repositories.file = ../../secrets/restic-repositories.age;
 
+  programs.neovim.defaultEditor = true;
   home.sessionVariables = {
     MANPAGER = "nvim +Man!";
   };
@@ -53,7 +52,7 @@ in {
 
   # Setup Dock.
   home.activation.setupMacosDock = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    $DRY_RUN_CMD defaults write com.apple.dock persistent-others -array ${
+    run /usr/bin/defaults write com.apple.dock persistent-others -array ${
       lib.strings.concatStringsSep " " (map createDirTile [
         {
           path = "/Applications/";
@@ -65,19 +64,19 @@ in {
         {
           path = "${config.home.homeDirectory}/Documents/";
           fileType = 2;
-          arrangement = 2;
+          arrangement = 3; # date-modified
           displayAs = 0;
           showAs = 1;
         }
         {
           path = "${config.home.homeDirectory}/Downloads/";
           fileType = 2;
-          arrangement = 2;
+          arrangement = 3; # date-modified
           displayAs = 0;
           showAs = 1;
         }
       ])
     }
-    $DRY_RUN_CMD killall Dock
+    run /usr/bin/killall Dock
   '';
 }

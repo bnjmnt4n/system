@@ -1,23 +1,20 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{pkgs, ...}: {
   imports = [
+    ./shell.nix
+    ./atuin.nix
+    ./bat.nix
     ./dig.nix
+    ./git.nix
+    ./gpg.nix
+    ./jujutsu.nix
+    ./neovim
+    ./nix.nix
     ./ssh.nix
+    ./tmux.nix
   ];
 
-  targets.darwin = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-    linkApps.enable = false;
-    copyApps.enable = true;
-  };
+  programs.man.generateCaches = !pkgs.stdenv.hostPlatform.isDarwin;
 
-  xdg.configFile."nixpkgs/config.nix".text = ''
-    { allowUnfree = true; }
-  '';
-
-  programs.nix-index.enable = true;
   programs.ripgrep = {
     enable = true;
     arguments = [
@@ -25,15 +22,18 @@
       "--smart-case"
     ];
   };
+
   programs.fd = {
     enable = true;
     ignores = [".jj/" ".DS_Store"];
   };
+
   programs.fzf.enable = true;
+
   programs.delta = {
     enable = true;
     options = {
-      syntax-theme = "GitHub";
+      syntax-theme = "modus_operandi_tinted";
     };
     enableGitIntegration = true;
   };
@@ -45,49 +45,21 @@
     age
     aspell
     aspellDicts.en
+    btop
     curl
     detect
+    dust
     dos2unix
     eza
     fdupes
     file
     htop
-    hyperfine
-    jq
+    jless
     less
     rsync
-    samply
     tree
     wget
     xdg-utils
-
-    # Diff/merge tools
-    mergiraf
-
-    # Code tools
-    ast-grep
-    codespell
-    # comby
-    git-pkgs
-    git-sizer
-    git-who
-    kondo
-    tokei
-    scripts.cloneRepo
-    scripts.gitRangeDiffMarkdown
-
-    # Rust tools
-    cargo-sweep
-
-    # GitHub Actions tools
-    pinact
-    zizmor
-
-    # Nix tools
-    nixd
-    alejandra
-    scripts.nixFlakeInit
-    scripts.nixFlakeSync
 
     # Archiving
     zip
@@ -95,9 +67,44 @@
     unrar-wrapper
     # xz
 
+    # Backup
+    restic
+
+    # Video
+    ffmpeg
+    yt-dlp
+
+    # Benchmarking/Performance
+    hyperfine
+    samply
+
+    # Database
+    duckdb
+
+    # Code
+    ast-grep
+    codespell
+    git-pkgs
+    git-sizer
+    git-who
+    jq
+    kondo
+    mergiraf
+    tokei
+    tuicr
+    scripts.cloneRepo
+    scripts.gitRangeDiffMarkdown
+
     # Default language servers
-    nodePackages.vscode-langservers-extracted
+    vscode-langservers-extracted
     yaml-language-server
+
+    # GitHub Actions
+    pinact
+    zizmor
+
+    # Rust
+    cargo-sweep
   ];
 
   home.sessionVariables = {

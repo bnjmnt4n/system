@@ -1,16 +1,14 @@
-inputs: final: prev: let
-  nixpkgs-stable = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
-in {
+inputs: final: prev: {
   scripts = import ./scripts.nix {
     pkgs = final;
     inherit inputs;
   };
-  inherit nixpkgs-stable;
 
   modus-themes = inputs.modus-themes;
+  tuicr = inputs.tuicr.packages.${prev.stdenv.hostPlatform.system}.default;
 
   # Avoid running tests since they take a long time.
-  jujutsu = prev.jujutsu.overrideAttrs (old: {
+  jujutsu = prev.jujutsu.overrideAttrs (_: {
     doCheck = false;
   });
 
@@ -31,10 +29,8 @@ in {
 
   clop = prev.callPackage ./clop.nix {};
   cleanshot = prev.callPackage ./cleanshot.nix {};
-
-  # Add access to x86 packages if system is running Apple Silicon.
-  pkgs-x86 = prev.lib.mkIf (prev.stdenv.hostPlatform.system == "aarch64-darwin") import inputs.nixpkgs {
-    system = "x86_64-darwin";
-    config.allowUnfree = true;
-  };
+  imageoptim = prev.callPackage ./imageoptim.nix {};
+  knockknock = prev.callPackage ./knockknock.nix {};
+  transmission-bin = prev.callPackage ./transmission-bin.nix {};
+  tuna-launcher = prev.callPackage ./tuna-launcher.nix {};
 }

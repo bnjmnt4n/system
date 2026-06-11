@@ -3,7 +3,9 @@
   pkgs,
   ...
 }: {
-  home.packages = [pkgs.clop];
+  home.packages = with pkgs; [
+    clop
+  ];
 
   launchd.agents.clop = {
     enable = true;

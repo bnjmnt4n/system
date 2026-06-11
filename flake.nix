@@ -3,9 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
+      url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
@@ -16,12 +15,14 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nur.url = "github:nix-community/NUR";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     lazy-nvim = {
       url = "github:folke/lazy.nvim/stable";
       flake = false;
@@ -34,6 +35,10 @@
       url = "github:nvim-telescope/telescope-fzf-native.nvim";
       flake = false;
     };
+    tuicr = {
+      url = "github:agavra/tuicr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     jujutsu.url = "github:jj-vcs/jj";
   };
 
@@ -41,7 +46,7 @@
     lib = import ./lib.nix inputs;
     forEach = list: f: builtins.foldl' (acc: item: nixpkgs.lib.recursiveUpdate acc (f item)) {} list;
     systems = ["aarch64-darwin" "aarch64-linux" "x86_64-linux"];
-    templates = ["default" "go" "mariadb" "postgresql" "python" "web"];
+    templates = ["default" "go" "postgresql" "python" "web"];
   in
     lib.makeHostsConfigurations {
       veracity = {

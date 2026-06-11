@@ -25,6 +25,7 @@ stdenvNoCC.mkDerivation rec {
   meta = {
     description = "Screen capturing tool";
     homepage = "https://cleanshot.com/";
+    license = lib.licenses.unfree;
     platforms = lib.platforms.darwin;
   };
 }

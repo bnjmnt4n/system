@@ -3,7 +3,9 @@
   pkgs,
   ...
 }: {
-  home.packages = [pkgs.cleanshot];
+  home.packages = with pkgs; [
+    cleanshot
+  ];
 
   launchd.agents.cleanshot = {
     enable = true;

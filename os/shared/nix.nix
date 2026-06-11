@@ -22,11 +22,11 @@
       keep-outputs = true;
       keep-derivations = true;
       experimental-features = ["nix-command" "flakes"];
-      trusted-users = ["root" "@wheel"];
+      trusted-users = ["root" "@wheel" "@admin"];
 
       extra-platforms =
         lib.mkIf pkgs.stdenv.hostPlatform.isDarwin
-        ["x86_64-darwin" "aarch64-darwin"];
+        ["aarch64-darwin"];
 
       # Binary caches.
       substituters = [

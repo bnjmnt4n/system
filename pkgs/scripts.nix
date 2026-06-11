@@ -2,33 +2,22 @@
   pkgs,
   inputs ? {},
 }: {
-  # Copied from https://github.com/terlar/nix-config/blob/570134ba7007f68e058855e0d6a1677a9dc3fa27/lib/scripts.nix
   switchNixos = pkgs.writeShellScriptBin "swn" ''
     set -euo pipefail
     platform=$(uname)
-    if [ "$platform" == "Darwin" ]; then
-      sudo darwin-rebuild switch --flake . $@
+    if [ $platform == "Darwin" ]; then
+      nh darwin switch . $@
     else
-      sudo nixos-rebuild switch --flake . $@
+      nh os switch . $@
     fi
   '';
 
   switchHome = pkgs.writeShellScriptBin "swh" ''
     set -euo pipefail
-    export PATH=${with pkgs; lib.makeBinPath [coreutils gitMinimal jq nix]}
-    usr="''${1:-$USER}"
+    usr=$(whoami)
     hst=$(uname -n)
-    attr="''${usr}@''${hst}"
-    1>&2 echo "Switching Home Manager configuration for $usr on $hst"
-    attrExists="$(nix eval --json .#homeConfigurations --apply 'x: (builtins.any (n: n == "'$attr'") (builtins.attrNames x))' 2>/dev/null)"
-    if [ "$attrExists" != "true" ]; then
-      1>&2 echo "No configuration found, aborting..."
-      exit 1
-    fi
-    1>&2 echo "Building configuration..."
-    out="$(nix build --json ".#homeConfigurations.$attr.activationPackage" | jq -r .[].outputs.out)"
-    1>&2 echo "Activating configuration..."
-    "$out"/activate
+    configuration="$usr@$hst"
+    nh home switch . --configuration $configuration $@
   '';
 
   nixFlakeInit = pkgs.writeShellScriptBin "nix-flake-init" ''
