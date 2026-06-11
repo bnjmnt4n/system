@@ -71,6 +71,8 @@
             scripts.switchHome
             scripts.switchNixos
             agenix
+            go
+            gopls
             stylua
             lua-language-server
           ];

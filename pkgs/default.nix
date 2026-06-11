@@ -27,6 +27,8 @@ inputs: final: prev: {
     src = inputs.telescope-fzf-native;
   };
 
+  month-table = prev.callPackage ./month-table {};
+
   clop = prev.callPackage ./clop.nix {};
   cleanshot = prev.callPackage ./cleanshot.nix {};
   imageoptim = prev.callPackage ./imageoptim.nix {};

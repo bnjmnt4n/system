@@ -105,6 +105,9 @@
 
     # Rust
     cargo-sweep
+
+    # Others
+    month-table
   ];
 
   home.sessionVariables = {
