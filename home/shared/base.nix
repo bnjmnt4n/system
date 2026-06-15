@@ -8,7 +8,7 @@
     ./gpg.nix
     ./jujutsu.nix
     ./neovim
-    ./nix.nix
+    ./nix
     ./ssh.nix
     ./tmux.nix
   ];

@@ -1,7 +1,5 @@
 {pkgs, ...}: {
-  xdg.configFile."nixpkgs/config.nix".text = ''
-    { allowUnfree = true; }
-  '';
+  xdg.configFile."nixpkgs/config.nix".source = ./nixpkgs-config.nix;
 
   programs.home-manager.enable = true;
 

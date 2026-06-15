@@ -51,8 +51,14 @@
     lib.makeHostsConfigurations {
       veracity = {
         system = "aarch64-darwin";
-        users = ["bnjmnt4n"];
+        users = {
+          "bnjmnt4n" = [];
+        };
+        primaryUser = "bnjmnt4n";
       };
+    }
+    // {
+      inherit lib;
     }
     // forEach templates (name: {
       templates.${name} = {

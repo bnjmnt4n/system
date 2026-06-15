@@ -21,7 +21,7 @@ in rec {
   makePkgs = system:
     import nixpkgs {
       inherit system overlays;
-      config.allowUnfree = true;
+      config = import ./home/shared/nix/nixpkgs-config.nix;
     };
 
   makeHostsConfigurations = hosts:
@@ -37,6 +37,7 @@ in rec {
           darwinConfigurations.${hostname} = makeDarwinConfiguration {
             inherit pkgs hostname users;
             modules = hosts.${hostname}.darwinModules or [];
+            primaryUser = hosts.${hostname}.primaryUser;
           };
         }
         else {
@@ -51,10 +52,11 @@ in rec {
           nixpkgs.lib.recursiveUpdate attrs {
             homeConfigurations."${username}@${hostname}" = makeHomeManagerConfiguration {
               inherit pkgs hostname username;
+              modules = users.${username};
             };
           })
         {}
-        users)
+        (builtins.attrNames users))
     ]))
     {}
     (builtins.attrNames hosts);
@@ -67,8 +69,7 @@ in rec {
   }:
     nixpkgs.lib.nixosSystem {
       modules =
-        modules
-        ++ [
+        [
           inputs.home-manager.nixosModules.home-manager
           inputs.agenix.nixosModules.age
           inputs.nix-index-database.nixosModules.nix-index
@@ -88,23 +89,27 @@ in rec {
           }
           (./hosts + "/${hostname}/configuration.nix")
           (nixpkgs.lib.foldl'
-            (attrs: user:
+            (attrs: username:
               nixpkgs.lib.recursiveUpdate attrs {
-                home-manager.users.${user} = args: {
-                  imports = [
-                    (./hosts + "/${hostname}/${user}.nix")
-                  ];
+                home-manager.users.${username} = args: {
+                  imports =
+                    [
+                      inputs.agenix.homeManagerModules.default
+                      (./hosts + "/${hostname}/${username}.nix")
+                    ]
+                    ++ users.${username};
 
                   home = {
-                    username = user;
-                    homeDirectory = "/home/${user}";
+                    inherit username;
+                    homeDirectory = "/home/${username}";
                     stateVersion = homeStateVersion;
                   };
                 };
               })
             {}
-            users)
-        ];
+            (builtins.attrNames users))
+        ]
+        ++ modules;
     };
 
   makeDarwinConfiguration = {
@@ -112,12 +117,12 @@ in rec {
     hostname,
     modules ? [],
     users,
+    primaryUser,
   }:
     nix-darwin.lib.darwinSystem {
       specialArgs = {inherit inputs;};
       modules =
-        modules
-        ++ [
+        [
           home-manager.darwinModules.home-manager
           inputs.nix-index-database.darwinModules.nix-index
           {
@@ -133,63 +138,69 @@ in rec {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             networking.hostName = hostname;
-            system.primaryUser = builtins.elemAt users 0;
+            system.primaryUser = primaryUser;
           }
           (./hosts + "/${hostname}/configuration.nix")
           (nixpkgs.lib.foldl'
-            (attrs: user:
+            (attrs: username:
               nixpkgs.lib.recursiveUpdate attrs {
-                users.users.${user} = {
-                  home = "/Users/${user}";
+                users.users.${username} = {
+                  home = "/Users/${username}";
                   shell = "/run/current-system/sw/bin/fish";
                 };
-                home-manager.users.${user} = args: {
-                  imports = [
-                    (./hosts + "/${hostname}/${user}.nix")
-                    inputs.agenix.homeManagerModules.default
-                  ];
+                home-manager.users.${username} = args: {
+                  imports =
+                    [
+                      inputs.agenix.homeManagerModules.default
+                      (./hosts + "/${hostname}/${username}.nix")
+                    ]
+                    ++ users.${username};
 
                   home = {
-                    username = user;
-                    homeDirectory = "/Users/${user}";
+                    inherit username;
+                    homeDirectory = "/Users/${username}";
                     stateVersion = homeStateVersion;
                   };
                 };
               })
             {}
-            users)
-        ];
+            (builtins.attrNames users))
+        ]
+        ++ modules;
     };
 
   makeHomeManagerConfiguration = {
     pkgs,
     hostname,
     username,
+    modules ? [],
   }:
     home-manager.lib.homeManagerConfiguration {
       inherit pkgs;
       extraSpecialArgs = {inherit inputs;};
-      modules = [
-        inputs.nix-index-database.homeModules.nix-index
-        inputs.agenix.homeManagerModules.default
-        {
-          nixpkgs = {
-            inherit overlays;
-            config.allowUnfree = true;
-          };
-          nix.registry.nixpkgs.flake = nixpkgs;
-          nix.registry.my.flake = self;
-          home = {
-            inherit username;
-            homeDirectory =
-              if pkgs.stdenv.hostPlatform.isDarwin
-              then "/Users/${username}"
-              else "/home/${username}";
-            stateVersion = homeStateVersion;
-          };
-          programs.home-manager.enable = true;
-        }
-        (./hosts + "/${hostname}/${username}.nix")
-      ];
+      modules =
+        [
+          inputs.nix-index-database.homeModules.nix-index
+          inputs.agenix.homeManagerModules.default
+          {
+            nixpkgs = {
+              inherit overlays;
+              config = import ./home/shared/nix/nixpkgs-config.nix;
+            };
+            nix.registry.nixpkgs.flake = nixpkgs;
+            nix.registry.my.flake = self;
+            home = {
+              inherit username;
+              homeDirectory =
+                if pkgs.stdenv.hostPlatform.isDarwin
+                then "/Users/${username}"
+                else "/home/${username}";
+              stateVersion = homeStateVersion;
+            };
+            programs.home-manager.enable = true;
+          }
+          (./hosts + "/${hostname}/${username}.nix")
+        ]
+        ++ modules;
     };
 }
