@@ -22,7 +22,6 @@ in {
     ../../home/shared/firefox.nix
     ../../home/shared/ghostty.nix
     ../../home/shared/helix.nix
-    # ../../home/shared/zed-editor.nix
 
     ../../home/shared/base.nix
   ];

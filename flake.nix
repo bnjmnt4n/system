@@ -65,7 +65,7 @@
         pkgs = lib.makePkgs system;
       in {
         # Custom version of nixpkgs with overlays.
-        # packages.${system}.nixpkgs = pkgs;
+        packages.${system}.nixpkgs = pkgs;
         devShells.${system}.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             scripts.switchHome
