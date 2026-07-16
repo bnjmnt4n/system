@@ -6,11 +6,11 @@
 }:
 stdenvNoCC.mkDerivation rec {
   pname = "Tuna";
-  version = "0.75";
+  version = "0.78";
 
   src = fetchurl {
-    url = "https://tunaformac.com/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MjE4LCJwdXIiOiJibG9iX2lkIn19--5b02bc933dcb6b02d012f986a4a9f05f7171a0b0/Tuna-0.76-1488.zip";
-    sha256 = "sha256-ZnBm7oYehrdXj0vjFY3Jz2Zcw7wAcUaou4/gcpPrdFQ=";
+    url = "https://tunaformac.com/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MjI0LCJwdXIiOiJibG9iX2lkIn19--99b6e9db4b1fd8d74a1b134705fe6adfa11f4e95/Tuna-0.78-1563.zip";
+    sha256 = "sha256-+zeDaNNPbUGb+QhyeDHbtaaKSXiQ2FfIf1tpJDL8CXA=";
   };
 
   nativeBuildInputs = [unzip];

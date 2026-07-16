@@ -19,13 +19,12 @@
       autoUpdate = false;
       cleanup = "zap";
       upgrade = true;
-      extraFlags = ["--force-cleanup"];
     };
     global.brewfile = true;
     casks = [
       # "bitwarden"
       "calibre"
-      "docker"
+      # "docker"
       "dropbox"
       "figma"
       "firefox"

@@ -64,7 +64,7 @@
     # Archiving
     zip
     unzip
-    unrar-wrapper
+    # unrar-wrapper
     # xz
 
     # Backup

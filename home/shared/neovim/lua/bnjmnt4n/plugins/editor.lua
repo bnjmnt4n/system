@@ -104,20 +104,11 @@ return {
         c = {},
         cpp = {},
         lua = { 'stylua' },
-        -- TODO: LSP FIRST?
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
-        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-        typescript = { 'prettierd', 'prettier', stop_after_first = true },
-        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
       },
       format_on_save = function(bufnr)
         local extra_lang_args = {
-          c = { lsp_fallback = 'always', name = 'clangd' },
-          cpp = { lsp_fallback = 'always', name = 'clangd' },
-          javascript = { lsp_fallback = 'always', name = 'eslint' },
-          typescript = { lsp_fallback = 'always', name = 'eslint' },
-          javascriptreact = { lsp_fallback = 'always', name = 'eslint' },
-          typescriptreact = { lsp_fallback = 'always', name = 'eslint' },
+          c = { lsp_format = 'fallback', name = 'clangd' },
+          cpp = { lsp_fallback = 'fallback', name = 'clangd' },
         }
 
         -- Disable with a global or buffer-local variable
@@ -127,7 +118,7 @@ return {
 
         local default_args = {
           timeout_ms = 500,
-          lsp_fallback = true,
+          lsp_format = 'fallback',
         }
         local extra_args = extra_lang_args[vim.bo[bufnr].filetype] or {}
         return vim.tbl_deep_extend('force', default_args, extra_args)

@@ -10,4 +10,6 @@
       sync.records = true;
     };
   };
+
+  programs.fzf.historyWidget.command = "";
 }

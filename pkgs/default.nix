@@ -1,11 +1,10 @@
 inputs: final: prev: {
   scripts = import ./scripts.nix {
-    pkgs = prev;
+    pkgs = final;
     inherit inputs;
   };
 
   modus-themes = inputs.modus-themes;
-  tuicr = inputs.tuicr.packages.${prev.stdenv.hostPlatform.system}.default;
 
   # Avoid running tests since they take a long time.
   jujutsu = prev.jujutsu.overrideAttrs (_: {
