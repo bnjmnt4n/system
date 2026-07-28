@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    transmission-bin
+    transmission_4-mac
   ];
 
   targets.darwin.defaults."org.m0k.transmission" = {

@@ -32,6 +32,4 @@ inputs: final: prev: {
   cleanshot = prev.callPackage ./cleanshot.nix {};
   imageoptim = prev.callPackage ./imageoptim.nix {};
   knockknock = prev.callPackage ./knockknock.nix {};
-  transmission-bin = prev.callPackage ./transmission-bin.nix {};
-  tuna-launcher = prev.callPackage ./tuna-launcher.nix {};
 }

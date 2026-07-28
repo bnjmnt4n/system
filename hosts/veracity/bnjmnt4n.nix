@@ -11,12 +11,12 @@ in {
     ../../home/darwin/aldente.nix
     ../../home/darwin/cleanshot.nix
     ../../home/darwin/clop.nix
+    ../../home/darwin/handy.nix
     ../../home/darwin/karabiner-elements
     ../../home/darwin/knockknock.nix
     ../../home/darwin/rectangle.nix
     ../../home/darwin/secretive.nix
     ../../home/darwin/transmission.nix
-    ../../home/darwin/tuna-launcher.nix
     ../../home/darwin/vlc.nix
 
     ../../home/shared/firefox.nix

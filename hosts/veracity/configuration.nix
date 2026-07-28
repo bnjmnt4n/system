@@ -24,7 +24,7 @@
     casks = [
       # "bitwarden"
       "calibre"
-      # "docker"
+      "docker"
       "dropbox"
       "figma"
       "firefox"
