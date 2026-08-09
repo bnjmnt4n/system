@@ -10,6 +10,9 @@ inputs: final: prev: {
   jujutsu = prev.jujutsu.overrideAttrs (_: {
     doCheck = false;
   });
+  mergiraf = prev.mergiraf.overrideAttrs (_: {
+    doCheck = false;
+  });
 
   # Karabiner Elements 15.0 is not supported yet in nix-darwin.
   # https://github.com/LnL7/nix-darwin/issues/1041
