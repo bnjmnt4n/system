@@ -13,7 +13,6 @@
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = with pkgs; [
           nodejs
-          prettierd
           vscode-langservers-extracted
           tailwindcss-language-server
         ];

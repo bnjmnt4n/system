@@ -636,8 +636,8 @@ in {
           command = ["rustfmt" "--emit" "stdout" "--edition" "2024"];
           patterns = ["glob:'**/*.rs'"];
         };
-        prettier = {
-          command = ["npx" "prettier" "--stdin-filepath=$path"];
+        oxfmt = {
+          command = ["oxfmt" "--stdin-filepath=$path"];
           patterns = ["glob:'**/*.tsx'" "glob:'**/*.ts'" "glob:'**/*.jsx'" "glob:'**/*.js'" "glob:'**/*.css'" "glob:'**/*.html'"];
         };
       };

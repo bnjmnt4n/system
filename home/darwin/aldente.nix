@@ -23,7 +23,7 @@
     SUAutomaticallyUpdate = false;
     SUEnableAutomaticChecks = false;
 
-    chargeVal = 78;
+    chargeVal = 80;
     checkForUpdates = 0;
     exitInhibitCharge = true;
     heatProtectMode = true;

@@ -95,18 +95,7 @@ return {
         oxlint = {},
         pyright = {},
         tailwindcss = {},
-        tsgo = {
-          cmd = function(dispatchers, config)
-            local cmd = 'tsc'
-            if (config or {}).root_dir then
-              local local_cmd = vim.fs.joinpath(config.root_dir, 'node_modules/.bin', cmd)
-              if vim.fn.executable(local_cmd) == 1 then
-                cmd = local_cmd
-              end
-            end
-            return vim.lsp.rpc.start({ cmd, '--lsp', '--stdio' }, dispatchers)
-          end,
-        },
+        tsc = {},
         yamlls = {
           settings = {
             yaml = {
@@ -126,22 +115,7 @@ return {
             vim.list_extend(config.settings.yaml.schemas, require('schemastore').yaml.schemas())
           end,
         },
-        zizmor = {
-          cmd = { 'zizmor', '--lsp' },
-          filetypes = { 'yaml' },
-          root_markers = { '.github' },
-          capabilities = {
-            textDocument = {
-              didOpen = { dynamicRegistration = true },
-              didChange = { dynamicRegistration = true },
-              didSave = { dynamicRegistration = true },
-              didClose = { dynamicRegistration = true },
-            },
-            workspace = {
-              didChangeConfiguration = { dynamicRegistration = true },
-            },
-          },
-        },
+        zizmor = {},
         zls = {},
       }
 
