@@ -47,7 +47,6 @@ in {
         behavior = "drop";
         backends.ssh.allowed-signers = "${config.xdg.configHome}/git/allowedsigners";
       };
-      git.sign-on-push = true;
       hints.resolving-conflicts = false;
       templates = {
         log = "log_compact";
@@ -219,8 +218,8 @@ in {
           if(ref.conflict(),
             separate("\n",
               " " ++ label("conflict", "(conflicted)") ++ ":",
-              ref.removed_targets().map(|c| "  - " ++ format_commit_summary(c)).join("\n"),
-              ref.added_targets().map(|c| "  + " ++ format_commit_summary(c)).join("\n"),
+              ref.removed_targets().map(|c| "  - " ++ if(c, format_commit_summary(c), "(absent)")).join("\n"),
+              ref.added_targets().map(|c| "  + " ++ if(c, format_commit_summary(c), "(absent)")).join("\n"),
             ),
             ": " ++ format_commit_summary(ref.normal_target()),
           )
@@ -500,6 +499,7 @@ in {
         fix = "unarchived(tree(@))";
         simplify-parents = "unarchived(tree(@))";
         short-prefixes = "~ ::trunk()";
+        git-sign-on-push = "~signed()";
       };
       aliases = {
         add-parent = [
@@ -578,6 +578,7 @@ in {
         loneline = ["log" "-T" "log_oneline"];
         lp = ["log" "-T" "log_tool" "--patch"];
         lpatch = ["log" "-T" "log_tool" "--patch"];
+        lstat = ["log" "-T" "log_tool" "--stat"];
         lsummary = ["log" "-T" "log_tool" "--summary"];
         ltool = ["log" "-T" "log_tool"];
         ldependencies = ["log" "-T" "log_tool" "--tool" "git-pkgs" "dependency_files()"];

@@ -10,7 +10,6 @@
     ./neovim
     ./nix
     ./ssh.nix
-    ./tmux.nix
   ];
 
   programs.man.generateCaches = !pkgs.stdenv.hostPlatform.isDarwin;

@@ -11,7 +11,7 @@ in {
     ../../home/darwin/aldente.nix
     ../../home/darwin/cleanshot.nix
     ../../home/darwin/clop.nix
-    ../../home/darwin/handy.nix
+    # ../../home/darwin/handy.nix
     ../../home/darwin/karabiner-elements
     ../../home/darwin/knockknock.nix
     ../../home/darwin/rectangle.nix

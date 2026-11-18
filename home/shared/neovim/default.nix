@@ -156,6 +156,7 @@ in {
   xdg.configFile."nvim/queries".source = "${pkgs.vimPlugins.nvim-treesitter.src}/runtime/queries";
 
   xdg.configFile."nvim/after".source = ./after;
+  xdg.configFile."nvim/compiler".source = ./compiler;
   xdg.configFile."nvim/lua".source = ./lua;
   xdg.configFile."nvim/filetype.lua".source = ./filetype.lua;
 

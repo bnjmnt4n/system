@@ -38,6 +38,9 @@
       # "tor-browser"
     ];
   };
+  environment.sessionVariables = {
+    HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS = "1";
+  };
 
   environment.systemPackages = with pkgs; [
     ghostty-bin

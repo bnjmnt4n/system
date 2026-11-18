@@ -192,7 +192,6 @@ in {
       anonymous = {
         id = 1;
         extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
-          ahrefs-seo-toolbar
           temporary-containers
           react-devtools
           ublock-origin

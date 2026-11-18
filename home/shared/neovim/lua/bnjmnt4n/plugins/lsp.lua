@@ -32,7 +32,6 @@ return {
         astro = {},
         clangd = {},
         cssls = {},
-        eslint = {},
         gopls = {
           settings = {
             hints = {
@@ -95,7 +94,13 @@ return {
         oxlint = {},
         pyright = {},
         tailwindcss = {},
-        tsc = {},
+        tsc = {
+          -- Use oxfmt for formatting instead.
+          on_init = function(client)
+            client.server_capabilities.documentFormattingProvider = false
+            client.server_capabilities.documentRangeFormattingProvider = false
+          end,
+        },
         yamlls = {
           settings = {
             yaml = {
