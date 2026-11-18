@@ -38,7 +38,7 @@
       # "tor-browser"
     ];
   };
-  environment.sessionVariables = {
+  environment.variables = {
     HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS = "1";
   };
 
